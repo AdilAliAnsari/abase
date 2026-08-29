@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { colors } from '../theme/colors';
 
 interface SectionHeaderProps {
@@ -9,11 +9,18 @@ interface SectionHeaderProps {
   accentColor?: string;
 }
 
-const SectionHeader: React.FC<SectionHeaderProps> = ({ title, subtitle, onSeeAll, accentColor = colors.accent.orange }) => {
+const SectionHeader: React.FC<SectionHeaderProps> = ({ title, subtitle, onSeeAll }) => {
+  const titleColor = Platform.OS === 'web' ? 'transparent' : 'rgb(0, 183, 255)';
+
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
-        <Text style={[styles.title, { color: accentColor }]}>{title}</Text>
+        <Text
+          {...({ className: 'section-header-title' } as any)}
+          style={[styles.title, { color: titleColor }]}
+        >
+          {title}
+        </Text>
         {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
       </View>
       {onSeeAll && (
@@ -21,6 +28,20 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({ title, subtitle, onSeeAll
           <Text style={styles.seeAllText}>See All</Text>
           <Text style={styles.seeAllArrow}>→</Text>
         </TouchableOpacity>
+      )}
+      {Platform.OS === 'web' && (
+        <style>{`
+          .section-header-title {
+            background-image: radial-gradient(at 49% 30%, hsla(240, 15%, 9%, 1) 0px, transparent 85%),
+                              radial-gradient(at 14% 26%, hsla(240, 15%, 9%, 1) 0px, transparent 85%),
+                              radial-gradient(at 0% 64%, hsl(189, 99%, 26%) 0px, transparent 85%),
+                              radial-gradient(at 41% 94%, hsl(189, 97%, 36%) 0px, transparent 85%),
+                              radial-gradient(at 100% 99%, hsl(188, 94%, 13%) 0px, transparent 85%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent !important;
+          }
+        `}</style>
       )}
     </View>
   );
