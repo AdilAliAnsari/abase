@@ -17,7 +17,7 @@ export interface Book {
 }
 
 export const categories = [
-  'All', 'Fiction', 'Non-Fiction', 'Sci-Fi', 
+  'All', 'Fiction', 'Non-Fiction', 'Sci-Fi',
   'Business', 'Self-Help', 'Design', 'Technology'
 ];
 
@@ -152,8 +152,25 @@ export const books: Book[] = [
     badge: 'BESTSELLER',
     accent: 'teal',
   },
+  {
+    id: '9',
+    title: 'C++: The Complete Reference',
+    author: 'Bjarne Stroustrup',
+    price: 30.13,
+    originalPrice: 56.99,
+    rating: 4.8,
+    reviews: 18765,
+    coverImage: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop',
+    category: 'Technology',
+    description: 'The Definitive Guide.',
+    pages: 1300,
+    publisher: 'Pearson',
+    language: 'English',
+    badge: 'NEW',
+    accent: 'orange',
+  },
 ];
 
 export const featuredBooks = books.slice(0, 3);
 export const newArrivals = books.filter(b => b.badge === 'NEW');
-export const bestsellers = books.filter(b => b.badge === 'BESTSELLER');
+export const bestsellers = books.filter(b => b.badge === 'BESTSELLER'); 

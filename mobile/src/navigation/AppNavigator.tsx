@@ -26,7 +26,7 @@ function PlaceholderScreen({ name }: { name: string }) {
 function TabNavigator() {
   return (
     <Tab.Navigator
-      initialRouteName="AI"
+      initialRouteName="HomeTab"
       tabBar={(props) => <AnimatedTabBar {...props} />}
       screenOptions={({ route }) => ({
         headerShown: false,
@@ -58,24 +58,22 @@ function TabNavigator() {
         component={AiChat}
         options={{ tabBarLabel: 'AI' }}
       />
-      <Tab.Screen
-        name="Cart"
-        component={() => <PlaceholderScreen name="Cart" />}
-      />
+
     </Tab.Navigator>
   );
 }
 
 export default function AppNavigator() {
   return (
-    <RootStack.Navigator 
-      screenOptions={{ 
-        headerShown: false, 
-        animation: 'slide_from_right', 
-        contentStyle: { backgroundColor: 'transparent' } 
+    <RootStack.Navigator
+      screenOptions={{
+        headerShown: false,
+        animation: 'slide_from_right',
+        contentStyle: { backgroundColor: 'transparent' }
       }}
     >
       <RootStack.Screen name="MainTabs" component={TabNavigator} />
+      <RootStack.Screen name="AIChat" component={AiChat} />
       <RootStack.Screen name="ProductDetail" component={ProductDetailScreen} />
       <RootStack.Screen name="Login" component={LoginScreen} />
       <RootStack.Screen name="SignUp" component={SignUpScreen} />

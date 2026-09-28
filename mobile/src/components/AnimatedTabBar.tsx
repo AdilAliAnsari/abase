@@ -98,6 +98,10 @@ export default function AnimatedTabBar({ state, descriptors, navigation }: Botto
         });
     }, [state.index, layoutsReady]);
 
+    if (state.routes[state.index]?.name === "AI") {
+        return null;
+    }
+
     return (
         <View style={styles.wrapper}>
             <View style={styles.bar}>

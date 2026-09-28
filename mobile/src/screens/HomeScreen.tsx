@@ -15,6 +15,7 @@ import { colors } from '../theme/colors';
 import { books, Book } from '../data/books';
 import BookCard from '../components/BookCard';
 import Header from '../components/Header';
+import DarkGradientBg from '../components/DarkGradientBg';
 import { SlidersHorizontal, ArrowUpDown, LayoutGrid, LayoutList, X, Star } from 'lucide-react-native';
 
 interface HomeScreenProps {
@@ -253,10 +254,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const isGrid = layout === 'grid';
 
   return (
-    <View style={styles.screenBg}>
-      <SafeAreaView style={styles.container}>
-        {/* Amazon Header */}
-        <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+    <DarkGradientBg>
+      <View style={styles.screenBg}>
+        <SafeAreaView style={styles.container}>
+          {/* Amazon Header */}
+          <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
         {/* Filter and Sort Sub-Bar */}
         <View style={styles.controlsBar}>
@@ -515,15 +517,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
         </Modal>
 
-      </SafeAreaView>
-    </View>
+        </SafeAreaView>
+      </View>
+    </DarkGradientBg>
   );
 };
 
 const styles = StyleSheet.create({
   screenBg: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
   },
   container: {
     flex: 1,
@@ -579,7 +582,7 @@ const styles = StyleSheet.create({
   searchStatus: {
     paddingHorizontal: 16,
     paddingVertical: 10,
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
   },
   searchStatusText: {
     fontSize: 14,
@@ -597,7 +600,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flexDirection: 'column',
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
   },
   gridContainer: {
     flexDirection: 'row',
