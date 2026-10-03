@@ -14,7 +14,7 @@ This file provides Gemini-specific integration. For the complete methodology, se
 
 ---
 
-## Core Principles
+## Core Principles 
 
 1. **Plan Before You Build** — No code without specification
 2. **State Is Sacred** — Every action updates persistent memory

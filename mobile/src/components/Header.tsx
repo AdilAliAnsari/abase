@@ -144,7 +144,13 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
           <h2 className="menu-title">Main Menu</h2>
 
           {/* Verification Banner */}
-          <div className="verify-banner">
+          <div
+            className="verify-banner"
+            onClick={() => { setMenuOpen(false); navigation.navigate('VerifyEmail'); }}
+            role="button"
+            tabIndex={0}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="verify-left">
               <div className="envelope-circle">
                 <span className="orange-dot"></span>
@@ -167,28 +173,40 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
 
           {/* Grid Cards (2x2) */}
           <div className="nav-grid">
-            <button className="grid-card active" onClick={() => { setMenuOpen(false); }}>
+            <button
+              className="grid-card active"
+              onClick={() => { setMenuOpen(false); navigation.navigate('MainTabs', { screen: 'HomeTab' }); }}
+            >
               <svg className="grid-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: '#ffffff', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 22, height: 22 }}>
                 <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                 <path d="M9 22V12h6v10"/>
               </svg>
               <span>Home</span>
             </button>
-            <button className="grid-card">
+            <button
+              className="grid-card"
+              onClick={() => { setMenuOpen(false); navigation.navigate('Statistics'); }}
+            >
               <svg className="grid-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: 'rgba(255, 255, 255, 0.75)', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 22, height: 22 }}>
                 <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
                 <path d="M22 12A10 10 0 0 0 12 2v10z"/>
               </svg>
               <span>Statistics</span>
             </button>
-            <button className="grid-card">
+            <button
+              className="grid-card"
+              onClick={() => { setMenuOpen(false); navigation.navigate('MyCards'); }}
+            >
               <svg className="grid-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: 'rgba(255, 255, 255, 0.75)', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 22, height: 22 }}>
                 <rect width="20" height="14" x="2" y="5" rx="2"/>
                 <line x1="2" x2="22" y1="10" y2="10"/>
               </svg>
               <span>My Cards</span>
             </button>
-            <button className="grid-card">
+            <button
+              className="grid-card"
+              onClick={() => { setMenuOpen(false); navigation.navigate('PurchaseHistory'); }}
+            >
               <svg className="grid-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: 'rgba(255, 255, 255, 0.75)', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 22, height: 22 }}>
                 <circle cx="12" cy="12" r="10"/>
                 <polyline points="12 6 12 12 16 14"/>
@@ -200,14 +218,20 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
           {/* Messages Section */}
           <div className="menu-section-header">Messages</div>
           <div className="list-items">
-            <button className="list-item">
+            <button
+              className="list-item"
+              onClick={() => { setMenuOpen(false); navigation.navigate('Inbox'); }}
+            >
               <svg className="list-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: 'rgba(255, 255, 255, 0.5)', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 20, height: 20 }}>
                 <rect width="20" height="16" x="2" y="4" rx="2"/>
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
               </svg>
               <span>Inbox</span>
             </button>
-            <button className="list-item">
+            <button
+              className="list-item"
+              onClick={() => { setMenuOpen(false); navigation.navigate('Notifications'); }}
+            >
               <svg className="list-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: 'rgba(255, 255, 255, 0.5)', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 20, height: 20 }}>
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
@@ -219,14 +243,20 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
           {/* Account & Security Section */}
           <div className="menu-section-header">Account and Security</div>
           <div className="list-items">
-            <button className="list-item">
+            <button
+              className="list-item"
+              onClick={() => { setMenuOpen(false); navigation.navigate('AccountData'); }}
+            >
               <svg className="list-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: 'rgba(255, 255, 255, 0.5)', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 20, height: 20 }}>
                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
                 <circle cx="12" cy="7" r="4"/>
               </svg>
               <span>Update Account Data</span>
             </button>
-            <button className="list-item">
+            <button
+              className="list-item"
+              onClick={() => { setMenuOpen(false); navigation.navigate('Language'); }}
+            >
               <svg className="list-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: 'rgba(255, 255, 255, 0.5)', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 20, height: 20 }}>
                 <circle cx="12" cy="12" r="10"/>
                 <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
@@ -234,7 +264,10 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
               </svg>
               <span>Language</span>
             </button>
-            <button className="list-item">
+            <button
+              className="list-item"
+              onClick={() => { setMenuOpen(false); navigation.navigate('ChangePassword'); }}
+            >
               <svg className="list-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: 'rgba(255, 255, 255, 0.5)', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 20, height: 20 }}>
                 <path d="m21 2-2 2"/>
                 <circle cx="7.5" cy="16.5" r="5.5"/>
@@ -827,7 +860,14 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             <Text style={styles.nativeDrawerTitle}>Main Menu</Text>
 
             {/* Verification Banner */}
-            <TouchableOpacity style={styles.nativeVerifyBanner} activeOpacity={0.9}>
+            <TouchableOpacity
+              style={styles.nativeVerifyBanner}
+              activeOpacity={0.8}
+              onPress={() => {
+                setMenuOpen(false);
+                navigation.navigate('VerifyEmail');
+              }}
+            >
               <View style={styles.nativeVerifyLeft}>
                 <View style={styles.nativeEnvelopeCircle}>
                   <View style={styles.nativeOrangeDot} />
@@ -845,7 +885,14 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             <ScrollView style={styles.nativeDrawerScroll} showsVerticalScrollIndicator={false}>
               {/* Navigation Grid (2x2) */}
               <View style={styles.nativeGrid}>
-                <TouchableOpacity style={styles.nativeGridCardActiveWrapper} activeOpacity={0.8} onPress={() => { setMenuOpen(false); }}>
+                <TouchableOpacity
+                  style={styles.nativeGridCardActiveWrapper}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    setMenuOpen(false);
+                    navigation.navigate('MainTabs', { screen: 'HomeTab' });
+                  }}
+                >
                   <LinearGradient
                     colors={['hsl(189, 97%, 36%)', 'rgba(18, 179, 214, 0.25)']}
                     start={{ x: 0, y: 0 }}
@@ -856,15 +903,36 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                     <Text style={styles.nativeGridCardTextActive}>Home</Text>
                   </LinearGradient>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.nativeGridCard}>
+                <TouchableOpacity
+                  style={styles.nativeGridCard}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    setMenuOpen(false);
+                    navigation.navigate('Statistics');
+                  }}
+                >
                   <PieChart size={22} color="rgba(255, 255, 255, 0.75)" />
                   <Text style={styles.nativeGridCardText}>Statistics</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.nativeGridCard}>
+                <TouchableOpacity
+                  style={styles.nativeGridCard}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    setMenuOpen(false);
+                    navigation.navigate('MyCards');
+                  }}
+                >
                   <CreditCard size={22} color="rgba(255, 255, 255, 0.75)" />
                   <Text style={styles.nativeGridCardText}>My Cards</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.nativeGridCard}>
+                <TouchableOpacity
+                  style={styles.nativeGridCard}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    setMenuOpen(false);
+                    navigation.navigate('PurchaseHistory');
+                  }}
+                >
                   <Clock size={22} color="rgba(255, 255, 255, 0.75)" />
                   <Text style={styles.nativeGridCardText}>History</Text>
                 </TouchableOpacity>
@@ -872,26 +940,61 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
 
               {/* Messages Section */}
               <Text style={styles.nativeSectionHeader}>Messages</Text>
-              <TouchableOpacity style={styles.nativeListItem}>
+              <TouchableOpacity
+                style={styles.nativeListItem}
+                activeOpacity={0.8}
+                onPress={() => {
+                  setMenuOpen(false);
+                  navigation.navigate('Inbox');
+                }}
+              >
                 <Mail size={20} color="rgba(255, 255, 255, 0.5)" style={styles.nativeListIcon} />
                 <Text style={styles.nativeListItemText}>Inbox</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.nativeListItem}>
+              <TouchableOpacity
+                style={styles.nativeListItem}
+                activeOpacity={0.8}
+                onPress={() => {
+                  setMenuOpen(false);
+                  navigation.navigate('Notifications');
+                }}
+              >
                 <Bell size={20} color="rgba(255, 255, 255, 0.5)" style={styles.nativeListIcon} />
                 <Text style={styles.nativeListItemText}>Notifications</Text>
               </TouchableOpacity>
 
               {/* Account & Security Section */}
               <Text style={styles.nativeSectionHeader}>Account and Security</Text>
-              <TouchableOpacity style={styles.nativeListItem}>
+              <TouchableOpacity
+                style={styles.nativeListItem}
+                activeOpacity={0.8}
+                onPress={() => {
+                  setMenuOpen(false);
+                  navigation.navigate('AccountData');
+                }}
+              >
                 <User size={20} color="rgba(255, 255, 255, 0.5)" style={styles.nativeListIcon} />
                 <Text style={styles.nativeListItemText}>Update Account Data</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.nativeListItem}>
+              <TouchableOpacity
+                style={styles.nativeListItem}
+                activeOpacity={0.8}
+                onPress={() => {
+                  setMenuOpen(false);
+                  navigation.navigate('Language');
+                }}
+              >
                 <Globe size={20} color="rgba(255, 255, 255, 0.5)" style={styles.nativeListIcon} />
                 <Text style={styles.nativeListItemText}>Language</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.nativeListItem}>
+              <TouchableOpacity
+                style={styles.nativeListItem}
+                activeOpacity={0.8}
+                onPress={() => {
+                  setMenuOpen(false);
+                  navigation.navigate('ChangePassword');
+                }}
+              >
                 <Key size={20} color="rgba(255, 255, 255, 0.5)" style={styles.nativeListIcon} />
                 <Text style={styles.nativeListItemText}>Change Password</Text>
               </TouchableOpacity>

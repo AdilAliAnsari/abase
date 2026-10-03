@@ -6,6 +6,17 @@ import { colors } from '../theme/colors';
 
 import HomeScreen from '../screens/HomeScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
+import PDFLibraryScreen from '../screens/PDFLibraryScreen';
+import VideoScreen from '../screens/VideoScreen';
+import StatisticsScreen from '../screens/StatisticsScreen';
+import MyCardsScreen from '../screens/MyCardsScreen';
+import HistoryScreen from '../screens/HistoryScreen';
+import InboxScreen from '../screens/InboxScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
+import AccountDataScreen from '../screens/AccountDataScreen';
+import LanguageScreen from '../screens/LanguageScreen';
+import ChangePasswordScreen from '../screens/ChangePasswordScreen';
+import VerifyEmailScreen from '../screens/VerifyEmailScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import AiChat from '../components/AiChat';
@@ -51,7 +62,13 @@ function TabNavigator() {
       />
       <Tab.Screen
         name="Search"
-        component={() => <PlaceholderScreen name="Search" />}
+        component={PDFLibraryScreen}
+        options={{ tabBarLabel: 'PDF' }}
+      />
+      <Tab.Screen
+        name="Video"
+        component={VideoScreen}
+        options={{ tabBarLabel: 'Video' }}
       />
       <Tab.Screen
         name="AI"
@@ -75,6 +92,17 @@ export default function AppNavigator() {
       <RootStack.Screen name="MainTabs" component={TabNavigator} />
       <RootStack.Screen name="AIChat" component={AiChat} />
       <RootStack.Screen name="ProductDetail" component={ProductDetailScreen} />
+      <RootStack.Screen name="PDFLibrary" component={PDFLibraryScreen} />
+      <RootStack.Screen name="VideoLibrary" component={VideoScreen} />
+      <RootStack.Screen name="Statistics" component={StatisticsScreen} />
+      <RootStack.Screen name="MyCards" component={MyCardsScreen} />
+      <RootStack.Screen name="PurchaseHistory" component={HistoryScreen} />
+      <RootStack.Screen name="Inbox" component={InboxScreen} />
+      <RootStack.Screen name="Notifications" component={NotificationsScreen} />
+      <RootStack.Screen name="AccountData" component={AccountDataScreen} />
+      <RootStack.Screen name="Language" component={LanguageScreen} />
+      <RootStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+      <RootStack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
       <RootStack.Screen name="Login" component={LoginScreen} />
       <RootStack.Screen name="SignUp" component={SignUpScreen} />
     </RootStack.Navigator>
