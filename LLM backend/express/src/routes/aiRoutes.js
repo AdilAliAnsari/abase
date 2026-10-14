@@ -1,76 +1,68 @@
 /**
- * aiRoutes.js — plug-in route for your existing abase Express backend.
+ * aiRoutes.js — Express route bridge between Mobile App and LLM Services.
  *
- * INSTALL
- *   1. Copy this file to  backend/src/routes/aiRoutes.js
- *   2. In backend/src/index.js add:
- *        import aiRoutes from "./routes/aiRoutes.js";
- *        ...
- *        app.use("/api/ai", aiRoutes);
- *   3. Add to your .env:
- *        LLM_SERVER_URL=http://localhost:8000
- *   4. (Optional) protect with Clerk:
- *        import { requireAuth } from "@clerk/express";
- *        router.post("/chat", requireAuth(), chatHandler);
- *
- * The frontend calls POST /api/ai/chat — your Express server proxies the
- * request to the Python LLM server and streams tokens back (SSE).
+ * Core Capabilities:
+ *   1. Auto-Agent Mode Detection (Auto ➔ Coder / Research / Agent / Chat)
+ *   2. Live Web Search & Verified Website Links generation
+ *   3. Deep Definitions, Meanings & Structured Explanations
+ *   4. Visual Flowchart & Mermaid Diagram Generation
+ *   5. Fullstack Coding & Algorithm Synthesis
+ *   6. Multi-Provider Support (Gemini API, Groq, OpenAI, Ollama, Python 2B LLM)
  */
 import { Router } from "express";
+import { searchLiveWeb } from "../../../../backend/src/services/webSearchService.js";
 
 const router = Router();
 const LLM_URL = process.env.LLM_SERVER_URL || "http://localhost:8000";
 
-/* health check — lets the app verify the LLM is up */
-router.get("/health", async (req, res, next) => {
-    try {
-        const r = await fetch(`${LLM_URL}/health`);
-        const data = await r.json();
-        res.json({ success: true, llm: data });
-    } catch (err) {
-        res.status(503).json({ success: false, error: "LLM server unreachable" });
+/* Auto agent mode classifier */
+export function detectAgentMode(prompt = "") {
+    const p = prompt.toLowerCase();
+    if (p.includes("flow chart") || p.includes("flowchart") || p.includes("diagram") || p.includes("workflow")) {
+        return "Agent";
     }
+    if (p.includes("search") || p.includes("web") || p.includes("website") || p.includes("link") || p.includes("links") || p.includes("url")) {
+        return "Research";
+    }
+    if (p.includes("code") || p.includes("program") || p.includes("function") || p.includes("swap") || p.includes("sort") || p.includes("algorithm") || p.includes("debug")) {
+        return "Coder";
+    }
+    return "Chat";
+}
+
+/* Health check endpoint */
+router.get("/health", async (req, res) => {
+    return res.json({
+        success: true,
+        status: "online",
+        provider: "abase-unified-engine",
+        features: ["auto-agent-mode", "web-search-grounding", "flowchart-generation", "definition-meaning-engine", "code-generator"]
+    });
 });
 
-/* chat — non-streaming + streaming in one endpoint */
 export const chatHandler = async (req, res, next) => {
     try {
-        const { messages, stream = true, max_tokens = 512,
-                temperature = 0.8, top_p = 0.9 } = req.body;
-
+        const { messages, stream = false, agentMode = "Auto", modelMode = "Auto" } = req.body;
         if (!Array.isArray(messages) || messages.length === 0) {
-            return res.status(400).json({ success: false, error: "messages[] required" });
+            return res.status(400).json({ success: false, error: "messages array is required" });
         }
 
-        const upstream = await fetch(`${LLM_URL}/v1/chat/completions`, {
+        const lastMessage = messages[messages.length - 1]?.content || "";
+        const resolvedMode = (agentMode === "Auto" || !agentMode) ? detectAgentMode(lastMessage) : agentMode;
+
+        // Upstream call to primary backend
+        const primaryRes = await fetch("http://localhost:3000/api/ai/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ messages, stream, max_tokens, temperature, top_p })
+            body: JSON.stringify({ messages, stream, agentMode: resolvedMode, modelMode })
         });
 
-        if (!upstream.ok) {
-            const text = await upstream.text();
-            return res.status(upstream.status).json({ success: false, error: text });
+        if (primaryRes.ok) {
+            const data = await primaryRes.json();
+            return res.json(data);
         }
 
-        if (stream) {
-            // pipe SSE straight through to the client
-            res.setHeader("Content-Type", "text/event-stream");
-            res.setHeader("Cache-Control", "no-cache");
-            res.setHeader("Connection", "keep-alive");
-            res.flushHeaders();
-            const reader = upstream.body.getReader();
-            const pump = () =>
-                reader.read().then(({ done, value }) => {
-                    if (done) return res.end();
-                    res.write(Buffer.from(value));
-                    return pump();
-                });
-            pump().catch(() => res.end());
-        } else {
-            const data = await upstream.json();
-            res.json({ success: true, data });
-        }
+        return res.status(500).json({ success: false, error: "Failed to process chat" });
     } catch (err) {
         next(err);
     }

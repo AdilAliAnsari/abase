@@ -12,8 +12,11 @@ import {
   Animated
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { X, Mail, Lock, Eye, EyeOff, ArrowLeft, ArrowRight, Check } from 'lucide-react-native';
+import { X, Mail, Lock, Eye, EyeOff, ArrowLeft, ArrowRight, Check, ShieldCheck, User } from 'lucide-react-native';
 import { colors } from '../theme/colors';
+import { useAuth } from '../context/AuthContext';
+import AccountPickerModal from '../components/AccountPickerModal';
+import { SavedAccount } from '../services/storageService';
 
 const ACCENT = '#7BEA12';
 const ACCENT_GLOW = 'rgba(123, 234, 18, 0.35)';
@@ -23,11 +26,16 @@ interface LoginScreenProps {
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+  const { login, socialLogin, loginWithSavedAccount, savedAccounts, removeSavedAccount } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   
+  // Social ID Picker state
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const [activeSocialProvider, setActiveSocialProvider] = useState<'google' | 'github'>('google');
+
   // Input focus states
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
 
@@ -54,7 +62,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     setCardTilt({ rotateX: 0, rotateY: 0 });
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setError('');
     
     if (!email.trim()) {
@@ -74,26 +82,76 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
     setIsLoading(true);
     
-    setTimeout(() => {
+    try {
+      const res = await login(email.trim(), password);
       setIsLoading(false);
       setSuccess(true);
-      
       setTimeout(() => {
         navigation.navigate('MainTabs');
-      }, 1200);
-    }, 1500);
+      }, 1000);
+    } catch (err: any) {
+      setIsLoading(false);
+      if (err.data?.needsVerification) {
+        navigation.navigate('VerifyEmail', {
+          userId: err.data.userId,
+          email: email.trim(),
+        });
+      } else {
+        setError(err.message || 'Login failed. Please check credentials or backend server.');
+      }
+    }
   };
 
-  const handleSocialAuth = (provider: string) => {
+  const handleOpenSocialPicker = (provider: 'google' | 'github') => {
+    setError('');
+    setActiveSocialProvider(provider);
+    setPickerVisible(true);
+  };
+
+  const handleSelectSavedAccount = async (account: SavedAccount) => {
     setError('');
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      await loginWithSavedAccount(account);
       setIsLoading(false);
       setSuccess(true);
       setTimeout(() => {
         navigation.navigate('MainTabs');
-      }, 1200);
-    }, 1200);
+      }, 700);
+    } catch (err: any) {
+      setIsLoading(false);
+      setError(err?.message || 'Failed to sign in with this ID. Please try again.');
+    }
+  };
+
+  const handleSubmitSocialId = async ({
+    provider,
+    identifier,
+    name,
+  }: {
+    provider: 'google' | 'github';
+    identifier: string;
+    name?: string;
+  }) => {
+    setError('');
+    setIsLoading(true);
+    try {
+      await socialLogin({
+        provider,
+        email: identifier,
+        username: identifier.split('@')[0],
+        name: name || identifier.split('@')[0],
+        accountId: identifier,
+      });
+      setIsLoading(false);
+      setSuccess(true);
+      setTimeout(() => {
+        navigation.navigate('MainTabs');
+      }, 700);
+    } catch (err: any) {
+      setIsLoading(false);
+      setError(err?.message || 'Failed to authenticate ID. Please try again.');
+    }
   };
 
   // Google & GitHub SVGs for Web
@@ -189,12 +247,42 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             {error ? <div className="status-error">{error}</div> : null}
             {success ? <div className="status-success">✓ Login successful! Redirecting...</div> : null}
 
+            {/* Quick Sign-In with Saved Accounts */}
+            {savedAccounts && savedAccounts.length > 0 && (
+              <div className="saved-accounts-box">
+                <div className="saved-accounts-header">
+                  <span className="saved-accounts-title">Recorded Accounts</span>
+                  <span className="permanent-badge">Permanent ID</span>
+                </div>
+                <div className="saved-accounts-list">
+                  {savedAccounts.slice(0, 3).map((acc) => (
+                    <button
+                      key={acc.id}
+                      type="button"
+                      className="saved-account-chip"
+                      onClick={() => handleSelectSavedAccount(acc)}
+                      disabled={isLoading || success}
+                    >
+                      <div className="chip-avatar">
+                        {(acc.name || acc.username || 'U')[0].toUpperCase()}
+                      </div>
+                      <div className="chip-info">
+                        <div className="chip-name">{acc.name || acc.username}</div>
+                        <div className="chip-meta">{acc.provider.toUpperCase()} • {acc.email || `@${acc.username}`}</div>
+                      </div>
+                      <span className="chip-arrow">→</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Social Logins */}
             <div className="social-row">
               <button
                 type="button"
                 className="social-button google"
-                onClick={() => handleSocialAuth('Google')}
+                onClick={() => handleOpenSocialPicker('google')}
                 disabled={isLoading || success}
               >
                 <GoogleSVG />
@@ -203,7 +291,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               <button
                 type="button"
                 className="social-button github"
-                onClick={() => handleSocialAuth('GitHub')}
+                onClick={() => handleOpenSocialPicker('github')}
                 disabled={isLoading || success}
               >
                 <GitHubSVG />
@@ -328,7 +416,111 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           </div>
         </div>
 
+        {/* Social Account Picker Modal for Web */}
+        <AccountPickerModal
+          visible={pickerVisible}
+          provider={activeSocialProvider}
+          savedAccounts={savedAccounts}
+          mode="signin"
+          onClose={() => setPickerVisible(false)}
+          onSelectAccount={handleSelectSavedAccount}
+          onSubmitNewId={handleSubmitSocialId}
+          onRemoveAccount={removeSavedAccount}
+        />
+
         <style>{`
+          .saved-accounts-box {
+            background: rgba(25, 28, 39, 0.7);
+            border: 1px solid rgba(123, 234, 18, 0.25);
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 16px;
+            backdrop-filter: blur(10px);
+          }
+          .saved-accounts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+          }
+          .saved-accounts-title {
+            color: #8E8E93;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          .permanent-badge {
+            background: rgba(123, 234, 18, 0.15);
+            color: #7BEA12;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 6px;
+            border: 1px solid rgba(123, 234, 18, 0.3);
+          }
+          .saved-accounts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+          }
+          .saved-account-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(14, 16, 23, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 8px 10px;
+            color: #fff;
+            cursor: pointer;
+            text-align: left;
+            transition: 0.2s ease;
+          }
+          .saved-account-chip:hover {
+            border-color: #7BEA12;
+            background: rgba(123, 234, 18, 0.08);
+            transform: translateX(2px);
+          }
+          .chip-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #272B3C;
+            color: #7BEA12;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid rgba(123, 234, 18, 0.4);
+            flex-shrink: 0;
+          }
+          .chip-info {
+            flex: 1;
+            min-width: 0;
+          }
+          .chip-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .chip-meta {
+            font-size: 10px;
+            color: #8E8E93;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .chip-arrow {
+            color: #7BEA12;
+            font-size: 14px;
+            font-weight: 700;
+          }
+
           .login-screen-root {
             position: fixed;
             inset: 0;
@@ -952,11 +1144,47 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               </View>
             ) : null}
 
+            {/* Quick Sign-In with Saved Accounts */}
+            {savedAccounts && savedAccounts.length > 0 && (
+              <View style={styles.nativeSavedBox}>
+                <View style={styles.nativeSavedHeader}>
+                  <Text style={styles.nativeSavedTitle}>Recorded Permanent IDs</Text>
+                  <View style={styles.nativeSavedBadge}>
+                    <ShieldCheck size={11} color={ACCENT} />
+                    <Text style={styles.nativeSavedBadgeText}>Saved</Text>
+                  </View>
+                </View>
+                <Text style={styles.nativeSavedSubtitle}>Tap an ID to sign in permanently:</Text>
+                {savedAccounts.slice(0, 3).map((acc) => (
+                  <TouchableOpacity
+                    key={acc.id}
+                    style={styles.nativeSavedCard}
+                    onPress={() => handleSelectSavedAccount(acc)}
+                    disabled={isLoading || success}
+                    activeOpacity={0.8}
+                  >
+                    <View style={styles.nativeSavedAvatar}>
+                      <Text style={styles.nativeSavedAvatarText}>
+                        {(acc.name || acc.username || 'U')[0].toUpperCase()}
+                      </Text>
+                    </View>
+                    <View style={styles.nativeSavedCardInfo}>
+                      <Text style={styles.nativeSavedName}>{acc.name || acc.username}</Text>
+                      <Text style={styles.nativeSavedMeta} numberOfLines={1}>
+                        {acc.provider.toUpperCase()} • {acc.email || `@${acc.username}`}
+                      </Text>
+                    </View>
+                    <ArrowRight size={15} color={ACCENT} />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
             {/* Social Logins */}
             <View style={styles.nativeSocialRow}>
               <TouchableOpacity
                 style={styles.nativeSocialBtn}
-                onPress={() => handleSocialAuth('Google')}
+                onPress={() => handleOpenSocialPicker('google')}
                 disabled={isLoading || success}
                 activeOpacity={0.8}
               >
@@ -964,7 +1192,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.nativeSocialBtn}
-                onPress={() => handleSocialAuth('GitHub')}
+                onPress={() => handleOpenSocialPicker('github')}
                 disabled={isLoading || success}
                 activeOpacity={0.8}
               >
@@ -1060,11 +1288,104 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Social Account Picker Modal for Native */}
+      <AccountPickerModal
+        visible={pickerVisible}
+        provider={activeSocialProvider}
+        savedAccounts={savedAccounts}
+        mode="signin"
+        onClose={() => setPickerVisible(false)}
+        onSelectAccount={handleSelectSavedAccount}
+        onSubmitNewId={handleSubmitSocialId}
+        onRemoveAccount={removeSavedAccount}
+      />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  nativeSavedBox: {
+    backgroundColor: '#161922',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(123, 234, 18, 0.25)',
+  },
+  nativeSavedHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  nativeSavedTitle: {
+    color: '#8E8E93',
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+  nativeSavedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(123, 234, 18, 0.15)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(123, 234, 18, 0.3)',
+  },
+  nativeSavedBadgeText: {
+    color: ACCENT,
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  nativeSavedSubtitle: {
+    color: '#777',
+    fontSize: 11,
+    marginBottom: 10,
+  },
+  nativeSavedCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0E1017',
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  nativeSavedAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#272B3C',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(123, 234, 18, 0.4)',
+  },
+  nativeSavedAvatarText: {
+    color: ACCENT,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  nativeSavedCardInfo: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  nativeSavedName: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  nativeSavedMeta: {
+    color: '#8E8E93',
+    fontSize: 11,
+    marginTop: 1,
+  },
   nativeRoot: {
     flex: 1,
     backgroundColor: '#000000',

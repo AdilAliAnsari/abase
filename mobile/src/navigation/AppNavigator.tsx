@@ -19,6 +19,7 @@ import ChangePasswordScreen from '../screens/ChangePasswordScreen';
 import VerifyEmailScreen from '../screens/VerifyEmailScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
+import CartScreen from '../screens/CartScreen';
 import AiChat from '../components/AiChat';
 import AnimatedTabBar from '../components/AnimatedTabBar';
 
@@ -105,6 +106,7 @@ export default function AppNavigator() {
       <RootStack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
       <RootStack.Screen name="Login" component={LoginScreen} />
       <RootStack.Screen name="SignUp" component={SignUpScreen} />
+      <RootStack.Screen name="Cart" component={CartScreen} />
     </RootStack.Navigator>
   );
 }

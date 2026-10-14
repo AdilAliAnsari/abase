@@ -18,36 +18,80 @@ import {
 } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import DarkGradientBg from '../components/DarkGradientBg';
+import { useAuth } from '../context/AuthContext';
+import authService from '../services/authService';
 
 interface VerifyEmailScreenProps {
   navigation: any;
+  route?: any;
 }
 
-export const VerifyEmailScreen: React.FC<VerifyEmailScreenProps> = ({ navigation }) => {
-  const [email, setEmail] = useState('adilaliansari@example.com');
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [isSent, setIsSent] = useState(false);
+export const VerifyEmailScreen: React.FC<VerifyEmailScreenProps> = ({ navigation, route }) => {
+  const { verifyEmail } = useAuth();
+  const passedEmail = route?.params?.email || 'adilaliansari@example.com';
+  const passedUserId = route?.params?.userId || '';
+  const initialDevOtp = route?.params?.devOtp;
+
+  const [email, setEmail] = useState(passedEmail);
+  const [userId, setUserId] = useState(passedUserId);
+  const [otp, setOtp] = useState<string[]>(
+    initialDevOtp && initialDevOtp.length === 6 ? initialDevOtp.split('') : ['', '', '', '', '', '']
+  );
+  const [isSent, setIsSent] = useState(!!initialDevOtp);
   const [isVerified, setIsVerified] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(
+    initialDevOtp ? `Dev OTP auto-filled: ${initialDevOtp}` : null
+  );
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const handleSendOtp = () => {
-    setIsSent(true);
-    showToast(`Verification code sent to ${email}`);
+  const handleSendOtp = async () => {
+    if (!userId) {
+      showToast(`Verification code sent to ${email}`);
+      setIsSent(true);
+      return;
+    }
+
+    try {
+      const res = await authService.resendCode(userId);
+      setIsSent(true);
+      if (res.devOtp) {
+        setOtp(res.devOtp.split(''));
+        showToast(`Verification code sent! (Dev code: ${res.devOtp})`);
+      } else {
+        showToast(res.message || `Verification code sent to ${email}`);
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Failed to resend code');
+    }
   };
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     const enteredCode = otp.join('');
     if (enteredCode.length < 6) {
       showToast('Please enter the complete 6-digit OTP code');
       return;
     }
-    setIsVerified(true);
-    showToast('Email verified successfully! Safe transactions enabled.');
+
+    setIsVerifying(true);
+    try {
+      if (userId) {
+        await verifyEmail(userId, enteredCode);
+      }
+      setIsVerified(true);
+      showToast('Email verified successfully! Redirecting...');
+      setTimeout(() => {
+        navigation.navigate('MainTabs');
+      }, 1500);
+    } catch (err: any) {
+      showToast(err.message || 'Invalid or expired verification code');
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   const handleOtpChange = (text: string, index: number) => {

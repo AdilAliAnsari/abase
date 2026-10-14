@@ -3,7 +3,9 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Animated, 
 import { ArrowLeft, Heart, Share2, Star, ShoppingBag, Minus, Plus, BookOpen, Globe, Building2, FileText } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import { Book } from '../data/books';
+import bookService from '../services/bookService';
 import DarkGradientBg from '../components/DarkGradientBg';
+import { useCart } from '../context/CartContext';
 
 interface ProductDetailScreenProps {
   route: any;
@@ -11,7 +13,19 @@ interface ProductDetailScreenProps {
 }
 
 const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, navigation }) => {
-  const { book } = (route.params || {}) as { book: Book };
+  const { addToCart, totalCount } = useCart();
+  const initialBook = (route.params?.book || {}) as Book;
+  const bookId = initialBook?.id || route.params?.id || route.params?.bookId;
+  const [book, setBook] = useState<Book>(initialBook);
+
+  useEffect(() => {
+    if (bookId) {
+      bookService.getBookById(String(bookId)).then((fresh) => {
+        if (fresh) setBook(fresh);
+      });
+    }
+  }, [bookId]);
+
   const [quantity, setQuantity] = useState(1);
   const [liked, setLiked] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
@@ -44,9 +58,12 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
     } catch (error) { console.log(error); }
   };
 
-  const handleAddToCart = () => {
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
+  const handleAddToCart = async () => {
+    if (book) {
+      setAddedToCart(true);
+      await addToCart(book, quantity);
+      setTimeout(() => setAddedToCart(false), 2000);
+    }
   };
 
   const totalPrice = ((book?.price || 0) * quantity).toFixed(2);
@@ -64,9 +81,19 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
             <ArrowLeft size={20} color="#FFFFFF" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Product Details</Text>
-          <TouchableOpacity style={styles.iconButton} onPress={handleShare}>
-            <Share2 size={18} color="#FFFFFF" />
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TouchableOpacity style={styles.iconButton} onPress={handleShare}>
+              <Share2 size={18} color="#FFFFFF" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Cart')}>
+              <ShoppingBag size={18} color="#7BEA12" />
+              {totalCount > 0 && (
+                <View style={styles.headerBadge}>
+                  <Text style={styles.headerBadgeText}>{totalCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
 
         <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
@@ -516,6 +543,23 @@ const styles = StyleSheet.create({
   },
   addToCartPriceAdded: { 
     color: 'rgba(255,255,255,0.85)', 
+  },
+  headerBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: '#7BEA12',
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 3,
+  },
+  headerBadgeText: {
+    color: '#000000',
+    fontSize: 9,
+    fontWeight: '800',
   },
 });
 

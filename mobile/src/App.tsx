@@ -3,6 +3,8 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './navigation/AppNavigator';
+import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
 
 const TransparentTheme = {
   ...DefaultTheme,
@@ -15,10 +17,14 @@ const TransparentTheme = {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <NavigationContainer theme={TransparentTheme}>
-        <StatusBar style="light" />
-        <AppNavigator />
-      </NavigationContainer>
+      <AuthProvider>
+        <CartProvider>
+          <NavigationContainer theme={TransparentTheme}>
+            <StatusBar style="light" />
+            <AppNavigator />
+          </NavigationContainer>
+        </CartProvider>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }

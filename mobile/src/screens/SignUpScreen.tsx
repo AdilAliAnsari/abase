@@ -13,6 +13,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { X, Mail, Lock, Eye, EyeOff, ArrowLeft, ArrowRight, User } from 'lucide-react-native';
 import { colors } from '../theme/colors';
+import { useAuth } from '../context/AuthContext';
+import AccountPickerModal from '../components/AccountPickerModal';
+import { SavedAccount } from '../services/storageService';
 
 const ACCENT = '#7BEA12';
 const ACCENT_GLOW = 'rgba(123, 234, 18, 0.35)';
@@ -22,6 +25,7 @@ interface SignUpScreenProps {
 }
 
 const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
+  const { register, socialLogin, loginWithSavedAccount, savedAccounts, removeSavedAccount } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,6 +33,10 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
   
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Social ID Picker state
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const [activeSocialProvider, setActiveSocialProvider] = useState<'google' | 'github'>('google');
   
   // Focus states
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
@@ -56,16 +64,16 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
     setCardTilt({ rotateX: 0, rotateY: 0 });
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     setError('');
     
     if (!name.trim()) {
-      setError('Please enter your full name');
+      setError('Please enter your full name or username');
       return;
     }
 
     if (!email.trim()) {
-      setError('Please enter your email or username');
+      setError('Please enter your email');
       return;
     }
     
@@ -86,26 +94,78 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
 
     setIsLoading(true);
     
-    setTimeout(() => {
+    try {
+      const username = name.trim().replace(/\s+/g, '_').toLowerCase();
+      const res = await register(email.trim(), username, password, name.trim());
       setIsLoading(false);
       setSuccess(true);
       
       setTimeout(() => {
-        navigation.navigate('Login');
-      }, 1200);
-    }, 1500);
+        if (res.token) {
+          navigation.navigate('MainTabs');
+        } else {
+          navigation.navigate('VerifyEmail', {
+            userId: res.userId,
+            email: res.email || email.trim(),
+            devOtp: res.devOtp,
+          });
+        }
+      }, 1000);
+    } catch (err: any) {
+      setIsLoading(false);
+      setError(err.message || 'Registration failed. Please try again.');
+    }
+  };
+  const handleOpenSocialPicker = (provider: 'google' | 'github') => {
+    setError('');
+    setActiveSocialProvider(provider);
+    setPickerVisible(true);
   };
 
-  const handleSocialAuth = (provider: string) => {
+  const handleSelectSavedAccount = async (account: SavedAccount) => {
     setError('');
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      await loginWithSavedAccount(account);
       setIsLoading(false);
       setSuccess(true);
       setTimeout(() => {
         navigation.navigate('MainTabs');
-      }, 1200);
-    }, 1200);
+      }, 700);
+    } catch (err: any) {
+      setIsLoading(false);
+      setError(err?.message || 'Failed to authenticate this ID. Please try again.');
+    }
+  };
+
+  const handleSubmitSocialId = async ({
+    provider,
+    identifier,
+    name: accName,
+  }: {
+    provider: 'google' | 'github';
+    identifier: string;
+    name?: string;
+  }) => {
+    setError('');
+    setIsLoading(true);
+    try {
+      await socialLogin({
+        provider,
+        email: identifier,
+        username: identifier.split('@')[0],
+        name: accName || name.trim() || identifier.split('@')[0],
+        accountId: identifier,
+      });
+      setIsLoading(false);
+      setSuccess(true);
+      setTimeout(() => {
+        navigation.navigate('MainTabs');
+      }, 700);
+    } catch (err: any) {
+      setIsLoading(false);
+      setError(err?.message || 'Failed to register this ID. Please try again.');
+    }
   };
 
   const GoogleSVG = () => (
@@ -205,7 +265,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
               <button
                 type="button"
                 className="social-button google"
-                onClick={() => handleSocialAuth('Google')}
+                onClick={() => handleOpenSocialPicker('google')}
                 disabled={isLoading || success}
               >
                 <GoogleSVG />
@@ -214,7 +274,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
               <button
                 type="button"
                 className="social-button github"
-                onClick={() => handleSocialAuth('GitHub')}
+                onClick={() => handleOpenSocialPicker('github')}
                 disabled={isLoading || success}
               >
                 <GitHubSVG />
@@ -357,6 +417,18 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             </form>
           </div>
         </div>
+
+        {/* Social Account Picker Modal for Web */}
+        <AccountPickerModal
+          visible={pickerVisible}
+          provider={activeSocialProvider}
+          savedAccounts={savedAccounts}
+          mode="signup"
+          onClose={() => setPickerVisible(false)}
+          onSelectAccount={handleSelectSavedAccount}
+          onSubmitNewId={handleSubmitSocialId}
+          onRemoveAccount={removeSavedAccount}
+        />
 
         <style>{`
           .signup-screen-root {
@@ -937,7 +1009,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             <View style={styles.nativeSocialRow}>
               <TouchableOpacity
                 style={styles.nativeSocialBtn}
-                onPress={() => handleSocialAuth('Google')}
+                onPress={() => handleOpenSocialPicker('google')}
                 disabled={isLoading || success}
                 activeOpacity={0.8}
               >
@@ -945,7 +1017,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.nativeSocialBtn}
-                onPress={() => handleSocialAuth('GitHub')}
+                onPress={() => handleOpenSocialPicker('github')}
                 disabled={isLoading || success}
                 activeOpacity={0.8}
               >
@@ -1082,6 +1154,18 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Social Account Picker Modal for Native */}
+      <AccountPickerModal
+        visible={pickerVisible}
+        provider={activeSocialProvider}
+        savedAccounts={savedAccounts}
+        mode="signup"
+        onClose={() => setPickerVisible(false)}
+        onSelectAccount={handleSelectSavedAccount}
+        onSubmitNewId={handleSubmitSocialId}
+        onRemoveAccount={removeSavedAccount}
+      />
     </SafeAreaView>
   );
 };

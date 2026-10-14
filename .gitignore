@@ -45,3 +45,14 @@ pnpm-debug.log*
 # OS files
 .DS_Store
 Thumbs.db
+
+# Python & ML weights
+__pycache__/
+*.py[cod]
+*$py.class
+*.pt
+*.pth
+*.safetensors
+*.bin
+venv/
+.venv/

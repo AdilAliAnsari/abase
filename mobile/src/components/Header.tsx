@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView, Platform, Modal, Animated } from 'react-native';
-import { Menu, X, Home, PieChart, CreditCard, Clock, Mail, Bell, User, Globe, Key, ChevronLeft, ChevronRight, Search } from 'lucide-react-native';
+import { Menu, X, Home, PieChart, CreditCard, Clock, Mail, Bell, User, Globe, Key, ChevronLeft, ChevronRight, Search, ShoppingCart } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 interface HeaderProps {
   searchQuery?: string;
@@ -11,10 +13,27 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
+  const { user, isAuthenticated, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [localSearch, setLocalSearch] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const navigation = useNavigation<any>();
+  const { totalCount } = useCart();
+
+  const getInitials = () => {
+    if (user?.name) {
+      const parts = user.name.trim().split(/\s+/);
+      if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+      return parts[0].slice(0, 2).toUpperCase();
+    }
+    if (user?.username) {
+      return user.username.slice(0, 2).toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.slice(0, 2).toUpperCase();
+    }
+    return 'AA';
+  };
 
   const rotateAnim = useRef(new Animated.Value(0)).current;
 
@@ -110,16 +129,29 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
           {/* RIGHT SIDE */}
           <div className="header-right">
             {/* CART */}
-            <button className="header-icon" type="button">
+            <button
+              className="header-icon cart-header-btn"
+              type="button"
+              onClick={() => navigation.navigate('Cart')}
+              aria-label="Shopping Cart"
+            >
               <svg viewBox="0 0 24 24">
                 <path d="M3 4h2l2.5 11h10l3-8H6" />
                 <circle cx="9" cy="19" r="1.5" />
                 <circle cx="17" cy="19" r="1.5" />
               </svg>
+              {totalCount > 0 && (
+                <span className="cart-badge-count">{totalCount > 99 ? '99+' : totalCount}</span>
+              )}
             </button>
             {/* PROFILE */}
-            <button className="profile" type="button" onClick={() => navigation.navigate('Login')}>
-              AA
+            <button
+              className="profile"
+              type="button"
+              onClick={() => navigation.navigate(isAuthenticated ? 'AccountData' : 'Login')}
+              title={user ? `${user.name || user.username} (${user.email})` : 'Sign In'}
+            >
+              {getInitials()}
             </button>
           </div>
         </header>
@@ -142,6 +174,57 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
 
           {/* Menu Title */}
           <h2 className="menu-title">Main Menu</h2>
+
+          {/* Active Account Identity Card */}
+          <div className="active-user-card">
+            <div className="active-user-avatar">{getInitials()}</div>
+            <div className="active-user-info">
+              <div className="active-user-name">
+                {user ? (user.name || user.username) : 'Guest User'}
+              </div>
+              <div className="active-user-email">
+                {user ? user.email : 'Not signed in'}
+              </div>
+              {user && (
+                <div className="active-user-badge">
+                  <span className="active-badge-dot" />
+                  Permanent Session • {user.provider ? (user.provider.charAt(0).toUpperCase() + user.provider.slice(1)) : 'Active'}
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="active-user-actions">
+            {user ? (
+              <>
+                <button
+                  type="button"
+                  className="active-action-btn switch-btn"
+                  onClick={() => { setMenuOpen(false); navigation.navigate('Login'); }}
+                >
+                  Switch ID
+                </button>
+                <button
+                  type="button"
+                  className="active-action-btn logout-btn"
+                  onClick={async () => {
+                    await logout();
+                    setMenuOpen(false);
+                    navigation.navigate('Login');
+                  }}
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className="active-action-btn login-btn"
+                onClick={() => { setMenuOpen(false); navigation.navigate('Login'); }}
+              >
+                Sign In / Choose ID
+              </button>
+            )}
+          </div>
 
           {/* Verification Banner */}
           <div
@@ -212,6 +295,22 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 <polyline points="12 6 12 12 16 14"/>
               </svg>
               <span>History</span>
+            </button>
+          </div>
+
+          {/* Store Section */}
+          <div className="menu-section-header">Store</div>
+          <div className="list-items">
+            <button
+              className="list-item"
+              onClick={() => { setMenuOpen(false); navigation.navigate('Cart'); }}
+            >
+              <svg className="list-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: '#7BEA12', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 20, height: 20 }}>
+                <path d="M3 4h2l2.5 11h10l3-8H6" />
+                <circle cx="9" cy="19" r="1.5" />
+                <circle cx="17" cy="19" r="1.5" />
+              </svg>
+              <span>My Cart {totalCount > 0 ? `(${totalCount})` : ''}</span>
             </button>
           </div>
 
@@ -467,6 +566,24 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             background: #171722;
             cursor: pointer;
             transition: 0.3s ease;
+            position: relative;
+          }
+          .cart-badge-count {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #7BEA12;
+            color: #070B0E;
+            font-size: 11px;
+            font-weight: 800;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            box-shadow: 0 2px 8px rgba(123, 234, 18, 0.4);
           }
           .header-icon:hover {
             background: #6469f2;
@@ -556,10 +673,107 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             color: #ffffff;
             font-size: 28px;
             font-weight: 800;
-            margin: 0 0 24px 0;
+            margin: 0 0 16px 0;
             letter-spacing: -0.5px;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             text-align: left;
+          }
+          .active-user-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(123, 234, 18, 0.3);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 10px;
+          }
+          .active-user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7BEA12, #1C4405);
+            color: #061A02;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 800;
+            flex-shrink: 0;
+          }
+          .active-user-info {
+            flex: 1;
+            min-width: 0;
+            text-align: left;
+          }
+          .active-user-name {
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .active-user-email {
+            color: #8D8D94;
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+          }
+          .active-user-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #7BEA12;
+            font-size: 10px;
+            font-weight: 700;
+            margin-top: 4px;
+          }
+          .active-badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #7BEA12;
+            box-shadow: 0 0 6px #7BEA12;
+          }
+          .active-user-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+          }
+          .active-action-btn {
+            flex: 1;
+            height: 32px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+          }
+          .active-action-btn.switch-btn {
+            background: rgba(123, 234, 18, 0.15);
+            color: #7BEA12;
+            border: 1px solid rgba(123, 234, 18, 0.4);
+          }
+          .active-action-btn.switch-btn:hover {
+            background: rgba(123, 234, 18, 0.3);
+          }
+          .active-action-btn.logout-btn {
+            background: rgba(255, 69, 58, 0.12);
+            color: #FF453A;
+            border: 1px solid rgba(255, 69, 58, 0.3);
+          }
+          .active-action-btn.logout-btn:hover {
+            background: rgba(255, 69, 58, 0.25);
+          }
+          .active-action-btn.login-btn {
+            background: #7BEA12;
+            color: #061A02;
+            border: 1px solid #91F232;
+            height: 36px;
           }
           .verify-banner {
             display: flex;
@@ -786,17 +1000,29 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
 
         {/* Right side items */}
         <View style={styles.nativeRight}>
-          <TouchableOpacity style={styles.nativeIconBtn}>
-            <Menu size={21} color="#FFF" />
+          <TouchableOpacity
+            style={styles.nativeCartBtn}
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate('Cart')}
+          >
+            <ShoppingCart size={21} color="#FFF" />
+            {totalCount > 0 && (
+              <View style={styles.nativeBadge}>
+                <Text style={styles.nativeBadgeText}>{totalCount > 99 ? '99+' : totalCount}</Text>
+              </View>
+            )}
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.8} onPress={() => navigation.navigate('Login')}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate(isAuthenticated ? 'AccountData' : 'Login')}
+          >
             <LinearGradient
-              colors={['rgb(0, 183, 255)', 'rgb(0, 72, 102)']}
+              colors={['#7BEA12', '#215305']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.nativeProfileGradient}
             >
-              <Text style={styles.nativeProfileText}>AA</Text>
+              <Text style={styles.nativeProfileText}>{getInitials()}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -858,6 +1084,59 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
 
             {/* Menu Title */}
             <Text style={styles.nativeDrawerTitle}>Main Menu</Text>
+
+            {/* Native Active User Card */}
+            <View style={styles.nativeUserCard}>
+              <View style={styles.nativeUserAvatar}>
+                <Text style={styles.nativeUserAvatarText}>{getInitials()}</Text>
+              </View>
+              <View style={styles.nativeUserInfo}>
+                <Text style={styles.nativeUserName} numberOfLines={1}>
+                  {user ? (user.name || user.username) : 'Guest User'}
+                </Text>
+                <Text style={styles.nativeUserEmail} numberOfLines={1}>
+                  {user ? user.email : 'Not signed in'}
+                </Text>
+                {user && (
+                  <View style={styles.nativeUserBadgeRow}>
+                    <View style={styles.nativeBadgeDot} />
+                    <Text style={styles.nativeUserBadgeText}>
+                      Permanent Session • {user.provider ? (user.provider.charAt(0).toUpperCase() + user.provider.slice(1)) : 'Active'}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            <View style={styles.nativeUserActionsRow}>
+              {user ? (
+                <>
+                  <TouchableOpacity
+                    style={styles.nativeSwitchBtn}
+                    onPress={() => { setMenuOpen(false); navigation.navigate('Login'); }}
+                  >
+                    <Text style={styles.nativeSwitchBtnText}>Switch ID</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.nativeLogoutBtn}
+                    onPress={async () => {
+                      await logout();
+                      setMenuOpen(false);
+                      navigation.navigate('Login');
+                    }}
+                  >
+                    <Text style={styles.nativeLogoutBtnText}>Sign Out</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <TouchableOpacity
+                  style={styles.nativeLoginBtn}
+                  onPress={() => { setMenuOpen(false); navigation.navigate('Login'); }}
+                >
+                  <Text style={styles.nativeLoginBtnText}>Sign In / Choose ID</Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
             {/* Verification Banner */}
             <TouchableOpacity
@@ -937,6 +1216,20 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                   <Text style={styles.nativeGridCardText}>History</Text>
                 </TouchableOpacity>
               </View>
+
+              {/* Store Section */}
+              <Text style={styles.nativeSectionHeader}>Store</Text>
+              <TouchableOpacity
+                style={styles.nativeListItem}
+                activeOpacity={0.8}
+                onPress={() => {
+                  setMenuOpen(false);
+                  navigation.navigate('Cart');
+                }}
+              >
+                <ShoppingCart size={20} color="#7BEA12" style={styles.nativeListIcon} />
+                <Text style={styles.nativeListItemText}>My Cart {totalCount > 0 ? `(${totalCount})` : ''}</Text>
+              </TouchableOpacity>
 
               {/* Messages Section */}
               <Text style={styles.nativeSectionHeader}>Messages</Text>
@@ -1026,6 +1319,34 @@ const styles = StyleSheet.create({
     backgroundColor: '#171722',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  nativeCartBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 13,
+    backgroundColor: '#171722',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  nativeBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: '#7BEA12',
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 1.5,
+    borderColor: '#0A0A0E',
+  },
+  nativeBadgeText: {
+    color: '#070B0E',
+    fontSize: 10,
+    fontWeight: '800',
   },
   nativeLogo: {
     flexDirection: 'row',
@@ -1255,6 +1576,108 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.8)',
     fontSize: 14,
     fontWeight: '600',
+  },
+  nativeUserCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#161922',
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(123, 234, 18, 0.3)',
+  },
+  nativeUserAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#7BEA12',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  nativeUserAvatarText: {
+    color: '#061A02',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  nativeUserInfo: {
+    flex: 1,
+  },
+  nativeUserName: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  nativeUserEmail: {
+    color: '#8D8D94',
+    fontSize: 11,
+    marginTop: 1,
+  },
+  nativeUserBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 3,
+  },
+  nativeBadgeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#7BEA12',
+  },
+  nativeUserBadgeText: {
+    color: '#7BEA12',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  nativeUserActionsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
+  },
+  nativeSwitchBtn: {
+    flex: 1,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(123, 234, 18, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(123, 234, 18, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  nativeSwitchBtnText: {
+    color: '#7BEA12',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  nativeLogoutBtn: {
+    flex: 1,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 69, 58, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 69, 58, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  nativeLogoutBtnText: {
+    color: '#FF453A',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  nativeLoginBtn: {
+    flex: 1,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#7BEA12',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  nativeLoginBtnText: {
+    color: '#061A02',
+    fontSize: 12,
+    fontWeight: '800',
   },
 });
 

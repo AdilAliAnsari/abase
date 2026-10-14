@@ -8,21 +8,30 @@ import {
   TouchableOpacity,
   Modal,
   TextInput,
-  Dimensions
+  Dimensions,
+  RefreshControl,
+  ActivityIndicator
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme/colors';
-import { books, Book } from '../data/books';
+import { books as staticBooks, Book } from '../data/books';
+import bookService from '../services/bookService';
 import BookCard from '../components/BookCard';
 import Header from '../components/Header';
 import DarkGradientBg from '../components/DarkGradientBg';
-import { SlidersHorizontal, ArrowUpDown, LayoutGrid, LayoutList, X, Star } from 'lucide-react-native';
+import { SlidersHorizontal, ArrowUpDown, LayoutGrid, LayoutList, X, Star, Wifi, WifiOff } from 'lucide-react-native';
 
 interface HomeScreenProps {
   navigation: any;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+  // Books state from backend
+  const [bookList, setBookList] = useState<Book[]>(staticBooks);
+  const [isLoadingBooks, setIsLoadingBooks] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
+
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -123,9 +132,35 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     return count;
   }, [activeCategory, activePriceFilter, activeRatingFilter, activeBadgeFilter]);
 
+  // Load books from backend API with offline fallback
+  const loadBooks = useCallback(async (isRefresh = false) => {
+    if (isRefresh) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoadingBooks(true);
+    }
+
+    try {
+      const res = await bookService.getBooks();
+      if (res && res.books && res.books.length > 0) {
+        setBookList(res.books);
+        setIsOfflineMode(!!res.fromOfflineFallback);
+      }
+    } catch (err) {
+      console.warn('HomeScreen: Error loading books:', err);
+    } finally {
+      setIsLoadingBooks(false);
+      setIsRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadBooks();
+  }, [loadBooks]);
+
   // Compute results matching the CURRENT filters
   const filteredAndSortedBooks = useMemo(() => {
-    let result = books.filter((book: Book) => {
+    let result = bookList.filter((book: Book) => {
       // 1. Search Query
       const matchesSearch =
         searchQuery.trim() === '' ||
@@ -188,7 +223,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   // Compute results matching the TEMPORARY filters (inside modal)
   const tempFilteredCount = useMemo(() => {
-    return books.filter((book: Book) => {
+    return bookList.filter((book: Book) => {
       // 1. Search Query
       const matchesSearch =
         searchQuery.trim() === '' ||
@@ -299,7 +334,19 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         )}
 
         {/* Scrollable Books View */}
-        <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollContainer}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={() => loadBooks(true)}
+              tintColor="#7BEA12"
+              colors={['#7BEA12']}
+            />
+          }
+        >
           {filteredAndSortedBooks.length === 0 ? (
             <View style={styles.noResultsCard}>
               <Text style={styles.noResultsTitle}>No results found.</Text>

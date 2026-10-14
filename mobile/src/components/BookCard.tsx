@@ -11,6 +11,7 @@ import {
 import { Star, ShoppingCart } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import { Book } from '../data/books';
+import { useCart } from '../context/CartContext';
 
 const { width } = Dimensions.get('window');
 
@@ -21,15 +22,18 @@ interface BookCardProps {
 }
 
 const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) => {
+  const { addToCart, isItemInCart } = useCart();
   const [isAdded, setIsAdded] = useState(false);
+  const inCart = isItemInCart(book.id);
 
-  const handleAddToCart = (e: any) => {
+  const handleAddToCart = async (e: any) => {
     // Prevent propagating event to parent card (which triggers navigation)
     if (Platform.OS === 'web') {
-      e.stopPropagation();
-      e.preventDefault();
+      e?.stopPropagation?.();
+      e?.preventDefault?.();
     }
     setIsAdded(true);
+    await addToCart(book, 1);
     setTimeout(() => {
       setIsAdded(false);
     }, 2000);
@@ -123,13 +127,13 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
             {/* Category badge */}
             <div className="category-tag">{book.category}</div>
 
-            {/* Yellow Add to Cart Button */}
+            {/* Add to Cart Button */}
             <button
-              className={`cart-button ${isAdded ? 'added' : ''}`}
+              className={`cart-button ${isAdded || inCart ? 'added' : ''}`}
               onClick={handleAddToCart}
             >
               <ShoppingCart size={14} style={{ marginRight: 6 }} />
-              {isAdded ? 'Added to Cart' : 'Add to Cart'}
+              {isAdded ? '✓ Added' : inCart ? '✓ In Cart' : 'Add to Cart'}
             </button>
           </div>
         </a>        <style>{`
@@ -442,11 +446,11 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
         {/* Cart Button */}
         <TouchableOpacity
           activeOpacity={0.8}
-          style={[styles.nativeCartBtn, isAdded && styles.nativeCartBtnAdded]}
+          style={[styles.nativeCartBtn, (isAdded || inCart) && styles.nativeCartBtnAdded]}
           onPress={handleAddToCart}
         >
-          <Text style={[styles.nativeCartBtnText, isAdded && styles.nativeCartBtnTextAdded]}>
-            {isAdded ? '✓ Added' : 'Add to Cart'}
+          <Text style={[styles.nativeCartBtnText, (isAdded || inCart) && styles.nativeCartBtnTextAdded]}>
+            {isAdded ? '✓ Added' : inCart ? '✓ In Cart' : 'Add to Cart'}
           </Text>
         </TouchableOpacity>
       </View>

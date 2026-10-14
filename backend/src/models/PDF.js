@@ -76,6 +76,6 @@ const pdfSchema = new mongoose.Schema({
 // Index for text search across title, description, and tags
 pdfSchema.index({ title: "text", description: "text", tags: "text" });
 
-const PDF = mongoose.model("PDF", pdfSchema);
+const PDF = mongoose.models.PDF || mongoose.model("PDF", pdfSchema);
 export { PDF };
 export default PDF;

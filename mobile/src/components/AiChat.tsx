@@ -35,14 +35,20 @@ import {
 } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import { BorderBeam, BackgroundPixelStars } from "./ui";
+import { getApiBaseUrl } from "../services/api";
 
-/* ================= CONFIG ================= */
+/* ================= DYNAMIC CONFIG ================= */
 
-const API_BASE = "http://192.168.1.20:3000";
-const CHAT_URL = `${API_BASE}/api/ai/chat`;
-const HEALTH_URL = `${API_BASE}/api/ai/health`;
+export const getAiEndpoints = () => {
+  const base = getApiBaseUrl();
+  return {
+    base,
+    chatUrl: `${base}/api/ai/chat`,
+    healthUrl: `${base}/api/ai/health`,
+  };
+};
 
-/* ========================================== */
+/* ================================================== */
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -52,12 +58,64 @@ interface ChatMessage {
 interface DisplayMessage extends ChatMessage {
   id: string;
   pending?: boolean;
+  resolvedMode?: string;
 }
 
+export const detectAgentMode = (prompt: string): string => {
+  const p = prompt.toLowerCase();
+  if (
+    p.includes("flow chart") ||
+    p.includes("flowchart") ||
+    p.includes("diagram") ||
+    p.includes("process flow") ||
+    p.includes("workflow") ||
+    p.includes("step by step execution")
+  ) {
+    return "Agent";
+  }
+  if (
+    p.includes("search") ||
+    p.includes("web") ||
+    p.includes("website") ||
+    p.includes("link") ||
+    p.includes("links") ||
+    p.includes("url") ||
+    p.includes("online") ||
+    p.includes("source") ||
+    p.includes("sources") ||
+    p.includes("research") ||
+    p.includes("find website") ||
+    p.includes("generate link")
+  ) {
+    return "Research";
+  }
+  if (
+    p.includes("code") ||
+    p.includes("program") ||
+    p.includes("function") ||
+    p.includes("script") ||
+    p.includes("swap") ||
+    p.includes("sort") ||
+    p.includes("algorithm") ||
+    p.includes("debug") ||
+    p.includes("error") ||
+    p.includes("react") ||
+    p.includes("node") ||
+    p.includes("python") ||
+    p.includes("typescript") ||
+    p.includes("javascript") ||
+    p.includes("sql")
+  ) {
+    return "Coder";
+  }
+  return "Chat";
+};
+
 const STARTER_CHIPS = [
-  "Explain my app idea",
-  "Write a poem about code",
-  "Help me debug",
+  "Generate flow chart for login",
+  "Definition of artificial intelligence",
+  "Generate links for React Native",
+  "Swap 2 numbers in Python",
 ];
 
 const MENTION_OPTIONS = [
@@ -68,10 +126,11 @@ const MENTION_OPTIONS = [
 ];
 
 const AGENT_MODES = [
-  { id: "Agent", label: "Agent", desc: "Autonomous task execution" },
-  { id: "Chat", label: "Chat", desc: "Direct conversational AI" },
-  { id: "Coder", label: "Coder", desc: "Full-stack code generator" },
-  { id: "Research", label: "Research", desc: "Multi-step source explorer" },
+  { id: "Auto", label: "Auto", desc: "Auto-routes to Coder, Research, Agent, or Chat based on your prompt" },
+  { id: "Agent", label: "Agent", desc: "Autonomous task execution & flowcharts" },
+  { id: "Chat", label: "Chat", desc: "Direct conversational AI & definitions" },
+  { id: "Coder", label: "Coder", desc: "Full-stack code generator & algorithms" },
+  { id: "Research", label: "Research", desc: "Live web search, verified links & sources" },
 ];
 
 const MODEL_MODES = [
@@ -103,7 +162,7 @@ export default function AiChat({ navigation: propNavigation }: { navigation?: an
   const [sending, setSending] = useState(false);
 
   // Selected modes & mention state
-  const [agentMode, setAgentMode] = useState("Agent");
+  const [agentMode, setAgentMode] = useState("Auto");
   const [modelMode, setModelMode] = useState("Auto");
   const [activeMention, setActiveMention] = useState<string | null>(null);
 
@@ -120,17 +179,30 @@ export default function AiChat({ navigation: propNavigation }: { navigation?: an
   useEffect(() => {
     let cancelled = false;
 
-    fetch(HEALTH_URL)
-      .then((response) => response.json())
-      .then(() => {
-        if (!cancelled) setStatus("online");
-      })
-      .catch(() => {
+    const checkHealth = async () => {
+      try {
+        const { healthUrl } = getAiEndpoints();
+        const response = await fetch(healthUrl);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        if (!cancelled) {
+          if (data?.success || data?.ok || data?.status === "online" || data?.llm) {
+            setStatus("online");
+          } else {
+            setStatus("offline");
+          }
+        }
+      } catch {
         if (!cancelled) setStatus("offline");
-      });
+      }
+    };
+
+    checkHealth();
+    const interval = setInterval(checkHealth, 10000);
 
     return () => {
       cancelled = true;
+      clearInterval(interval);
     };
   }, []);
 
@@ -146,6 +218,8 @@ export default function AiChat({ navigation: propNavigation }: { navigation?: an
     setInput("");
     setActiveMention(null);
 
+    const effectiveMode = agentMode === "Auto" ? detectAgentMode(fullText) : agentMode;
+
     const userMsg: DisplayMessage = {
       id: nextId(),
       role: "user",
@@ -157,6 +231,7 @@ export default function AiChat({ navigation: propNavigation }: { navigation?: an
       role: "assistant",
       content: "",
       pending: true,
+      resolvedMode: effectiveMode,
     };
 
     const history: ChatMessage[] = [
@@ -171,37 +246,46 @@ export default function AiChat({ navigation: propNavigation }: { navigation?: an
       listRef.current?.scrollToEnd({ animated: true });
     });
 
+    const { base, chatUrl } = getAiEndpoints();
+
     try {
-      const response = await fetch(CHAT_URL, {
+      const response = await fetch(chatUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: history,
           stream: false,
-          agentMode,
+          agentMode: effectiveMode,
           modelMode,
         }),
       });
 
       const json = await response.json();
       const answer: string =
-        json?.data?.choices?.[0]?.message?.content ?? "(empty response)";
+        json?.data?.choices?.[0]?.message?.content ??
+        json?.choices?.[0]?.message?.content ??
+        json?.data?.content ??
+        json?.message ??
+        json?.error ??
+        "(empty response)";
+
+      const serverMode = json?.data?.meta?.agentMode || effectiveMode;
 
       setMessages((previous) =>
         previous.map((message) =>
           message.id === aiMsg.id
-            ? { ...message, content: answer, pending: false }
+            ? { ...message, content: answer, pending: false, resolvedMode: serverMode }
             : message
         )
       );
-    } catch {
+    } catch (err: any) {
       setMessages((previous) =>
         previous.map((message) =>
           message.id === aiMsg.id
             ? {
                 ...message,
                 pending: false,
-                content: `Couldn't reach the backend at ${API_BASE}.`,
+                content: `Couldn't reach the AI backend at ${base}. (${err?.message || "Connection failed"}). Please make sure the backend is active.`,
               }
             : message
         )
@@ -303,6 +387,12 @@ export default function AiChat({ navigation: propNavigation }: { navigation?: an
                   item.role === "user" ? styles.bubbleUser : styles.bubbleAi,
                 ]}
               >
+                {item.role === "assistant" && item.resolvedMode && !item.pending && (
+                  <View style={styles.bubbleModeBadge}>
+                    <Sparkles size={11} color="#00E5FF" />
+                    <Text style={styles.bubbleModeText}>{item.resolvedMode}</Text>
+                  </View>
+                )}
                 {item.pending && item.content === "" ? (
                   <ActivityIndicator size="small" color="#B19EEF" />
                 ) : (
@@ -741,6 +831,28 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 14.5,
     lineHeight: 21,
+  },
+
+  bubbleModeBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(0, 229, 255, 0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(0, 229, 255, 0.35)",
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginBottom: 6,
+  },
+
+  bubbleModeText: {
+    fontSize: 10,
+    color: "#00E5FF",
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
 
   /* ================= BORDER BEAM CHAT COMPOSER ================= */

@@ -16,44 +16,64 @@ export const generateOTP = () => {
 
 // Send verification email
 export const sendVerificationEmail = async (email, code) => {
-    const mailOptions = {
-        from: `"E-Book Store" <${process.env.EMAIL_FROM}>`,
-        to: email,
-        subject: "Email Verification Code",
-        html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2 style="color: #6c47ff;">E-Book Store - Email Verification</h2>
-                <p>Your verification code is:</p>
-                <div style="background: #f0f0f0; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #333;">
-                    ${code}
-                </div>
-                <p>This code will expire in <strong>10 minutes</strong>.</p>
-                <p>If you didn't request this, please ignore this email.</p>
-            </div>
-        `,
-    };
+    try {
+        if (!process.env.EMAIL_FROM || process.env.EMAIL_FROM.includes("your-email")) {
+            console.log(`📧 [DEV MODE] Verification OTP for ${email}: ${code}`);
+            return;
+        }
 
-    await transporter.sendMail(mailOptions);
+        const mailOptions = {
+            from: `"E-Book Store" <${process.env.EMAIL_FROM}>`,
+            to: email,
+            subject: "Email Verification Code",
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #6c47ff;">E-Book Store - Email Verification</h2>
+                    <p>Your verification code is:</p>
+                    <div style="background: #f0f0f0; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #333;">
+                        ${code}
+                    </div>
+                    <p>This code will expire in <strong>10 minutes</strong>.</p>
+                    <p>If you didn't request this, please ignore this email.</p>
+                </div>
+            `,
+        };
+
+        await transporter.sendMail(mailOptions);
+    } catch (err) {
+        console.warn(`⚠️ Warning: Could not send email to ${email}. Development OTP: ${code}`);
+        console.warn(`Error details: ${err.message}`);
+    }
 };
 
 // Send password reset email
 export const sendPasswordResetEmail = async (email, code) => {
-    const mailOptions = {
-        from: `"E-Book Store" <${process.env.EMAIL_FROM}>`,
-        to: email,
-        subject: "Password Reset Code",
-        html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2 style="color: #6c47ff;">E-Book Store - Password Reset</h2>
-                <p>Your password reset code is:</p>
-                <div style="background: #f0f0f0; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #333;">
-                    ${code}
-                </div>
-                <p>This code will expire in <strong>10 minutes</strong>.</p>
-                <p>If you didn't request this, please ignore this email.</p>
-            </div>
-        `,
-    };
+    try {
+        if (!process.env.EMAIL_FROM || process.env.EMAIL_FROM.includes("your-email")) {
+            console.log(`📧 [DEV MODE] Password Reset OTP for ${email}: ${code}`);
+            return;
+        }
 
-    await transporter.sendMail(mailOptions);
+        const mailOptions = {
+            from: `"E-Book Store" <${process.env.EMAIL_FROM}>`,
+            to: email,
+            subject: "Password Reset Code",
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #6c47ff;">E-Book Store - Password Reset</h2>
+                    <p>Your password reset code is:</p>
+                    <div style="background: #f0f0f0; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #333;">
+                        ${code}
+                    </div>
+                    <p>This code will expire in <strong>10 minutes</strong>.</p>
+                    <p>If you didn't request this, please ignore this email.</p>
+                </div>
+            `,
+        };
+
+        await transporter.sendMail(mailOptions);
+    } catch (err) {
+        console.warn(`⚠️ Warning: Could not send email to ${email}. Development OTP: ${code}`);
+        console.warn(`Error details: ${err.message}`);
+    }
 };

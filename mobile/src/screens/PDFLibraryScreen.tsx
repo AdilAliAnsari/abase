@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   Modal,
   Platform,
   Dimensions,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -42,6 +43,7 @@ import {
   materialTypes,
   sampleLecturers,
 } from '../data/pdfs';
+import pdfService from '../services/pdfService';
 import { PDFCard } from '../components/PDFCard';
 import { PDFViewerModal } from '../components/PDFViewerModal';
 import { downloadPdfFile } from '../utils/pdfViewerUtils';
@@ -53,6 +55,28 @@ interface PDFLibraryScreenProps {
 }
 
 export const PDFLibraryScreen: React.FC<PDFLibraryScreenProps> = ({ navigation }) => {
+  // Dynamic PDF list from backend
+  const [pdfList, setPdfList] = useState<PDFItem[]>(mockPDFs);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const loadPDFs = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setIsRefreshing(true);
+    try {
+      const res = await pdfService.getPdfs();
+      if (res && res.pdfs && res.pdfs.length > 0) {
+        setPdfList(res.pdfs);
+      }
+    } catch (err) {
+      console.warn('PDFLibraryScreen: Error loading PDFs from backend:', err);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadPDFs();
+  }, [loadPDFs]);
+
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -173,7 +197,7 @@ export const PDFLibraryScreen: React.FC<PDFLibraryScreenProps> = ({ navigation }
 
   // Compute filtered & sorted PDFs matching the CURRENT active filters
   const filteredAndSortedPDFs = useMemo(() => {
-    let result = mockPDFs.filter((pdf) => {
+    let result = pdfList.filter((pdf) => {
       // 1. Search Query
       const q = searchQuery.trim().toLowerCase();
       const matchesSearch =
@@ -263,7 +287,7 @@ export const PDFLibraryScreen: React.FC<PDFLibraryScreenProps> = ({ navigation }
 
   // Compute results matching the TEMPORARY filters (inside filter drawer)
   const tempFilteredCount = useMemo(() => {
-    return mockPDFs.filter((pdf) => {
+    return pdfList.filter((pdf) => {
       const q = searchQuery.trim().toLowerCase();
       const matchesSearch =
         !q ||
@@ -519,6 +543,14 @@ export const PDFLibraryScreen: React.FC<PDFLibraryScreenProps> = ({ navigation }
             style={styles.scrollContainer}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={() => loadPDFs(true)}
+                tintColor="#69D900"
+                colors={['#69D900']}
+              />
+            }
           >
             {filteredAndSortedPDFs.length === 0 ? (
               <View style={styles.noResultsCard}>

@@ -23,25 +23,41 @@ import {
 } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import DarkGradientBg from '../components/DarkGradientBg';
+import { useAuth } from '../context/AuthContext';
 
 interface AccountDataScreenProps {
   navigation: any;
 }
 
 export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation }) => {
-  const [fullName, setFullName] = useState('Adil Ali Ansari');
+  const { user, logout, savedAccounts, loginWithSavedAccount } = useAuth();
+  const [fullName, setFullName] = useState(user?.name || user?.username || 'Adil Ali Ansari');
   const [usn, setUsn] = useState('1RV22CS042');
   const [college, setCollege] = useState('R.V. College of Engineering (VTU)');
   const [branch, setBranch] = useState('Computer Science & Engineering (CSE)');
   const [scheme, setScheme] = useState('2022 Scheme');
   const [semester, setSemester] = useState('5th Semester');
-  const [email, setEmail] = useState('adilaliansari@example.com');
+  const [email, setEmail] = useState(user?.email || 'adilaliansari@example.com');
   const [phone, setPhone] = useState('+91 98765 43210');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (user) {
+      if (user.name || user.username) setFullName(user.name || user.username);
+      if (user.email) setEmail(user.email);
+    }
+  }, [user]);
 
   const handleSave = () => {
     setToastMessage('Account profile updated successfully!');
     setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const getInitials = () => {
+    const text = fullName || user?.username || user?.email || 'AA';
+    const parts = text.trim().split(/\s+/);
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return parts[0].slice(0, 2).toUpperCase();
   };
 
   return (
@@ -75,20 +91,43 @@ export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation
             {/* Student ID Card Banner */}
             <View style={styles.profileBadgeCard}>
               <View style={styles.avatarLarge}>
-                <Text style={styles.avatarLargeText}>AA</Text>
+                <Text style={styles.avatarLargeText}>{getInitials()}</Text>
               </View>
               <View style={styles.profileBadgeText}>
                 <Text style={styles.profileName}>{fullName}</Text>
-                <Text style={styles.profileUsn}>USN: {usn}</Text>
+                <Text style={styles.profileUsn}>{user?.email || `USN: ${usn}`}</Text>
                 <View style={styles.academicPillRow}>
                   <View style={styles.vtuPill}>
-                    <Text style={styles.vtuPillText}>{scheme}</Text>
+                    <Text style={styles.vtuPillText}>
+                      Permanent ID • {user?.provider ? user.provider.toUpperCase() : 'REGISTERED'}
+                    </Text>
                   </View>
                   <View style={styles.branchPill}>
                     <Text style={styles.branchPillText}>CSE • {semester}</Text>
                   </View>
                 </View>
               </View>
+            </View>
+
+            {/* Account Switch & Logout Controls */}
+            <View style={styles.accountActionRow}>
+              <TouchableOpacity
+                style={styles.switchAccountBtn}
+                onPress={() => navigation.navigate('Login')}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.switchAccountBtnText}>⇄ Switch ID</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.logoutAccountBtn}
+                onPress={async () => {
+                  await logout();
+                  navigation.navigate('Login');
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.logoutAccountBtnText}>Sign Out</Text>
+              </TouchableOpacity>
             </View>
 
             {/* Academic Information Form */}
@@ -357,6 +396,41 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   toastText: { color: '#FFFFFF', fontSize: 13, fontWeight: '600' },
+  accountActionRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 16,
+  },
+  switchAccountBtn: {
+    flex: 1,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(123, 234, 18, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(123, 234, 18, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  switchAccountBtnText: {
+    color: '#7BEA12',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  logoutAccountBtn: {
+    flex: 1,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 69, 58, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 69, 58, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoutAccountBtnText: {
+    color: '#FF453A',
+    fontSize: 12,
+    fontWeight: '700',
+  },
 });
 
 export default AccountDataScreen;

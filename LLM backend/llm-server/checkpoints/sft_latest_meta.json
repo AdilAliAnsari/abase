@@ -1,0 +1,11 @@
+{
+  "trained_samples": 5,
+  "capabilities": [
+    "auto_mode",
+    "flowchart_generation",
+    "web_search_grounding",
+    "definition_meaning"
+  ],
+  "timestamp": 1791960300.9363477,
+  "status": "ready"
+}

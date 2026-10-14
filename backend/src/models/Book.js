@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
-const pdfSchema = new mongoose.Schema({
+const bookSchema = new mongoose.Schema({
     title: {
         type: String,
-        required: [true, "PDF title is required"],
+        required: [true, "Book title is required"],
         trim: true
     },
     author: {
@@ -16,66 +16,69 @@ const pdfSchema = new mongoose.Schema({
         required: [true, "Price is required"],
         min: [0, "Price cannot be negative"]
     },
-    description: {
-        type: String,
-        trim: true
+    originalPrice: {
+        type: Number,
+        min: [0, "Original price cannot be negative"]
+    },
+    rating: {
+        type: Number,
+        default: 4.5,
+        min: 0,
+        max: 5
+    },
+    reviews: {
+        type: Number,
+        default: 0
     },
     coverImage: {
         type: String,
         default: ""
     },
-    pdfFileUrl: {
-        type: String,
-        required: [true, "PDF file URL is required"],
-        trim: true
-    },
     category: {
         type: String,
-        trim: true
+        trim: true,
+        default: "General"
     },
-    tags: {
-        type: [String],
-        default: []
+    description: {
+        type: String,
+        trim: true,
+        default: ""
     },
-    pageCount: {
+    pages: {
         type: Number,
-        min: [1, "Page count must be at least 1"],
-        default: 1
+        default: 100
+    },
+    publisher: {
+        type: String,
+        default: "Independent"
     },
     language: {
         type: String,
-        trim: true,
-        default: "en"
+        default: "English"
     },
-    previewPages: {
-        type: Number,
-        min: [0, "Preview pages cannot be negative"],
-        default: 0
-    },
-    drmEnabled: {
-        type: Boolean,
-        default: false
-    },
-    status: {
+    badge: {
         type: String,
-        enum: ["draft", "published", "archived"],
-        default: "draft"
+        enum: ["BESTSELLER", "NEW", "HOT", ""],
+        default: ""
     },
-    salesCount: {
-        type: Number,
-        min: [0, "Sales count cannot be negative"],
-        default: 0
+    accent: {
+        type: String,
+        enum: ["orange", "blue", "purple", "teal"],
+        default: "blue"
     },
-    user: { // The seller
+    pdfFileUrl: {
+        type: String,
+        default: ""
+    },
+    user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true
+        ref: "User"
     }
 }, { timestamps: true });
 
-// Index for text search across title, description, and tags
-pdfSchema.index({ title: "text", description: "text", tags: "text" });
+// Text index for search
+bookSchema.index({ title: "text", author: "text", category: "text", description: "text" });
 
-const PDF = mongoose.model("PDF", pdfSchema);
-export { PDF };
-export default PDF;
+const Book = mongoose.models.Book || mongoose.model("Book", bookSchema);
+export { Book };
+export default Book;

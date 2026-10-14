@@ -1,239 +1,388 @@
 import express from "express";
-import PDF from "../models/PDF.js";
+import mongoose from "mongoose";
+import Book from "../models/Book.js";
 import { protectRoute } from "./auth.js";
 
 const router = express.Router();
 
-// 1. Create a PDF listing for sale
-router.post("/", protectRoute, async (req, res) => {
+const initialBooks = [
+  {
+    _id: "660000000000000000000001",
+    id: "1",
+    title: "The Design of Everyday Things",
+    author: "Don Norman",
+    price: 24.99,
+    originalPrice: 32.00,
+    rating: 4.8,
+    reviews: 2847,
+    coverImage: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop",
+    category: "Design",
+    description: "The ultimate guide to human-centered design. Learn how psychology shapes the objects we use every day.",
+    pages: 368,
+    publisher: "Basic Books",
+    language: "English",
+    badge: "BESTSELLER",
+    accent: "orange",
+  },
+  {
+    _id: "660000000000000000000002",
+    id: "2",
+    title: "Atomic Habits",
+    author: "James Clear",
+    price: 19.99,
+    rating: 4.9,
+    reviews: 15234,
+    coverImage: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&h=600&fit=crop",
+    category: "Self-Help",
+    description: "Tiny changes, remarkable results. An easy & proven way to build good habits & break bad ones.",
+    pages: 320,
+    publisher: "Avery",
+    language: "English",
+    badge: "BESTSELLER",
+    accent: "blue",
+  },
+  {
+    _id: "660000000000000000000003",
+    id: "3",
+    title: "Dune",
+    author: "Frank Herbert",
+    price: 18.99,
+    originalPrice: 25.99,
+    rating: 4.7,
+    reviews: 8932,
+    coverImage: "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=400&h=600&fit=crop",
+    category: "Sci-Fi",
+    description: "Set on the desert planet Arrakis, Dune is the story of the boy Paul Atreides.",
+    pages: 688,
+    publisher: "Ace",
+    language: "English",
+    accent: "purple",
+  },
+  {
+    _id: "660000000000000000000004",
+    id: "4",
+    title: "Zero to One",
+    author: "Peter Thiel",
+    price: 22.99,
+    rating: 4.6,
+    reviews: 5671,
+    coverImage: "https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=400&h=600&fit=crop",
+    category: "Business",
+    description: "Notes on startups, or how to build the future. A must-read for entrepreneurs.",
+    pages: 224,
+    publisher: "Crown Business",
+    language: "English",
+    badge: "NEW",
+    accent: "teal",
+  },
+  {
+    _id: "660000000000000000000005",
+    id: "5",
+    title: "Project Hail Mary",
+    author: "Andy Weir",
+    price: 21.99,
+    rating: 4.9,
+    reviews: 12345,
+    coverImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=600&fit=crop",
+    category: "Sci-Fi",
+    description: "A lone astronaut must save the earth from disaster in this thrilling sci-fi adventure.",
+    pages: 496,
+    publisher: "Ballantine Books",
+    language: "English",
+    badge: "NEW",
+    accent: "blue",
+  },
+  {
+    _id: "660000000000000000000006",
+    id: "6",
+    title: "Thinking, Fast and Slow",
+    author: "Daniel Kahneman",
+    price: 17.99,
+    originalPrice: 29.99,
+    rating: 4.5,
+    reviews: 9876,
+    coverImage: "https://images.unsplash.com/photo-1555116505-a1d6d352e65c?w=400&h=600&fit=crop",
+    category: "Non-Fiction",
+    description: "The two systems that drive the way we think. A groundbreaking tour of the mind.",
+    pages: 499,
+    publisher: "Farrar, Straus and Giroux",
+    language: "English",
+    accent: "orange",
+  },
+  {
+    _id: "660000000000000000000007",
+    id: "7",
+    title: "The Lean Startup",
+    author: "Eric Ries",
+    price: 20.99,
+    rating: 4.7,
+    reviews: 7654,
+    coverImage: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&h=600&fit=crop",
+    category: "Business",
+    description: "How constant innovation creates radically successful businesses.",
+    pages: 336,
+    publisher: "Crown Business",
+    language: "English",
+    badge: "HOT",
+    accent: "purple",
+  },
+  {
+    _id: "660000000000000000000008",
+    id: "8",
+    title: "Sapiens",
+    author: "Yuval Noah Harari",
+    price: 23.99,
+    originalPrice: 28.99,
+    rating: 4.8,
+    reviews: 18765,
+    coverImage: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop",
+    category: "Non-Fiction",
+    description: "A brief history of humankind. From the Stone Age to the Silicon Age.",
+    pages: 443,
+    publisher: "Harper",
+    language: "English",
+    badge: "BESTSELLER",
+    accent: "teal",
+  },
+  {
+    _id: "660000000000000000000009",
+    id: "9",
+    title: "C++: The Complete Reference",
+    author: "Bjarne Stroustrup",
+    price: 30.13,
+    originalPrice: 56.99,
+    rating: 4.8,
+    reviews: 18765,
+    coverImage: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop",
+    category: "Technology",
+    description: "The Definitive Guide.",
+    pages: 1300,
+    publisher: "Pearson",
+    language: "English",
+    badge: "NEW",
+    accent: "orange",
+  }
+];
+
+// Helper to seed DB if connected & empty
+const maybeSeedBooks = async () => {
+  if (mongoose.connection.readyState === 1) {
     try {
-        const {
-            title,
-            author,
-            price,
-            description,
-            coverImage,
-            pdfFileUrl,
-            category,
-            tags,
-            pageCount,
-            language,
-            previewPages,
-            drmEnabled
-        } = req.body;
-
-        if (!title || price === undefined || !pdfFileUrl) {
-            return res.status(400).json({
-                message: "Title, Price, and PDF file URL are required fields."
-            });
-        }
-
-        const newPDF = new PDF({
-            title,
-            author,
-            price,
-            description,
-            coverImage,
-            pdfFileUrl,
-            category,
-            tags,
-            pageCount,
-            language,
-            previewPages: previewPages || 0,
-            drmEnabled: drmEnabled || false,
-            user: req.user._id,
-            status: "published",
-            salesCount: 0
-        });
-
-        await newPDF.save();
-        res.status(201).json(newPDF);
-    } catch (error) {
-        console.error("Error creating PDF listing:", error);
-        res.status(500).json({ message: "Internal Server Error" });
+      const count = await Book.countDocuments();
+      if (count === 0) {
+        await Book.insertMany(initialBooks.map(b => {
+          const { id, ...rest } = b;
+          return rest;
+        }));
+        console.log("🌱 Automatically seeded initial books into MongoDB.");
+      }
+    } catch (err) {
+      console.warn("Could not check/seed books in MongoDB:", err.message);
     }
-});
+  }
+};
 
-// 2. Get PDFs with pagination and filters
+// 1. GET /api/books - Get books with search, filter, pagination
 router.get("/", async (req, res) => {
-    try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 12;
-        const skip = (page - 1) * limit;
+  try {
+    const { search, category, minPrice, maxPrice, sortBy, page = 1, limit = 20 } = req.query;
 
-        const filter = {};
+    if (mongoose.connection.readyState === 1) {
+      await maybeSeedBooks();
 
-        if (req.query.status) {
-            filter.status = req.query.status;
-        } else {
-            filter.status = "published";
-        }
+      const filter = {};
+      if (search) {
+        const regex = new RegExp(search, "i");
+        filter.$or = [{ title: regex }, { author: regex }, { category: regex }, { description: regex }];
+      }
+      if (category && category !== "All") {
+        filter.category = new RegExp(`^${category}$`, "i");
+      }
+      if (minPrice || maxPrice) {
+        filter.price = {};
+        if (minPrice) filter.price.$gte = parseFloat(minPrice);
+        if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
+      }
 
-        if (req.query.search) {
-            const searchRegex = new RegExp(req.query.search, "i");
-            filter.$or = [
-                { title: searchRegex },
-                { author: searchRegex },
-                { description: searchRegex },
-                { tags: searchRegex }
-            ];
-        }
+      const sortOptions = {};
+      if (sortBy === "priceLow") sortOptions.price = 1;
+      else if (sortBy === "priceHigh") sortOptions.price = -1;
+      else if (sortBy === "rating") sortOptions.rating = -1;
+      else sortOptions.createdAt = -1;
 
-        if (req.query.category) {
-            filter.category = new RegExp(req.query.category, "i");
-        }
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+      const [books, total] = await Promise.all([
+        Book.find(filter).sort(sortOptions).skip(skip).limit(parseInt(limit)),
+        Book.countDocuments(filter)
+      ]);
 
-        if (req.query.tags) {
-            const tagArray = req.query.tags.split(",").map(tag => tag.trim());
-            filter.tags = { $in: tagArray };
-        }
-
-        if (req.query.minPrice !== undefined || req.query.maxPrice !== undefined) {
-            filter.price = {};
-            if (req.query.minPrice !== undefined) filter.price.$gte = parseFloat(req.query.minPrice);
-            if (req.query.maxPrice !== undefined) filter.price.$lte = parseFloat(req.query.maxPrice);
-        }
-
-        if (req.query.language) {
-            filter.language = req.query.language;
-        }
-
-        const pdfs = await PDF.find(filter)
-            .sort({
-                [req.query.sortBy || "createdAt"]: req.query.sortOrder === "asc" ? 1 : -1
-            })
-            .skip(skip)
-            .limit(limit)
-            .populate("user", "username profileImage storeName");
-
-        const totalPDFs = await PDF.countDocuments(filter);
-
-        res.status(200).json({
-            pdfs,
-            totalPages: Math.ceil(totalPDFs / limit),
-            currentPage: page,
-            totalItems: totalPDFs
+      if (books.length > 0) {
+        return res.status(200).json({
+          success: true,
+          books: books.map(b => ({
+            id: b._id.toString(),
+            _id: b._id.toString(),
+            title: b.title,
+            author: b.author,
+            price: b.price,
+            originalPrice: b.originalPrice,
+            rating: b.rating,
+            reviews: b.reviews,
+            coverImage: b.coverImage,
+            category: b.category,
+            description: b.description,
+            pages: b.pages,
+            publisher: b.publisher,
+            language: b.language,
+            badge: b.badge,
+            accent: b.accent || "blue"
+          })),
+          total,
+          page: parseInt(page),
+          totalPages: Math.ceil(total / parseInt(limit))
         });
-    } catch (error) {
-        console.error("Error getting PDF listings:", error);
-        res.status(500).json({ message: "Error in getting PDF listings" });
+      }
     }
+
+    // Fallback in-memory catalog
+    let filtered = [...initialBooks];
+    if (search) {
+      const q = search.toLowerCase();
+      filtered = filtered.filter(b =>
+        b.title.toLowerCase().includes(q) ||
+        b.author.toLowerCase().includes(q) ||
+        b.category.toLowerCase().includes(q)
+      );
+    }
+    if (category && category !== "All") {
+      filtered = filtered.filter(b => b.category.toLowerCase() === category.toLowerCase());
+    }
+    if (minPrice) filtered = filtered.filter(b => b.price >= parseFloat(minPrice));
+    if (maxPrice) filtered = filtered.filter(b => b.price <= parseFloat(maxPrice));
+
+    if (sortBy === "priceLow") filtered.sort((a, b) => a.price - b.price);
+    else if (sortBy === "priceHigh") filtered.sort((a, b) => b.price - a.price);
+    else if (sortBy === "rating") filtered.sort((a, b) => b.rating - a.rating);
+
+    res.status(200).json({
+      success: true,
+      books: filtered,
+      total: filtered.length,
+      page: 1,
+      totalPages: 1
+    });
+
+  } catch (error) {
+    console.error("Error in GET /api/books:", error);
+    res.status(200).json({
+      success: true,
+      books: initialBooks,
+      total: initialBooks.length,
+      page: 1,
+      totalPages: 1
+    });
+  }
 });
 
-// 3. Get a single PDF by ID
+// 2. GET /api/books/:id - Get single book by ID
 router.get("/:id", async (req, res) => {
-    try {
-        const pdf = await PDF.findById(req.params.id)
-            .populate("user", "username profileImage storeName bio");
+  try {
+    const { id } = req.params;
 
-        if (!pdf) return res.status(404).json({ message: "PDF not found" });
-
-        let hasAccess = false;
-        if (req.user) {
-            hasAccess = pdf.user._id.toString() === req.user._id.toString();
+    if (mongoose.connection.readyState === 1) {
+      if (mongoose.Types.ObjectId.isValid(id)) {
+        const book = await Book.findById(id);
+        if (book) {
+          return res.status(200).json({
+            success: true,
+            book: {
+              id: book._id.toString(),
+              _id: book._id.toString(),
+              title: book.title,
+              author: book.author,
+              price: book.price,
+              originalPrice: book.originalPrice,
+              rating: book.rating,
+              reviews: book.reviews,
+              coverImage: book.coverImage,
+              category: book.category,
+              description: book.description,
+              pages: book.pages,
+              publisher: book.publisher,
+              language: book.language,
+              badge: book.badge,
+              accent: book.accent
+            }
+          });
         }
-
-        const pdfResponse = {
-            ...pdf.toObject(),
-            pdfFileUrl: hasAccess ? pdf.pdfFileUrl : undefined,
-            previewOnly: !hasAccess
-        };
-
-        res.status(200).json(pdfResponse);
-    } catch (error) {
-        console.error("Error getting PDF:", error);
-        res.status(500).json({ message: "Internal Server Error" });
+      }
     }
+
+    // Fallback search
+    const found = initialBooks.find(b => b.id === id || b._id === id);
+    if (found) {
+      return res.status(200).json({ success: true, book: found });
+    }
+
+    res.status(404).json({ success: false, message: "Book not found" });
+  } catch (error) {
+    console.error("Error in GET /api/books/:id:", error);
+    const found = initialBooks.find(b => b.id === req.params.id);
+    if (found) return res.status(200).json({ success: true, book: found });
+    res.status(500).json({ success: false, message: "Error fetching book" });
+  }
 });
 
-// 4. Get PDFs listed by the current logged-in user (seller dashboard)
-router.get("/user/mystore", protectRoute, async (req, res) => {
-    try {
-        const pdfs = await PDF.find({ user: req.user._id })
-            .sort({ createdAt: -1 });
-        res.status(200).json(pdfs);
-    } catch (error) {
-        console.error("Error getting seller PDF listings:", error);
-        res.status(500).json({ message: "Internal Server Error" });
+// 3. POST /api/books - Create new book
+router.post("/", async (req, res) => {
+  try {
+    const { title, author, price, coverImage, category, description, pages, publisher, language, badge, accent } = req.body;
+
+    if (!title || price === undefined) {
+      return res.status(400).json({ success: false, message: "Title and price are required" });
     }
-});
 
-// 5. Update a PDF listing
-router.put("/:id", protectRoute, async (req, res) => {
-    try {
-        const {
-            title, author, price, description, coverImage,
-            pdfFileUrl, category, tags, pageCount, language,
-            previewPages, drmEnabled, status
-        } = req.body;
-
-        const pdf = await PDF.findById(req.params.id);
-
-        if (!pdf) return res.status(404).json({ message: "PDF listing not found" });
-
-        if (pdf.user.toString() !== req.user._id.toString()) {
-            return res.status(403).json({ message: "Unauthorized to modify this listing" });
-        }
-
-        if (title !== undefined) pdf.title = title;
-        if (author !== undefined) pdf.author = author;
-        if (price !== undefined) pdf.price = price;
-        if (description !== undefined) pdf.description = description;
-        if (coverImage !== undefined) pdf.coverImage = coverImage;
-        if (pdfFileUrl !== undefined) pdf.pdfFileUrl = pdfFileUrl;
-        if (category !== undefined) pdf.category = category;
-        if (tags !== undefined) pdf.tags = tags;
-        if (pageCount !== undefined) pdf.pageCount = pageCount;
-        if (language !== undefined) pdf.language = language;
-        if (previewPages !== undefined) pdf.previewPages = previewPages;
-        if (drmEnabled !== undefined) pdf.drmEnabled = drmEnabled;
-        if (status !== undefined) pdf.status = status;
-
-        await pdf.save();
-        res.status(200).json(pdf);
-    } catch (error) {
-        console.error("Error updating PDF listing:", error);
-        res.status(500).json({ message: "Internal Server Error" });
+    if (mongoose.connection.readyState === 1) {
+      const newBook = new Book({
+        title,
+        author: author || "Unknown",
+        price: parseFloat(price),
+        coverImage: coverImage || "",
+        category: category || "General",
+        description: description || "",
+        pages: pages || 100,
+        publisher: publisher || "Independent",
+        language: language || "English",
+        badge: badge || "",
+        accent: accent || "blue"
+      });
+      await newBook.save();
+      return res.status(201).json({ success: true, book: newBook });
     }
-});
 
-// 6. Increment sales count
-router.patch("/:id/sales", protectRoute, async (req, res) => {
-    try {
-        const pdf = await PDF.findById(req.params.id);
+    // Mock create
+    const mockBook = {
+      id: String(Date.now()),
+      _id: String(Date.now()),
+      title,
+      author: author || "Unknown",
+      price: parseFloat(price),
+      coverImage: coverImage || "",
+      category: category || "General",
+      description: description || "",
+      pages: pages || 100,
+      publisher: publisher || "Independent",
+      language: language || "English",
+      badge: badge || "",
+      accent: accent || "blue"
+    };
+    initialBooks.push(mockBook);
+    res.status(201).json({ success: true, book: mockBook });
 
-        if (!pdf) return res.status(404).json({ message: "PDF not found" });
-
-        if (pdf.user.toString() !== req.user._id.toString()) {
-            return res.status(403).json({ message: "Unauthorized" });
-        }
-
-        pdf.salesCount += 1;
-        await pdf.save();
-
-        res.status(200).json({ salesCount: pdf.salesCount });
-    } catch (error) {
-        console.error("Error updating sales count:", error);
-        res.status(500).json({ message: "Internal Server Error" });
-    }
-});
-
-// 7. Delete a PDF listing
-router.delete("/:id", protectRoute, async (req, res) => {
-    try {
-        const pdf = await PDF.findById(req.params.id);
-        if (!pdf) return res.status(404).json({ message: "PDF listing not found" });
-
-        if (pdf.user.toString() !== req.user._id.toString()) {
-            return res.status(403).json({ message: "Unauthorized to delete this listing" });
-        }
-
-        await PDF.findByIdAndDelete(req.params.id);
-        res.status(200).json({ message: "PDF listing deleted successfully" });
-    } catch (error) {
-        console.error("Error deleting PDF listing:", error);
-        res.status(500).json({ message: "Internal Server Error" });
-    }
+  } catch (error) {
+    console.error("Error creating book:", error);
+    res.status(500).json({ success: false, message: error.message || "Failed to create book" });
+  }
 });
 
 export default router;

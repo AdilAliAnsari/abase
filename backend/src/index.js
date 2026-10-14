@@ -6,7 +6,10 @@ import { clerkMiddleware } from "@clerk/express";
 import authRoutes from "./routes/authRoutes.js";
 import bookRoutes from "./routes/bookRoutes.js";
 import pdfRoutes from "./routes/pdfRoutes.js";
-import { connectDB } from "./lib/db.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
+import cartRoutes from "./routes/cartRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
+import { connectDB, getDbStatus } from "./lib/db.js";
 
 // Load env vars FIRST before anything else
 dotenv.config();
@@ -16,23 +19,48 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({
+    verify: (req, res, buf) => {
+        req.rawBody = buf.toString();
+    }
+}));
 app.use(clerkMiddleware());
+
+// Health check and diagnostic for mobile connection testing
+app.get("/", (req, res) => {
+    res.json({
+        success: true,
+        message: "E-Book Store API Backend is running",
+        version: "1.0.0",
+        db: getDbStatus()
+    });
+});
+
+app.get("/api/health", (req, res) => {
+    res.json({
+        success: true,
+        status: "healthy",
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+        db: getDbStatus(),
+        endpoints: {
+            auth: ["/api/auth/register", "/api/auth/login", "/api/auth/verify-email", "/api/auth/resend-code", "/api/auth/me"],
+            books: ["/api/books", "/api/books/:id"],
+            pdf: ["/api/pdf", "/api/pdf/:id"],
+            payments: ["/api/payments/create-order", "/api/payments/verify", "/api/payments/:orderId"],
+            cart: ["/api/cart", "/api/cart/add", "/api/cart/update", "/api/cart/remove/:bookId", "/api/cart/clear"],
+            ai: ["/api/ai/health", "/api/ai/chat"]
+        }
+    });
+});
 
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/pdf", pdfRoutes);
-
-
-// Health check
-app.get("/", (req, res) => {
-    res.json({
-        success: true,
-        message: "Server is running",
-        clerkApp: process.env.CLERK_APP_ID || "not set"
-    });
-});
+app.use("/api/payments", paymentRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/ai", aiRoutes);
 
 // Error handlers
 app.use((err, req, res, next) => {
@@ -47,9 +75,9 @@ app.use((req, res) => {
     res.status(404).json({ success: false, error: "Route not found" });
 });
 
-// Start server
-app.listen(PORT, () => {
+// Start server listening on all network interfaces
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`🔗 Clerk App: ${process.env.CLERK_APP_ID || "NOT SET"}`);
+    console.log(`📱 LAN / Mobile access on http://0.0.0.0:${PORT}`);
     connectDB();
 });
