@@ -11,6 +11,8 @@ export interface LecturerSeller {
 export interface PDFItem {
   id: string;
   title: string;
+  uploadedAt?: string;
+  createdAt?: string;
   subjectCode: string;
   scheme: '2022 Scheme' | '2021 Scheme' | '2018 Scheme';
   branch: 'CSE' | 'ISE' | 'AIML' | 'ECE' | 'ME' | 'Civil' | 'EEE' | 'Common';
