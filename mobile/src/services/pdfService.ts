@@ -39,6 +39,8 @@ export const pdfService = {
         const mappedPdfs: PDFItem[] = res.pdfs.map((p: any) => ({
           id: p._id || p.id,
           title: p.title,
+          uploadedAt: p.uploadedAt || p.createdAt,
+          createdAt: p.createdAt,
           subjectCode: p.subjectCode || 'VTU',
           scheme: p.scheme || '2022 Scheme',
           branch: p.branch || 'CSE',
