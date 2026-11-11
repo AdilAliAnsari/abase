@@ -30,6 +30,7 @@ import { colors } from '../theme/colors';
 import DarkGradientBg from '../components/DarkGradientBg';
 import { useCart } from '../context/CartContext';
 import { CartItem } from '../services/cartService';
+import { useTranslation } from '../i18n/LanguageContext';
 
 const ACCENT = '#7BEA12';
 const ACCENT_GLOW = 'rgba(123, 234, 18, 0.35)';
@@ -39,6 +40,7 @@ interface CartScreenProps {
 }
 
 export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
+  const { t } = useTranslation();
   const {
     items,
     totalCount,
@@ -225,14 +227,14 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
 
                         {/* Price Row */}
                         <View style={styles.priceRow}>
-                          <Text style={styles.itemPrice}>${item.price.toFixed(2)}</Text>
+                          <Text style={styles.itemPrice}>₹{item.price}</Text>
                           {item.originalPrice && item.originalPrice > item.price && (
                             <Text style={styles.originalPrice}>
-                              ${item.originalPrice.toFixed(2)}
+                              ₹{item.originalPrice}
                             </Text>
                           )}
                           <Text style={styles.subtotalText}>
-                            Total: <Text style={styles.subtotalValue}>${itemSubtotal.toFixed(2)}</Text>
+                            Total: <Text style={styles.subtotalValue}>₹{itemSubtotal}</Text>
                           </Text>
                         </View>
 
@@ -323,11 +325,11 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
 
               {/* Order Summary Card */}
               <View style={styles.summaryCard}>
-                <Text style={styles.summaryHeading}>Order Summary</Text>
+                <Text style={styles.summaryHeading}>{t.orderSummary || 'Order Summary'}</Text>
 
                 <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Subtotal ({totalCount} items)</Text>
-                  <Text style={styles.summaryValue}>${totalAmount.toFixed(2)}</Text>
+                  <Text style={styles.summaryLabel}>{t.subtotal || 'Subtotal'} ({totalCount} {t.items || 'items'})</Text>
+                  <Text style={styles.summaryValue}>₹{totalAmount}</Text>
                 </View>
 
                 {appliedDiscount > 0 && (
@@ -336,7 +338,7 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
                       Academic Discount ({(appliedDiscount * 100).toFixed(0)}%)
                     </Text>
                     <Text style={[styles.summaryValue, { color: ACCENT }]}>
-                      -${discountAmount.toFixed(2)}
+                      -₹{discountAmount}
                     </Text>
                   </View>
                 )}
@@ -344,15 +346,15 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
                 <View style={styles.summaryRow}>
                   <Text style={styles.summaryLabel}>Delivery</Text>
                   <Text style={[styles.summaryValue, { color: ACCENT, fontWeight: '700' }]}>
-                    FREE (Instant Digital)
+                    FREE (Instant Delivery)
                   </Text>
                 </View>
 
                 <View style={styles.divider} />
 
                 <View style={styles.summaryRowTotal}>
-                  <Text style={styles.totalLabel}>Grand Total</Text>
-                  <Text style={styles.totalValue}>${finalTotal.toFixed(2)}</Text>
+                  <Text style={styles.totalLabel}>{t.grandTotal || 'Grand Total'}</Text>
+                  <Text style={styles.totalValue}>₹{finalTotal}</Text>
                 </View>
 
                 {/* Checkout Button */}
@@ -366,7 +368,7 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
                     <ActivityIndicator size="small" color="#000000" />
                   ) : (
                     <>
-                      <Text style={styles.checkoutBtnText}>Proceed to Checkout</Text>
+                      <Text style={styles.checkoutBtnText}>{t.proceedToCheckout || 'Proceed to Checkout'}</Text>
                       <ArrowRight size={18} color="#000000" style={{ marginLeft: 8 }} />
                     </>
                   )}

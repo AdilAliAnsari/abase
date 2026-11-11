@@ -54,5 +54,6 @@ __pycache__/
 *.pth
 *.safetensors
 *.bin
-venv/
-.venv/
+# Local PDFs storage (dev/testing storage, do not commit binary PDFs to git)
+PDFs/**/*.pdf
+!PDFs/**/.gitkeep

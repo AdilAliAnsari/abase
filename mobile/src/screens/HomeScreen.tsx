@@ -20,12 +20,15 @@ import BookCard from '../components/BookCard';
 import Header from '../components/Header';
 import DarkGradientBg from '../components/DarkGradientBg';
 import { SlidersHorizontal, ArrowUpDown, LayoutGrid, LayoutList, X, Star, Wifi, WifiOff } from 'lucide-react-native';
+import { useTranslation } from '../i18n/LanguageContext';
 
 interface HomeScreenProps {
   navigation: any;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+  const { t } = useTranslation();
+
   // Books state from backend
   const [bookList, setBookList] = useState<Book[]>(staticBooks);
   const [isLoadingBooks, setIsLoadingBooks] = useState(false);
@@ -43,9 +46,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [tempCategory, setTempCategory] = useState('All');
   const [activeCategory, setActiveCategory] = useState('All');
 
-  // Price range filters
-  const [tempPriceFilter, setTempPriceFilter] = useState<'all' | 'under20' | '20to25' | 'over25' | 'custom'>('all');
-  const [activePriceFilter, setActivePriceFilter] = useState<'all' | 'under20' | '20to25' | 'over25' | 'custom'>('all');
+  // Price range filters (In Indian Rupees ₹, Max ₹1000)
+  const [tempPriceFilter, setTempPriceFilter] = useState<'all' | 'under300' | '300to600' | '600to1000' | 'custom'>('all');
+  const [activePriceFilter, setActivePriceFilter] = useState<'all' | 'under300' | '300to600' | '600to1000' | 'custom'>('all');
   const [tempMinPrice, setTempMinPrice] = useState('');
   const [tempMaxPrice, setTempMaxPrice] = useState('');
   const [activeMinPrice, setActiveMinPrice] = useState('');
@@ -172,17 +175,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       const matchesCategory =
         activeCategory === 'All' || book.category === activeCategory;
 
-      // 3. Price
+      // 3. Price (INR ₹ <= 1000)
       let matchesPrice = true;
-      if (activePriceFilter === 'under20') {
-        matchesPrice = book.price < 20;
-      } else if (activePriceFilter === '20to25') {
-        matchesPrice = book.price >= 20 && book.price <= 25;
-      } else if (activePriceFilter === 'over25') {
-        matchesPrice = book.price > 25;
+      if (activePriceFilter === 'under300') {
+        matchesPrice = book.price < 300;
+      } else if (activePriceFilter === '300to600') {
+        matchesPrice = book.price >= 300 && book.price <= 600;
+      } else if (activePriceFilter === '600to1000') {
+        matchesPrice = book.price > 600 && book.price <= 1000;
       } else if (activePriceFilter === 'custom') {
         const min = activeMinPrice ? parseFloat(activeMinPrice) : 0;
-        const max = activeMaxPrice ? parseFloat(activeMaxPrice) : Infinity;
+        const max = activeMaxPrice ? parseFloat(activeMaxPrice) : 1000;
         matchesPrice = book.price >= min && book.price <= max;
       }
 
@@ -235,17 +238,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       const matchesCategory =
         tempCategory === 'All' || book.category === tempCategory;
 
-      // 3. Price
+      // 3. Price (INR ₹ <= 1000)
       let matchesPrice = true;
-      if (tempPriceFilter === 'under20') {
-        matchesPrice = book.price < 20;
-      } else if (tempPriceFilter === '20to25') {
-        matchesPrice = book.price >= 20 && book.price <= 25;
-      } else if (tempPriceFilter === 'over25') {
-        matchesPrice = book.price > 25;
+      if (tempPriceFilter === 'under300') {
+        matchesPrice = book.price < 300;
+      } else if (tempPriceFilter === '300to600') {
+        matchesPrice = book.price >= 300 && book.price <= 600;
+      } else if (tempPriceFilter === '600to1000') {
+        matchesPrice = book.price > 600 && book.price <= 1000;
       } else if (tempPriceFilter === 'custom') {
         const min = tempMinPrice ? parseFloat(tempMinPrice) : 0;
-        const max = tempMaxPrice ? parseFloat(tempMaxPrice) : Infinity;
+        const max = tempMaxPrice ? parseFloat(tempMaxPrice) : 1000;
         matchesPrice = book.price >= min && book.price <= max;
       }
 
@@ -405,30 +408,30 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
               <View style={styles.sectionDivider} />
 
-              {/* Price Filter */}
-              <Text style={styles.filterSectionTitle}>Price</Text>
+              {/* Price Filter (INR ₹ <= 1000) */}
+              <Text style={styles.filterSectionTitle}>{t.price || 'Price'}</Text>
               <View style={styles.radioGroup}>
                 <TouchableOpacity style={styles.radioRow} onPress={() => setTempPriceFilter('all')}>
                   <View style={[styles.radioButton, tempPriceFilter === 'all' && styles.radioButtonSelected]} />
-                  <Text style={styles.radioLabel}>All Prices</Text>
+                  <Text style={styles.radioLabel}>{t.allPrices || 'All Prices'}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.radioRow} onPress={() => setTempPriceFilter('under20')}>
-                  <View style={[styles.radioButton, tempPriceFilter === 'under20' && styles.radioButtonSelected]} />
-                  <Text style={styles.radioLabel}>Under $20</Text>
+                <TouchableOpacity style={styles.radioRow} onPress={() => setTempPriceFilter('under300')}>
+                  <View style={[styles.radioButton, tempPriceFilter === 'under300' && styles.radioButtonSelected]} />
+                  <Text style={styles.radioLabel}>{t.under300 || 'Under ₹300'}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.radioRow} onPress={() => setTempPriceFilter('20to25')}>
-                  <View style={[styles.radioButton, tempPriceFilter === '20to25' && styles.radioButtonSelected]} />
-                  <Text style={styles.radioLabel}>$20 to $25</Text>
+                <TouchableOpacity style={styles.radioRow} onPress={() => setTempPriceFilter('300to600')}>
+                  <View style={[styles.radioButton, tempPriceFilter === '300to600' && styles.radioButtonSelected]} />
+                  <Text style={styles.radioLabel}>{t.price300to600 || '₹300 to ₹600'}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.radioRow} onPress={() => setTempPriceFilter('over25')}>
-                  <View style={[styles.radioButton, tempPriceFilter === 'over25' && styles.radioButtonSelected]} />
-                  <Text style={styles.radioLabel}>Over $25</Text>
+                <TouchableOpacity style={styles.radioRow} onPress={() => setTempPriceFilter('600to1000')}>
+                  <View style={[styles.radioButton, tempPriceFilter === '600to1000' && styles.radioButtonSelected]} />
+                  <Text style={styles.radioLabel}>{t.over600 || '₹600 to ₹1000'}</Text>
                 </TouchableOpacity>
                 
                 {/* Custom price inputs */}
                 <TouchableOpacity style={styles.radioRow} onPress={() => setTempPriceFilter('custom')}>
                   <View style={[styles.radioButton, tempPriceFilter === 'custom' && styles.radioButtonSelected]} />
-                  <Text style={styles.radioLabel}>Custom Price Range</Text>
+                  <Text style={styles.radioLabel}>Custom Price Range (Max ₹1000)</Text>
                 </TouchableOpacity>
                 
                 {tempPriceFilter === 'custom' && (

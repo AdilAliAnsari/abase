@@ -14,11 +14,37 @@ const bookSchema = new mongoose.Schema({
     price: {
         type: Number,
         required: [true, "Price is required"],
-        min: [0, "Price cannot be negative"]
+        min: [0, "Price cannot be negative"],
+        max: [1000, "Book price cannot be more than ₹1000"]
     },
     originalPrice: {
         type: Number,
-        min: [0, "Original price cannot be negative"]
+        min: [0, "Original price cannot be negative"],
+        max: [1000, "Original price cannot be more than ₹1000"]
+    },
+    currency: {
+        type: String,
+        default: "INR"
+    },
+    isPrime: {
+        type: Boolean,
+        default: true
+    },
+    deliveryTag: {
+        type: String,
+        default: "FREE delivery Tomorrow"
+    },
+    stockCount: {
+        type: Number,
+        default: 50
+    },
+    inStock: {
+        type: Boolean,
+        default: true
+    },
+    distributorId: {
+        type: String,
+        default: ""
     },
     rating: {
         type: Number,

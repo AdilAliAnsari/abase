@@ -12,9 +12,9 @@ interface AuthContextType {
   isAuthenticated: boolean;
   serverConnected: boolean;
   login: (emailOrUsername: string, password: string) => Promise<AuthResponse>;
-  register: (email: string, username: string, password: string, name?: string) => Promise<AuthResponse>;
+  register: (email: string, username: string, password: string, name?: string, phone?: string) => Promise<AuthResponse>;
   socialLogin: (params: SocialLoginParams) => Promise<AuthResponse>;
-  startClerkOAuth: (provider: 'google' | 'github') => Promise<string | undefined>;
+  startClerkOAuth: (provider: 'google' | 'github') => Promise<AuthResponse | undefined>;
   loginWithSavedAccount: (account: SavedAccount) => Promise<AuthResponse>;
   verifyEmail: (userId: string, code: string) => Promise<AuthResponse>;
   logout: () => Promise<void>;
@@ -22,6 +22,7 @@ interface AuthContextType {
   refreshSavedAccounts: () => Promise<SavedAccount[]>;
   removeSavedAccount: (idOrEmail: string) => Promise<void>;
   checkServerConnection: () => Promise<boolean>;
+  setRole: (role: 'distributor' | 'consumer') => Promise<UserProfile>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -57,6 +58,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const refreshUser = async () => {
     try {
+      // 0. Check if returning from a real Google or GitHub Clerk OAuth redirect
+      const oauthRes = await clerkService.checkOAuthCallback();
+      if (oauthRes && oauthRes.token && oauthRes.user) {
+        setToken(oauthRes.token);
+        setUser(oauthRes.user);
+        setAuthToken(oauthRes.token);
+        await refreshSavedAccounts();
+        setIsLoading(false);
+        return;
+      }
+
       // 1. First check permanent stored session for instant restore
       const activeSession = await storageService.getActiveSession();
       if (activeSession && activeSession.token && activeSession.user) {
@@ -106,10 +118,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const register = async (email: string, username: string, password: string): Promise<AuthResponse> => {
+  const register = async (
+    email: string,
+    username: string,
+    password: string,
+    name?: string,
+    phone?: string
+  ): Promise<AuthResponse> => {
     setIsLoading(true);
     try {
-      const res = await authService.register(email, username, password);
+      const res = await authService.register(email, username, password, name, phone);
+      if (res.token) {
+        setToken(res.token);
+      }
+      if (res.user) {
+        setUser(res.user);
+      }
+      await refreshSavedAccounts();
       return res;
     } finally {
       setIsLoading(false);
@@ -200,8 +225,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const startClerkOAuth = async (provider: 'google' | 'github'): Promise<string | undefined> => {
-    return clerkService.startOAuth(provider);
+  const startClerkOAuth = async (provider: 'google' | 'github'): Promise<AuthResponse | undefined> => {
+    setIsLoading(true);
+    try {
+      const res = await clerkService.startOAuth(provider);
+      if (res?.token) {
+        setToken(res.token);
+      }
+      if (res?.user) {
+        setUser(res.user);
+      }
+      await refreshSavedAccounts();
+      return res;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const setRole = async (role: 'distributor' | 'consumer'): Promise<UserProfile> => {
+    const updated = await authService.setRole(role);
+    setUser(updated);
+    return updated;
   };
 
   const logout = async () => {
@@ -231,6 +275,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         refreshSavedAccounts,
         removeSavedAccount,
         checkServerConnection,
+        setRole,
       }}
     >
       {children}

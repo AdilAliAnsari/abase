@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView, Platform, Modal, Animated } from 'react-native';
-import { Menu, X, Home, PieChart, CreditCard, Clock, Mail, Bell, User, Globe, Key, ChevronLeft, ChevronRight, Search, ShoppingCart } from 'lucide-react-native';
+import { Menu, X, Home, PieChart, CreditCard, Clock, Mail, Bell, User, Globe, Key, ChevronLeft, ChevronRight, Search, ShoppingCart, ShieldCheck, Database, Tag } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from '../i18n/LanguageContext';
 
 interface HeaderProps {
   searchQuery?: string;
@@ -13,7 +14,9 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, setRole } = useAuth();
+  const { t } = useTranslation();
+  const isDistributor = user?.role === 'distributor';
   const [menuOpen, setMenuOpen] = useState(false);
   const [localSearch, setLocalSearch] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -173,7 +176,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
           </button>
 
           {/* Menu Title */}
-          <h2 className="menu-title">Main Menu</h2>
+          <h2 className="menu-title">{t.mainMenu || 'Main Menu'}</h2>
 
           {/* Active Account Identity Card */}
           <div className="active-user-card">
@@ -187,8 +190,11 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
               </div>
               {user && (
                 <div className="active-user-badge">
-                  <span className="active-badge-dot" />
-                  Permanent Session • {user.provider ? (user.provider.charAt(0).toUpperCase() + user.provider.slice(1)) : 'Active'}
+                  <span
+                    className="active-badge-dot"
+                    style={{ backgroundColor: isDistributor ? '#7BEA12' : '#00B7FF' }}
+                  />
+                  {isDistributor ? 'Distributor ID Active' : 'Consumer Account'} • {user.provider ? (user.provider.charAt(0).toUpperCase() + user.provider.slice(1)) : 'Active'}
                 </div>
               )}
             </div>
@@ -199,9 +205,13 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 <button
                   type="button"
                   className="active-action-btn switch-btn"
-                  onClick={() => { setMenuOpen(false); navigation.navigate('Login'); }}
+                  onClick={async () => {
+                    const nextRole = isDistributor ? 'consumer' : 'distributor';
+                    await setRole(nextRole);
+                  }}
+                  title="Toggle Distributor / Consumer mode for this ID"
                 >
-                  Switch ID
+                  {isDistributor ? (t.actAsConsumer || 'Act as Consumer') : (t.actAsDistributor || 'Act as Distributor')}
                 </button>
                 <button
                   type="button"
@@ -212,7 +222,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                     navigation.navigate('Login');
                   }}
                 >
-                  Sign Out
+                  {t.signOut || 'Sign Out'}
                 </button>
               </>
             ) : (
@@ -221,7 +231,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 className="active-action-btn login-btn"
                 onClick={() => { setMenuOpen(false); navigation.navigate('Login'); }}
               >
-                Sign In / Choose ID
+                {t.signIn || 'Sign In / Choose ID'}
               </button>
             )}
           </div>
@@ -264,7 +274,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                 <path d="M9 22V12h6v10"/>
               </svg>
-              <span>Home</span>
+              <span>{t.home || 'Home'}</span>
             </button>
             <button
               className="grid-card"
@@ -274,7 +284,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
                 <path d="M22 12A10 10 0 0 0 12 2v10z"/>
               </svg>
-              <span>Statistics</span>
+              <span>{t.statistics || 'Statistics'}</span>
             </button>
             <button
               className="grid-card"
@@ -284,7 +294,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 <rect width="20" height="14" x="2" y="5" rx="2"/>
                 <line x1="2" x2="22" y1="10" y2="10"/>
               </svg>
-              <span>My Cards</span>
+              <span>{t.myCards || 'My Cards'}</span>
             </button>
             <button
               className="grid-card"
@@ -294,12 +304,51 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 <circle cx="12" cy="12" r="10"/>
                 <polyline points="12 6 12 12 16 14"/>
               </svg>
-              <span>History</span>
+              <span>{t.history || 'History'}</span>
             </button>
           </div>
 
+          {/* DISTRIBUTOR PORTAL & DATABASE SECTION (Hidden for regular consumers, shown ONLY for distributor ID) */}
+          {isDistributor && (
+            <>
+              <div className="menu-section-header" style={{ color: '#7BEA12', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span>🛡️</span>
+                <span>{t.distributorPortal || 'Distributor Hub'}</span>
+              </div>
+              <div className="list-items">
+                <button
+                  className="list-item distributor-hub-btn"
+                  onClick={() => { setMenuOpen(false); navigation.navigate('Distributor'); }}
+                  style={{ backgroundColor: 'rgba(123, 234, 18, 0.08)', border: '1px solid rgba(123, 234, 18, 0.3)' }}
+                >
+                  <svg className="list-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: '#7BEA12', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 20, height: 20 }}>
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                  </svg>
+                  <span style={{ color: '#7BEA12', fontWeight: '700' }}>
+                    {t.tagEditor || 'Tag & Price Manager (Max ₹1000)'}
+                  </span>
+                </button>
+                <button
+                  className="list-item distributor-db-btn"
+                  onClick={() => { setMenuOpen(false); navigation.navigate('Distributor'); }}
+                  style={{ backgroundColor: 'rgba(0, 183, 255, 0.08)', border: '1px solid rgba(0, 183, 255, 0.3)' }}
+                >
+                  <svg className="list-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: '#00B7FF', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 20, height: 20 }}>
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                  <span style={{ color: '#00B7FF', fontWeight: '700' }}>
+                    {t.database || 'Consumer & Distributor DB'}
+                  </span>
+                </button>
+              </div>
+            </>
+          )}
+
           {/* Store Section */}
-          <div className="menu-section-header">Store</div>
+          <div className="menu-section-header">{t.store || 'Store'}</div>
           <div className="list-items">
             <button
               className="list-item"
@@ -310,12 +359,12 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 <circle cx="9" cy="19" r="1.5" />
                 <circle cx="17" cy="19" r="1.5" />
               </svg>
-              <span>My Cart {totalCount > 0 ? `(${totalCount})` : ''}</span>
+              <span>{t.myCart || 'My Cart'} {totalCount > 0 ? `(${totalCount})` : ''}</span>
             </button>
           </div>
 
           {/* Messages Section */}
-          <div className="menu-section-header">Messages</div>
+          <div className="menu-section-header">{t.messages || 'Messages'}</div>
           <div className="list-items">
             <button
               className="list-item"
@@ -325,7 +374,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 <rect width="20" height="16" x="2" y="4" rx="2"/>
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
               </svg>
-              <span>Inbox</span>
+              <span>{t.inbox || 'Inbox'}</span>
             </button>
             <button
               className="list-item"
@@ -335,12 +384,12 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
               </svg>
-              <span>Notifications</span>
+              <span>{t.notifications || 'Notifications'}</span>
             </button>
           </div>
 
           {/* Account & Security Section */}
-          <div className="menu-section-header">Account and Security</div>
+          <div className="menu-section-header">{t.accountAndSecurity || 'Account and Security'}</div>
           <div className="list-items">
             <button
               className="list-item"
@@ -350,7 +399,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
                 <circle cx="12" cy="7" r="4"/>
               </svg>
-              <span>Update Account Data</span>
+              <span>{t.updateAccountData || 'Update Account Data'}</span>
             </button>
             <button
               className="list-item"
@@ -361,7 +410,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
                 <path d="M2 12h20"/>
               </svg>
-              <span>Language</span>
+              <span>{t.language || 'Language'}</span>
             </button>
             <button
               className="list-item"
@@ -373,7 +422,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 <path d="m11.4 12.6 7-7"/>
                 <path d="M16 8.5H19V5.5"/>
               </svg>
-              <span>Change Password</span>
+              <span>{t.changePassword || 'Change Password'}</span>
             </button>
           </div>
         </aside>
@@ -1083,7 +1132,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             </TouchableOpacity>
 
             {/* Menu Title */}
-            <Text style={styles.nativeDrawerTitle}>Main Menu</Text>
+            <Text style={styles.nativeDrawerTitle}>{t.mainMenu || 'Main Menu'}</Text>
 
             {/* Native Active User Card */}
             <View style={styles.nativeUserCard}>
@@ -1099,9 +1148,19 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 </Text>
                 {user && (
                   <View style={styles.nativeUserBadgeRow}>
-                    <View style={styles.nativeBadgeDot} />
-                    <Text style={styles.nativeUserBadgeText}>
-                      Permanent Session • {user.provider ? (user.provider.charAt(0).toUpperCase() + user.provider.slice(1)) : 'Active'}
+                    <View
+                      style={[
+                        styles.nativeBadgeDot,
+                        { backgroundColor: isDistributor ? '#7BEA12' : '#00B7FF' },
+                      ]}
+                    />
+                    <Text
+                      style={[
+                        styles.nativeUserBadgeText,
+                        { color: isDistributor ? '#7BEA12' : '#00B7FF' },
+                      ]}
+                    >
+                      {isDistributor ? 'Distributor ID Active' : 'Consumer Account'} • {user.provider ? (user.provider.charAt(0).toUpperCase() + user.provider.slice(1)) : 'Active'}
                     </Text>
                   </View>
                 )}
@@ -1113,9 +1172,14 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 <>
                   <TouchableOpacity
                     style={styles.nativeSwitchBtn}
-                    onPress={() => { setMenuOpen(false); navigation.navigate('Login'); }}
+                    onPress={async () => {
+                      const nextRole = isDistributor ? 'consumer' : 'distributor';
+                      await setRole(nextRole);
+                    }}
                   >
-                    <Text style={styles.nativeSwitchBtnText}>Switch ID</Text>
+                    <Text style={styles.nativeSwitchBtnText}>
+                      {isDistributor ? (t.actAsConsumer || 'Act as Consumer') : (t.actAsDistributor || 'Act as Distributor')}
+                    </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.nativeLogoutBtn}
@@ -1125,7 +1189,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                       navigation.navigate('Login');
                     }}
                   >
-                    <Text style={styles.nativeLogoutBtnText}>Sign Out</Text>
+                    <Text style={styles.nativeLogoutBtnText}>{t.signOut || 'Sign Out'}</Text>
                   </TouchableOpacity>
                 </>
               ) : (
@@ -1133,7 +1197,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                   style={styles.nativeLoginBtn}
                   onPress={() => { setMenuOpen(false); navigation.navigate('Login'); }}
                 >
-                  <Text style={styles.nativeLoginBtnText}>Sign In / Choose ID</Text>
+                  <Text style={styles.nativeLoginBtnText}>{t.signIn || 'Sign In / Choose ID'}</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -1179,7 +1243,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                     style={styles.nativeGridCardActiveGradient}
                   >
                     <Home size={22} color="#FFF" />
-                    <Text style={styles.nativeGridCardTextActive}>Home</Text>
+                    <Text style={styles.nativeGridCardTextActive}>{t.home || 'Home'}</Text>
                   </LinearGradient>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -1191,7 +1255,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                   }}
                 >
                   <PieChart size={22} color="rgba(255, 255, 255, 0.75)" />
-                  <Text style={styles.nativeGridCardText}>Statistics</Text>
+                  <Text style={styles.nativeGridCardText}>{t.statistics || 'Statistics'}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.nativeGridCard}
@@ -1202,7 +1266,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                   }}
                 >
                   <CreditCard size={22} color="rgba(255, 255, 255, 0.75)" />
-                  <Text style={styles.nativeGridCardText}>My Cards</Text>
+                  <Text style={styles.nativeGridCardText}>{t.myCards || 'My Cards'}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.nativeGridCard}
@@ -1213,12 +1277,66 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                   }}
                 >
                   <Clock size={22} color="rgba(255, 255, 255, 0.75)" />
-                  <Text style={styles.nativeGridCardText}>History</Text>
+                  <Text style={styles.nativeGridCardText}>{t.history || 'History'}</Text>
                 </TouchableOpacity>
               </View>
 
+              {/* DISTRIBUTOR PORTAL & DATABASE SECTION (Hidden for regular consumers) */}
+              {isDistributor && (
+                <>
+                  <Text style={[styles.nativeSectionHeader, { color: '#7BEA12' }]}>
+                    🛡️ {t.distributorPortal || 'Distributor Hub'}
+                  </Text>
+                  <TouchableOpacity
+                    style={[
+                      styles.nativeListItem,
+                      {
+                        backgroundColor: 'rgba(123, 234, 18, 0.08)',
+                        borderRadius: 12,
+                        paddingHorizontal: 10,
+                        borderWidth: 1,
+                        borderColor: 'rgba(123, 234, 18, 0.3)',
+                      },
+                    ]}
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      setMenuOpen(false);
+                      navigation.navigate('Distributor');
+                    }}
+                  >
+                    <Tag size={20} color="#7BEA12" style={styles.nativeListIcon} />
+                    <Text style={[styles.nativeListItemText, { color: '#7BEA12', fontWeight: '700' }]}>
+                      {t.tagEditor || 'Tag & Price Manager (Max ₹1000)'}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.nativeListItem,
+                      {
+                        backgroundColor: 'rgba(0, 183, 255, 0.08)',
+                        borderRadius: 12,
+                        paddingHorizontal: 10,
+                        marginTop: 6,
+                        borderWidth: 1,
+                        borderColor: 'rgba(0, 183, 255, 0.3)',
+                      },
+                    ]}
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      setMenuOpen(false);
+                      navigation.navigate('Distributor');
+                    }}
+                  >
+                    <Database size={20} color="#00B7FF" style={styles.nativeListIcon} />
+                    <Text style={[styles.nativeListItemText, { color: '#00B7FF', fontWeight: '700' }]}>
+                      {t.database || 'Consumer & Distributor DB'}
+                    </Text>
+                  </TouchableOpacity>
+                </>
+              )}
+
               {/* Store Section */}
-              <Text style={styles.nativeSectionHeader}>Store</Text>
+              <Text style={styles.nativeSectionHeader}>{t.store || 'Store'}</Text>
               <TouchableOpacity
                 style={styles.nativeListItem}
                 activeOpacity={0.8}
@@ -1228,11 +1346,13 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 }}
               >
                 <ShoppingCart size={20} color="#7BEA12" style={styles.nativeListIcon} />
-                <Text style={styles.nativeListItemText}>My Cart {totalCount > 0 ? `(${totalCount})` : ''}</Text>
+                <Text style={styles.nativeListItemText}>
+                  {t.myCart || 'My Cart'} {totalCount > 0 ? `(${totalCount})` : ''}
+                </Text>
               </TouchableOpacity>
 
               {/* Messages Section */}
-              <Text style={styles.nativeSectionHeader}>Messages</Text>
+              <Text style={styles.nativeSectionHeader}>{t.messages || 'Messages'}</Text>
               <TouchableOpacity
                 style={styles.nativeListItem}
                 activeOpacity={0.8}
@@ -1242,7 +1362,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 }}
               >
                 <Mail size={20} color="rgba(255, 255, 255, 0.5)" style={styles.nativeListIcon} />
-                <Text style={styles.nativeListItemText}>Inbox</Text>
+                <Text style={styles.nativeListItemText}>{t.inbox || 'Inbox'}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.nativeListItem}
@@ -1253,11 +1373,11 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 }}
               >
                 <Bell size={20} color="rgba(255, 255, 255, 0.5)" style={styles.nativeListIcon} />
-                <Text style={styles.nativeListItemText}>Notifications</Text>
+                <Text style={styles.nativeListItemText}>{t.notifications || 'Notifications'}</Text>
               </TouchableOpacity>
 
               {/* Account & Security Section */}
-              <Text style={styles.nativeSectionHeader}>Account and Security</Text>
+              <Text style={styles.nativeSectionHeader}>{t.accountAndSecurity || 'Account and Security'}</Text>
               <TouchableOpacity
                 style={styles.nativeListItem}
                 activeOpacity={0.8}
@@ -1267,7 +1387,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 }}
               >
                 <User size={20} color="rgba(255, 255, 255, 0.5)" style={styles.nativeListIcon} />
-                <Text style={styles.nativeListItemText}>Update Account Data</Text>
+                <Text style={styles.nativeListItemText}>{t.updateAccountData || 'Update Account Data'}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.nativeListItem}
@@ -1278,7 +1398,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 }}
               >
                 <Globe size={20} color="rgba(255, 255, 255, 0.5)" style={styles.nativeListIcon} />
-                <Text style={styles.nativeListItemText}>Language</Text>
+                <Text style={styles.nativeListItemText}>{t.language || 'Language'}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.nativeListItem}
@@ -1289,7 +1409,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 }}
               >
                 <Key size={20} color="rgba(255, 255, 255, 0.5)" style={styles.nativeListIcon} />
-                <Text style={styles.nativeListItemText}>Change Password</Text>
+                <Text style={styles.nativeListItemText}>{t.changePassword || 'Change Password'}</Text>
               </TouchableOpacity>
               <View style={{ height: 40 }} />
             </ScrollView>

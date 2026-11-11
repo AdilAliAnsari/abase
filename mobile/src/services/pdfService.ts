@@ -1,9 +1,13 @@
-import api from './api';
+import api, { getApiBaseUrl } from './api';
 import { PDFItem, mockPDFs as fallbackPDFs } from '../data/pdfs';
 
 export interface GetPDFsParams {
   search?: string;
   category?: string;
+  branch?: string;
+  semester?: number | string;
+  subjectCode?: string;
+  module?: string;
   tags?: string;
   minPrice?: number | string;
   maxPrice?: number | string;
@@ -32,41 +36,50 @@ export const pdfService = {
         totalItems?: number;
         currentPage?: number;
         totalPages?: number;
-      }>('/api/pdf', params);
+      }>('/api/pdfs', params);
 
       if (res && res.pdfs && res.pdfs.length > 0) {
-        // Map backend PDF structure to frontend PDFItem if needed
-        const mappedPdfs: PDFItem[] = res.pdfs.map((p: any) => ({
-          id: p._id || p.id,
-          title: p.title,
-          subjectCode: p.subjectCode || 'VTU',
-          scheme: p.scheme || '2022 Scheme',
-          branch: p.branch || 'CSE',
-          year: p.year || '2nd Year',
-          semester: p.semester || 4,
-          university: p.university || 'VTU',
-          lecturer: p.lecturer || {
-            name: p.author || 'VTU Faculty',
-            title: 'Assistant Professor',
-            department: p.category || 'CSE',
-            institution: 'VTU Affiliated',
+        const baseUrl = getApiBaseUrl();
+
+        // Map backend PDF structure to frontend PDFItem
+        const mappedPdfs: PDFItem[] = res.pdfs.map((p: any) => {
+          const rawUrl = p.pdfFileUrl || p.pdfUrl || '';
+          const fullPdfUrl = rawUrl.startsWith('/')
+            ? `${baseUrl}${rawUrl}`
+            : rawUrl || 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+
+          return {
+            id: p._id || p.id,
+            title: p.title,
+            subjectCode: p.subjectCode || 'VTU',
+            scheme: (p.scheme as any) || '2022 Scheme',
+            branch: (p.branch as any) || 'CSE',
+            year: p.semester <= 2 ? '1st Year' : p.semester <= 4 ? '2nd Year' : p.semester <= 6 ? '3rd Year' : '4th Year',
+            semester: p.semester || 5,
+            university: (p.university as any) || 'VTU',
+            lecturer: p.lecturer || {
+              name: p.author || 'VTU Faculty',
+              title: 'Assistant Professor',
+              department: p.branch || 'CSE',
+              institution: 'VTU Affiliated College',
+              rating: p.rating || 4.8,
+              verified: true,
+            },
+            materialType: (p.materialType as any) || 'Module Notes',
+            author: p.author || 'VTU Faculty',
+            category: p.category || `${p.branch || 'CSE'} ${p.scheme || '2022 Scheme'}`,
+            fileSize: p.fileSize || '1.8 MB',
+            pageCount: p.pageCount || 25,
+            pdfUrl: fullPdfUrl,
+            coverImage: p.coverImage || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=600&fit=crop',
+            description: p.description || `${p.title} - Official study material for ${p.branch} Sem ${p.semester}.`,
             rating: p.rating || 4.8,
-            verified: true,
-          },
-          materialType: p.materialType || 'Module Notes',
-          author: p.author || 'VTU Faculty',
-          category: p.category || 'CSE',
-          fileSize: p.fileSize || '14.2 MB',
-          pageCount: p.pageCount || 100,
-          pdfUrl: p.pdfFileUrl || p.pdfUrl || 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-          coverImage: p.coverImage || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=600&fit=crop',
-          description: p.description || '',
-          rating: p.rating || 4.8,
-          reviewsCount: p.reviewsCount || 120,
-          downloadsCount: p.salesCount || p.downloadsCount || 450,
-          tags: p.tags || [],
-          publishedYear: '2024',
-        }));
+            reviewsCount: p.reviewsCount || 42,
+            downloadsCount: p.salesCount || p.downloadsCount || 120,
+            tags: p.tags && p.tags.length > 0 ? p.tags : [p.subjectCode, p.branch, `Sem ${p.semester}`].filter(Boolean),
+            publishedYear: '2024',
+          };
+        });
 
         return {
           success: true,
@@ -78,7 +91,7 @@ export const pdfService = {
         };
       }
     } catch (err: any) {
-      console.warn('Backend /api/pdf unreachable, using fallback PDFs:', err.message);
+      console.warn('Backend /api/pdfs unreachable, using fallback PDFs:', err.message);
     }
 
     // Local fallback
@@ -114,17 +127,32 @@ export const pdfService = {
    */
   getPdfById: async (id: string): Promise<PDFItem | null> => {
     try {
-      const res = await api.get<any>(`/api/pdf/${id}`);
+      const res = await api.get<any>(`/api/pdfs/${id}`);
+      if (res && res.pdf) {
+        return res.pdf;
+      }
       if (res && (res._id || res.id)) {
         return res;
       }
     } catch (err: any) {
-      console.warn(`Backend /api/pdf/${id} unreachable:`, err.message);
+      console.warn(`Backend /api/pdfs/${id} unreachable:`, err.message);
     }
 
     const found = fallbackPDFs.find((p: PDFItem) => p.id === id);
     return found || null;
   },
+
+  /**
+   * Trigger local directory rescan on backend
+   */
+  rescanPdfs: async () => {
+    try {
+      return await api.post('/api/pdfs/scan');
+    } catch (err: any) {
+      console.error('Failed to trigger scan:', err.message);
+      throw err;
+    }
+  }
 };
 
 export default pdfService;

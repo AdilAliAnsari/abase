@@ -1,11 +1,29 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Animated, Share, Platform } from 'react-native';
-import { ArrowLeft, Heart, Share2, Star, ShoppingBag, Minus, Plus, BookOpen, Globe, Building2, FileText } from 'lucide-react-native';
+import {
+  ArrowLeft,
+  Heart,
+  Share2,
+  Star,
+  ShoppingBag,
+  Minus,
+  Plus,
+  BookOpen,
+  Globe,
+  Building2,
+  FileText,
+  Zap,
+  MapPin,
+  ShieldCheck,
+  Lock,
+} from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import { Book } from '../data/books';
 import bookService from '../services/bookService';
 import DarkGradientBg from '../components/DarkGradientBg';
 import { useCart } from '../context/CartContext';
+import { useTranslation } from '../i18n/LanguageContext';
+import AmazonBuyNowModal from '../components/AmazonBuyNowModal';
 
 interface ProductDetailScreenProps {
   route: any;
@@ -14,6 +32,7 @@ interface ProductDetailScreenProps {
 
 const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, navigation }) => {
   const { addToCart, totalCount } = useCart();
+  const { t } = useTranslation();
   const initialBook = (route.params?.book || {}) as Book;
   const bookId = initialBook?.id || route.params?.id || route.params?.bookId;
   const [book, setBook] = useState<Book>(initialBook);
@@ -29,6 +48,7 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
   const [quantity, setQuantity] = useState(1);
   const [liked, setLiked] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [isBuyNowOpen, setIsBuyNowOpen] = useState(false);
 
   const slideAnim = useRef(new Animated.Value(800)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -66,7 +86,7 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
     }
   };
 
-  const totalPrice = ((book?.price || 0) * quantity).toFixed(2);
+  const totalPrice = ((book?.price || 0) * quantity);
   const hasDiscount = !!book?.originalPrice && book.originalPrice > (book?.price || 0);
   const discountPercent = hasDiscount ? Math.round(((book.originalPrice! - book.price) / book.originalPrice!) * 100) : 0;
 
@@ -136,12 +156,12 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
               <Text style={styles.reviews}>{(book?.reviews || 0).toLocaleString()} ratings</Text>
             </View>
 
-            {/* Pricing */}
+            {/* Pricing in INR (₹) */}
             <View style={styles.priceRow}>
-              <Text style={styles.price}>${book?.price?.toFixed(2)}</Text>
+              <Text style={styles.price}>₹{book?.price}</Text>
               {hasDiscount && (
                 <>
-                  <Text style={styles.originalPrice}>M.R.P.: ${book?.originalPrice?.toFixed(2)}</Text>
+                  <Text style={styles.originalPrice}>M.R.P.: ₹{book?.originalPrice}</Text>
                   <View style={styles.discountBadge}>
                     <Text style={styles.discountText}>Save {discountPercent}%</Text>
                   </View>
@@ -149,16 +169,37 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
               )}
             </View>
 
+            {/* Dynamic Distributor Delivery & Prime Tag */}
             <View style={styles.primeDeliveryBadge}>
-              <Text style={styles.primeLabel}>prime</Text>
-              <Text style={styles.primeDeliveryText}>FREE delivery Tomorrow. Order within 10 hrs.</Text>
+              {book?.isPrime !== false && <Text style={styles.primeLabel}>prime</Text>}
+              <Text style={styles.primeDeliveryText}>
+                {book?.deliveryTag || t.freeDeliveryTomorrow || 'FREE delivery Tomorrow'}
+              </Text>
+            </View>
+
+            {/* Amazon Shipping & Location Box */}
+            <View style={styles.amazonDeliveryBox}>
+              <View style={styles.deliverToRow}>
+                <MapPin size={14} color="#69D900" />
+                <Text style={styles.deliverToText}>
+                  Deliver to <Text style={styles.deliverToBold}>Adil - Bengaluru 560038</Text>
+                </Text>
+              </View>
+              <Text style={styles.inStockText}>In Stock</Text>
+              <Text style={styles.sellerText}>
+                Ships from <Text style={styles.sellerBold}>Abase India</Text> • Sold by <Text style={styles.sellerBold}>{book?.author || 'Official Publisher'}</Text>
+              </Text>
+              <View style={styles.secureRow}>
+                <ShieldCheck size={14} color="#FF9900" />
+                <Text style={styles.secureText}>Amazon A-to-z Guarantee • Secure transaction</Text>
+              </View>
             </View>
 
             <View style={styles.sectionDivider} />
 
             {/* Description */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Description</Text>
+              <Text style={styles.sectionTitle}>{t.description || 'Description'}</Text>
               <Text style={styles.description}>{book?.description}</Text>
             </View>
 
@@ -166,26 +207,26 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
 
             {/* Specifications */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Product Details</Text>
+              <Text style={styles.sectionTitle}>{t.productDetails || 'Product Details'}</Text>
               <View style={styles.infoGrid}>
                 <View style={styles.infoItem}>
                   <FileText size={16} color="#69D900" />
-                  <Text style={styles.infoLabel}>Length</Text>
+                  <Text style={styles.infoLabel}>{t.pages || 'Length'}</Text>
                   <Text style={styles.infoValue}>{book?.pages} pages</Text>
                 </View>
                 <View style={styles.infoItem}>
                   <Globe size={16} color="#69D900" />
-                  <Text style={styles.infoLabel}>Language</Text>
+                  <Text style={styles.infoLabel}>{t.language || 'Language'}</Text>
                   <Text style={styles.infoValue}>{book?.language}</Text>
                 </View>
                 <View style={styles.infoItem}>
                   <Building2 size={16} color="#69D900" />
-                  <Text style={styles.infoLabel}>Publisher</Text>
+                  <Text style={styles.infoLabel}>{t.publisher || 'Publisher'}</Text>
                   <Text style={styles.infoValue} numberOfLines={1}>{book?.publisher}</Text>
                 </View>
                 <View style={styles.infoItem}>
                   <BookOpen size={16} color="#69D900" />
-                  <Text style={styles.infoLabel}>Category</Text>
+                  <Text style={styles.infoLabel}>{t.category || 'Category'}</Text>
                   <Text style={styles.infoValue}>{book?.category}</Text>
                 </View>
               </View>
@@ -195,31 +236,54 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
           </ScrollView>
         </Animated.View>
 
-        {/* Bottom Sticky Action Bar */}
+        {/* Bottom Sticky Action Bar: Quantity + Add to Cart + Amazon Buy Now */}
         <View style={styles.bottomBar}>
           <View style={styles.quantityWrap}>
             <TouchableOpacity style={styles.quantityBtn} onPress={() => setQuantity(Math.max(1, quantity - 1))}>
-              <Minus size={14} color="#FFFFFF" />
+              <Minus size={13} color="#FFFFFF" />
             </TouchableOpacity>
             <Text style={styles.quantityText}>{quantity}</Text>
             <TouchableOpacity style={styles.quantityBtn} onPress={() => setQuantity(quantity + 1)}>
-              <Plus size={14} color="#FFFFFF" />
+              <Plus size={13} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
+
+          {/* Add to Cart Button */}
           <TouchableOpacity 
             style={[styles.addToCartBtn, addedToCart && styles.addToCartBtnAdded]} 
             onPress={handleAddToCart} 
             activeOpacity={0.8}
           >
-            <ShoppingBag size={18} color={addedToCart ? '#FFF' : '#0B2405'} />
+            <ShoppingBag size={16} color={addedToCart ? '#FFF' : '#0B2405'} />
             <Text style={[styles.addToCartText, addedToCart && styles.addToCartTextAdded]}>
-              {addedToCart ? 'Added to Cart!' : 'Add to Cart'}
+              {addedToCart ? (t.added || 'Added!') : (t.addToCart || 'Add to Cart')}
             </Text>
-            <Text style={[styles.addToCartPrice, addedToCart && styles.addToCartPriceAdded]}>
-              ${totalPrice}
+          </TouchableOpacity>
+
+          {/* Amazon Buy Now Button */}
+          <TouchableOpacity 
+            style={styles.buyNowBtn} 
+            onPress={() => setIsBuyNowOpen(true)} 
+            activeOpacity={0.85}
+          >
+            <Zap size={16} color="#0F1111" />
+            <Text style={styles.buyNowText}>
+              Buy Now • ₹{totalPrice}
             </Text>
           </TouchableOpacity>
         </View>
+
+        {/* Amazon Checkout Modal */}
+        <AmazonBuyNowModal
+          visible={isBuyNowOpen}
+          onClose={() => setIsBuyNowOpen(false)}
+          book={book}
+          quantity={quantity}
+          onSuccess={(order) => {
+            console.log('Order successfully placed:', order);
+          }}
+        />
+
         </View>
       </View>
     </DarkGradientBg>
@@ -404,7 +468,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   primeLabel: {
     color: '#69D900',
@@ -415,6 +479,52 @@ const styles = StyleSheet.create({
   primeDeliveryText: {
     fontSize: 12,
     color: colors.secondaryText,
+  },
+  amazonDeliveryBox: {
+    backgroundColor: 'rgba(27, 27, 41, 0.65)',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(105, 217, 0, 0.15)',
+    marginBottom: 16,
+    gap: 6,
+  },
+  deliverToRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  deliverToText: {
+    color: '#B8B8C2',
+    fontSize: 12,
+  },
+  deliverToBold: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  inStockText: {
+    color: '#69D900',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  sellerText: {
+    color: '#8D8D94',
+    fontSize: 11,
+  },
+  sellerBold: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  secureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 2,
+  },
+  secureText: {
+    color: '#FF9900',
+    fontSize: 11,
+    fontWeight: '600',
   },
   sectionDivider: {
     height: 1,
@@ -467,13 +577,13 @@ const styles = StyleSheet.create({
     right: 0, 
     flexDirection: 'row', 
     alignItems: 'center', 
-    paddingHorizontal: 16, 
-    paddingVertical: 12, 
-    paddingBottom: Platform.OS === 'ios' ? 28 : 12, 
-    backgroundColor: 'rgba(18, 18, 24, 0.92)', 
+    paddingHorizontal: 14, 
+    paddingVertical: 10, 
+    paddingBottom: Platform.OS === 'ios' ? 26 : 10, 
+    backgroundColor: 'rgba(18, 18, 24, 0.95)', 
     borderTopWidth: 1, 
-    borderTopColor: 'rgba(105, 217, 0, 0.15)', 
-    gap: 12, 
+    borderTopColor: 'rgba(255, 153, 0, 0.25)', 
+    gap: 8, 
     shadowColor: '#000', 
     shadowOffset: { width: 0, height: -2 }, 
     shadowOpacity: 0.35, 
@@ -483,28 +593,26 @@ const styles = StyleSheet.create({
   quantityWrap: { 
     flexDirection: 'row', 
     alignItems: 'center', 
-    gap: 8, 
+    gap: 4, 
     backgroundColor: 'rgba(27, 27, 41, 0.8)', 
-    borderRadius: 20, 
-    padding: 3, 
+    borderRadius: 18, 
+    padding: 2, 
     borderWidth: 1, 
     borderColor: 'rgba(105, 217, 0, 0.2)', 
   },
   quantityBtn: { 
-    width: 30, 
-    height: 30, 
-    borderRadius: 15, 
+    width: 26, 
+    height: 26, 
+    borderRadius: 13, 
     backgroundColor: 'rgba(255, 255, 255, 0.08)', 
     justifyContent: 'center', 
     alignItems: 'center', 
-    borderWidth: 1, 
-    borderColor: 'rgba(255, 255, 255, 0.06)', 
   },
   quantityText: { 
     color: colors.primaryText, 
-    fontSize: 14, 
+    fontSize: 13, 
     fontWeight: '700', 
-    minWidth: 20, 
+    minWidth: 16, 
     textAlign: 'center',
   },
   addToCartBtn: { 
@@ -512,17 +620,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     alignItems: 'center', 
     justifyContent: 'center', 
-    gap: 8, 
-    height: 42, 
-    borderRadius: 21, 
+    gap: 6, 
+    height: 40, 
+    borderRadius: 20, 
     backgroundColor: '#69D900', 
     borderColor: '#7BEA12', 
     borderWidth: 1, 
-    shadowColor: '#69D900', 
-    shadowOffset: { width: 0, height: 2 }, 
-    shadowOpacity: 0.3, 
-    shadowRadius: 8, 
-    elevation: 4, 
   },
   addToCartBtnAdded: { 
     backgroundColor: '#067D62', 
@@ -530,19 +633,33 @@ const styles = StyleSheet.create({
   },
   addToCartText: { 
     color: '#0B2405', 
-    fontSize: 13, 
-    fontWeight: '700', 
+    fontSize: 12, 
+    fontWeight: '800', 
   },
   addToCartTextAdded: { 
     color: '#FFFFFF', 
   },
-  addToCartPrice: { 
-    color: '#0B2405', 
-    fontSize: 12, 
-    fontWeight: '700', 
+  buyNowBtn: {
+    flex: 1.2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FFA41C',
+    borderColor: '#FF9900',
+    borderWidth: 1,
+    shadowColor: '#FFA41C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 4,
   },
-  addToCartPriceAdded: { 
-    color: 'rgba(255,255,255,0.85)', 
+  buyNowText: {
+    color: '#0F1111',
+    fontSize: 12,
+    fontWeight: '900',
   },
   headerBadge: {
     position: 'absolute',

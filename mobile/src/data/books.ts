@@ -1,9 +1,15 @@
 export interface Book {
   id: string;
+  _id?: string;
   title: string;
   author: string;
   price: number;
   originalPrice?: number;
+  currency?: string;
+  isPrime?: boolean;
+  deliveryTag?: string;
+  stockCount?: number;
+  inStock?: boolean;
   rating: number;
   reviews: number;
   coverImage: string;
@@ -13,7 +19,7 @@ export interface Book {
   publisher: string;
   language: string;
   badge?: string;
-  accent: 'orange' | 'blue' | 'purple' | 'teal';
+  accent?: 'orange' | 'blue' | 'purple' | 'teal';
 }
 
 export const categories = [
@@ -24,10 +30,16 @@ export const categories = [
 export const books: Book[] = [
   {
     id: '1',
+    _id: '660000000000000000000001',
     title: 'The Design of Everyday Things',
     author: 'Don Norman',
-    price: 24.99,
-    originalPrice: 32.00,
+    price: 399,
+    originalPrice: 499,
+    currency: 'INR',
+    isPrime: true,
+    deliveryTag: 'FREE delivery Tomorrow',
+    stockCount: 45,
+    inStock: true,
     rating: 4.8,
     reviews: 2847,
     coverImage: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop',
@@ -41,9 +53,16 @@ export const books: Book[] = [
   },
   {
     id: '2',
+    _id: '660000000000000000000002',
     title: 'Atomic Habits',
     author: 'James Clear',
-    price: 19.99,
+    price: 449,
+    originalPrice: 599,
+    currency: 'INR',
+    isPrime: true,
+    deliveryTag: 'FREE delivery Tomorrow',
+    stockCount: 60,
+    inStock: true,
     rating: 4.9,
     reviews: 15234,
     coverImage: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&h=600&fit=crop',
@@ -57,10 +76,16 @@ export const books: Book[] = [
   },
   {
     id: '3',
+    _id: '660000000000000000000003',
     title: 'Dune',
     author: 'Frank Herbert',
-    price: 18.99,
-    originalPrice: 25.99,
+    price: 499,
+    originalPrice: 699,
+    currency: 'INR',
+    isPrime: true,
+    deliveryTag: 'FREE delivery Tomorrow',
+    stockCount: 30,
+    inStock: true,
     rating: 4.7,
     reviews: 8932,
     coverImage: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=400&h=600&fit=crop',
@@ -73,9 +98,16 @@ export const books: Book[] = [
   },
   {
     id: '4',
+    _id: '660000000000000000000004',
     title: 'Zero to One',
     author: 'Peter Thiel',
-    price: 22.99,
+    price: 349,
+    originalPrice: 450,
+    currency: 'INR',
+    isPrime: true,
+    deliveryTag: 'FREE delivery Tomorrow',
+    stockCount: 40,
+    inStock: true,
     rating: 4.6,
     reviews: 5671,
     coverImage: 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=400&h=600&fit=crop',
@@ -89,9 +121,16 @@ export const books: Book[] = [
   },
   {
     id: '5',
+    _id: '660000000000000000000005',
     title: 'Project Hail Mary',
     author: 'Andy Weir',
-    price: 21.99,
+    price: 599,
+    originalPrice: 799,
+    currency: 'INR',
+    isPrime: true,
+    deliveryTag: 'FREE delivery Tomorrow',
+    stockCount: 25,
+    inStock: true,
     rating: 4.9,
     reviews: 12345,
     coverImage: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=600&fit=crop',
@@ -105,10 +144,16 @@ export const books: Book[] = [
   },
   {
     id: '6',
+    _id: '660000000000000000000006',
     title: 'Thinking, Fast and Slow',
     author: 'Daniel Kahneman',
-    price: 17.99,
-    originalPrice: 29.99,
+    price: 480,
+    originalPrice: 650,
+    currency: 'INR',
+    isPrime: true,
+    deliveryTag: 'FREE delivery Tomorrow',
+    stockCount: 35,
+    inStock: true,
     rating: 4.5,
     reviews: 9876,
     coverImage: 'https://images.unsplash.com/photo-1555116505-a1d6d352e65c?w=400&h=600&fit=crop',
@@ -121,9 +166,16 @@ export const books: Book[] = [
   },
   {
     id: '7',
+    _id: '660000000000000000000007',
     title: 'The Lean Startup',
     author: 'Eric Ries',
-    price: 20.99,
+    price: 399,
+    originalPrice: 499,
+    currency: 'INR',
+    isPrime: true,
+    deliveryTag: 'FREE delivery Tomorrow',
+    stockCount: 50,
+    inStock: true,
     rating: 4.7,
     reviews: 7654,
     coverImage: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&h=600&fit=crop',
@@ -137,10 +189,16 @@ export const books: Book[] = [
   },
   {
     id: '8',
+    _id: '660000000000000000000008',
     title: 'Sapiens',
     author: 'Yuval Noah Harari',
-    price: 23.99,
-    originalPrice: 28.99,
+    price: 549,
+    originalPrice: 699,
+    currency: 'INR',
+    isPrime: true,
+    deliveryTag: 'FREE delivery Tomorrow',
+    stockCount: 40,
+    inStock: true,
     rating: 4.8,
     reviews: 18765,
     coverImage: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop',
@@ -154,10 +212,16 @@ export const books: Book[] = [
   },
   {
     id: '9',
+    _id: '660000000000000000000009',
     title: 'C++: The Complete Reference',
     author: 'Bjarne Stroustrup',
-    price: 30.13,
-    originalPrice: 56.99,
+    price: 899,
+    originalPrice: 999,
+    currency: 'INR',
+    isPrime: true,
+    deliveryTag: 'FREE delivery Tomorrow',
+    stockCount: 20,
+    inStock: true,
     rating: 4.8,
     reviews: 18765,
     coverImage: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop',
@@ -169,8 +233,31 @@ export const books: Book[] = [
     badge: 'NEW',
     accent: 'orange',
   },
+  {
+    id: '10',
+    _id: '660000000000000000000010',
+    title: 'The Psychology of Money',
+    author: 'Morgan Housel',
+    price: 299,
+    originalPrice: 399,
+    currency: 'INR',
+    isPrime: true,
+    deliveryTag: 'FREE delivery Tomorrow',
+    stockCount: 55,
+    inStock: true,
+    rating: 4.8,
+    reviews: 14200,
+    coverImage: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&h=600&fit=crop',
+    category: 'Business',
+    description: 'Timeless lessons on wealth, greed, and happiness.',
+    pages: 256,
+    publisher: 'Harriman House',
+    language: 'English',
+    badge: 'BESTSELLER',
+    accent: 'blue',
+  }
 ];
 
 export const featuredBooks = books.slice(0, 3);
 export const newArrivals = books.filter(b => b.badge === 'NEW');
-export const bestsellers = books.filter(b => b.badge === 'BESTSELLER'); 
+export const bestsellers = books.filter(b => b.badge === 'BESTSELLER');

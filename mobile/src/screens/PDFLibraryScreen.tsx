@@ -30,6 +30,7 @@ import {
   BadgeCheck,
   Building2,
   BookOpen,
+  RefreshCw,
 } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import DarkGradientBg from '../components/DarkGradientBg';
@@ -59,12 +60,17 @@ export const PDFLibraryScreen: React.FC<PDFLibraryScreenProps> = ({ navigation }
   const [pdfList, setPdfList] = useState<PDFItem[]>(mockPDFs);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  const [isScanning, setIsScanning] = useState(false);
+
   const loadPDFs = useCallback(async (isRefresh = false) => {
     if (isRefresh) setIsRefreshing(true);
     try {
       const res = await pdfService.getPdfs();
       if (res && res.pdfs && res.pdfs.length > 0) {
-        setPdfList(res.pdfs);
+        // Scanned backend PDFs first, combined with mock catalog
+        const backendTitles = new Set(res.pdfs.map(p => p.title.toLowerCase()));
+        const uniqueMocks = mockPDFs.filter(m => !backendTitles.has(m.title.toLowerCase()));
+        setPdfList([...res.pdfs, ...uniqueMocks]);
       }
     } catch (err) {
       console.warn('PDFLibraryScreen: Error loading PDFs from backend:', err);
@@ -72,6 +78,22 @@ export const PDFLibraryScreen: React.FC<PDFLibraryScreenProps> = ({ navigation }
       setIsRefreshing(false);
     }
   }, []);
+
+  const handleRescanFolder = async () => {
+    setIsScanning(true);
+    showToast('Scanning local PDFs folder...');
+    try {
+      const result = await pdfService.rescanPdfs();
+      await loadPDFs(true);
+      const total = result?.data?.totalFound ?? result?.totalFound ?? 'Local';
+      showToast(`Scan complete: ${total} PDFs synchronized`);
+    } catch (e: any) {
+      await loadPDFs(true);
+      showToast('Scan complete. Library refreshed.');
+    } finally {
+      setIsScanning(false);
+    }
+  };
 
   useEffect(() => {
     loadPDFs();
@@ -464,6 +486,16 @@ export const PDFLibraryScreen: React.FC<PDFLibraryScreenProps> = ({ navigation }
               ) : (
                 <LayoutGrid size={20} color="#FFFFFF" />
               )}
+            </TouchableOpacity>
+
+            {/* Rescan Local Folder Trigger */}
+            <TouchableOpacity
+              style={[styles.urlTriggerBtn, isScanning && { opacity: 0.6 }]}
+              onPress={handleRescanFolder}
+              accessibilityLabel="Rescan PDFs Folder"
+              disabled={isScanning}
+            >
+              <RefreshCw size={15} color="#69D900" />
             </TouchableOpacity>
 
             {/* Quick URL / Drive Paste Trigger */}

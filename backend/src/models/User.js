@@ -24,15 +24,17 @@ const userSchema = new mongoose.Schema({
     firstName: { type: String, default: "" },
     lastName: { type: String, default: "" },
     profileImage: { type: String, default: "" },
-    role: { type: String, enum: ["user", "admin"], default: "user" },
+    role: { type: String, enum: ["user", "admin", "distributor", "consumer"], default: "consumer" },
     
     // Email verification
     isEmailVerified: { type: Boolean, default: false },
     emailVerificationCode: { type: String },
     emailVerificationExpires: { type: Date },
     
+    phoneNumber: { type: String, default: "" },
+    
     // Social authentication & provider
-    provider: { type: String, enum: ["local", "google", "github"], default: "local" },
+    provider: { type: String, enum: ["local", "google", "github", "clerk"], default: "local" },
     socialId: { type: String, sparse: true, index: true },
     lastLoginAt: { type: Date, default: Date.now },
 

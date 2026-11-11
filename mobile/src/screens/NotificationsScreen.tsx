@@ -1,67 +1,126 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ArrowLeft,
-  Bell,
-  CheckCircle2,
   FileText,
   Tv,
   AlertCircle,
   Zap,
-  Trash2,
+  ShoppingBag,
 } from 'lucide-react-native';
-import { colors } from '../theme/colors';
 import DarkGradientBg from '../components/DarkGradientBg';
+import api from '../services/api';
 
 interface NotificationsScreenProps {
   navigation: any;
 }
 
-export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ navigation }) => {
-  const [notifications, setNotifications] = useState([
-    {
-      id: 'notif-1',
-      title: 'New 2022 Scheme Module Notes Uploaded',
-      desc: 'Prof. Ramesh Kumar just uploaded BCS304 Module 5 Graph Algorithms notes & solved papers.',
-      type: 'pdf',
-      time: '15 mins ago',
-      read: false,
-    },
-    {
-      id: 'notif-2',
-      title: 'VTU Exam Timetable Released',
-      desc: '3rd & 5th Semester examination schedule has been officially published for CSE & ISE branches.',
-      type: 'alert',
-      time: '2 hours ago',
-      read: false,
-    },
-    {
-      id: 'notif-3',
-      title: 'Video Lecture Download Complete',
-      desc: '"Database Management Systems Crash Course" is ready for offline playback in MX Player.',
-      type: 'video',
-      time: 'Yesterday',
-      read: true,
-    },
-    {
-      id: 'notif-4',
-      title: 'Email Verification Reminder',
-      desc: 'Verify your student email address to enable fast 1-click downloads and digital access passes.',
-      type: 'system',
-      time: '3 days ago',
-      read: true,
-    },
-  ]);
+interface NotificationItem {
+  id: string;
+  title: string;
+  desc: string;
+  type: string;
+  time: string;
+  read: boolean;
+  pdfId?: string;
+}
 
-  const markAllAsRead = () => {
+const fallbackNotifications: NotificationItem[] = [
+  {
+    id: 'notif-1',
+    title: 'New 2022 Scheme Module Notes Uploaded',
+    desc: 'Prof. Ramesh Kumar just uploaded BCS304 Module 5 Graph Algorithms notes & solved papers.',
+    type: 'pdf',
+    time: '15 mins ago',
+    read: false,
+  },
+  {
+    id: 'notif-2',
+    title: 'VTU Exam Timetable Released',
+    desc: '3rd & 5th Semester examination schedule has been officially published for CSE & ISE branches.',
+    type: 'alert',
+    time: '2 hours ago',
+    read: false,
+  },
+  {
+    id: 'notif-3',
+    title: 'Video Lecture Download Complete',
+    desc: '"Database Management Systems Crash Course" is ready for offline playback in MX Player.',
+    type: 'video',
+    time: 'Yesterday',
+    read: true,
+  },
+  {
+    id: 'notif-4',
+    title: 'Email Verification Reminder',
+    desc: 'Verify your student email address to enable fast 1-click downloads and digital access passes.',
+    type: 'system',
+    time: '3 days ago',
+    read: true,
+  },
+];
+
+export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ navigation }) => {
+  const [notifications, setNotifications] = useState<NotificationItem[]>(fallbackNotifications);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const fetchNotifications = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setIsRefreshing(true);
+    try {
+      const res = await api.get<any>('/api/notifications');
+      if (res && res.notifications && res.notifications.length > 0) {
+        const mapped: NotificationItem[] = res.notifications.map((n: any) => ({
+          id: n._id || n.id,
+          title: n.title,
+          desc: n.message,
+          type: n.type === 'pdf_added' ? 'pdf' : n.type === 'order' ? 'order' : n.type || 'system',
+          time: new Date(n.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+          read: Boolean(n.read),
+          pdfId: n.pdfId?._id || n.pdfId,
+        }));
+        setNotifications(mapped);
+      }
+    } catch (err: any) {
+      console.warn('Could not fetch live notifications, using fallback:', err.message);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  const markAllAsRead = async () => {
     setNotifications(notifications.map((n) => ({ ...n, read: true })));
+    try {
+      await api.put('/api/notifications/read-all');
+    } catch {}
+  };
+
+  const handleNotificationPress = async (item: NotificationItem) => {
+    // Mark as read
+    setNotifications(prev => prev.map(n => n.id === item.id ? { ...n, read: true } : n));
+    try {
+      if (item.id && !item.id.startsWith('notif-')) {
+        await api.put(`/api/notifications/${item.id}/read`);
+      }
+    } catch {}
+
+    // Navigate based on type
+    if (item.type === 'pdf' || item.type === 'pdf_added' || item.pdfId) {
+      navigation.navigate('PDFLibrary');
+    } else if (item.type === 'order') {
+      navigation.navigate('History');
+    }
   };
 
   return (
@@ -90,15 +149,27 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
             style={styles.scrollView}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={() => fetchNotifications(true)}
+                tintColor="#69D900"
+                colors={['#69D900']}
+              />
+            }
           >
             {notifications.map((n) => (
-              <View
+              <TouchableOpacity
                 key={n.id}
                 style={[styles.notifCard, !n.read && styles.notifCardUnread]}
+                onPress={() => handleNotificationPress(n)}
+                activeOpacity={0.75}
               >
                 <View style={styles.iconWrap}>
-                  {n.type === 'pdf' ? (
+                  {n.type === 'pdf' || n.type === 'pdf_added' ? (
                     <FileText size={18} color="#69D900" />
+                  ) : n.type === 'order' ? (
+                    <ShoppingBag size={18} color="#FF9900" />
                   ) : n.type === 'video' ? (
                     <Tv size={18} color="#00D2FF" />
                   ) : n.type === 'alert' ? (
@@ -116,7 +187,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
                   <Text style={styles.notifDesc}>{n.desc}</Text>
                   <Text style={styles.notifTime}>{n.time}</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             ))}
 
             <View style={{ height: 40 }} />

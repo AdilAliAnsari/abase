@@ -15,7 +15,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { X, Mail, Lock, Eye, EyeOff, ArrowLeft, ArrowRight, Check, ShieldCheck, User } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import { useAuth } from '../context/AuthContext';
-import AccountPickerModal from '../components/AccountPickerModal';
 import { SavedAccount } from '../services/storageService';
 
 const ACCENT = '#7BEA12';
@@ -26,15 +25,11 @@ interface LoginScreenProps {
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
-  const { login, socialLogin, loginWithSavedAccount, savedAccounts, removeSavedAccount } = useAuth();
+  const { login, startClerkOAuth, loginWithSavedAccount, savedAccounts, removeSavedAccount } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  
-  // Social ID Picker state
-  const [pickerVisible, setPickerVisible] = useState(false);
-  const [activeSocialProvider, setActiveSocialProvider] = useState<'google' | 'github'>('google');
 
   // Input focus states
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
@@ -102,10 +97,24 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     }
   };
 
-  const handleOpenSocialPicker = (provider: 'google' | 'github') => {
+  const handleRealOAuth = async (provider: 'google' | 'github') => {
     setError('');
-    setActiveSocialProvider(provider);
-    setPickerVisible(true);
+    setIsLoading(true);
+    try {
+      const res = await startClerkOAuth(provider);
+      if (res && res.token) {
+        setIsLoading(false);
+        setSuccess(true);
+        setTimeout(() => {
+          navigation.navigate('MainTabs');
+        }, 700);
+      } else {
+        setIsLoading(false);
+      }
+    } catch (err: any) {
+      setIsLoading(false);
+      setError(err?.message || `Failed to sign in with ${provider === 'google' ? 'Google' : 'GitHub'}. Please try again.`);
+    }
   };
 
   const handleSelectSavedAccount = async (account: SavedAccount) => {
@@ -121,36 +130,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     } catch (err: any) {
       setIsLoading(false);
       setError(err?.message || 'Failed to sign in with this ID. Please try again.');
-    }
-  };
-
-  const handleSubmitSocialId = async ({
-    provider,
-    identifier,
-    name,
-  }: {
-    provider: 'google' | 'github';
-    identifier: string;
-    name?: string;
-  }) => {
-    setError('');
-    setIsLoading(true);
-    try {
-      await socialLogin({
-        provider,
-        email: identifier,
-        username: identifier.split('@')[0],
-        name: name || identifier.split('@')[0],
-        accountId: identifier,
-      });
-      setIsLoading(false);
-      setSuccess(true);
-      setTimeout(() => {
-        navigation.navigate('MainTabs');
-      }, 700);
-    } catch (err: any) {
-      setIsLoading(false);
-      setError(err?.message || 'Failed to authenticate ID. Please try again.');
     }
   };
 
@@ -242,6 +221,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
             <h1 className="card-title">Welcome Back</h1>
             <p className="card-subtitle">Sign in to continue to your digital bookshelf</p>
+            <div className="clerk-pill">
+              <ShieldCheck size={13} color="#7BEA12" />
+              <span>Secured by Clerk Authentication</span>
+            </div>
 
             {/* Status Banners */}
             {error ? <div className="status-error">{error}</div> : null}
@@ -282,7 +265,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               <button
                 type="button"
                 className="social-button google"
-                onClick={() => handleOpenSocialPicker('google')}
+                onClick={() => handleRealOAuth('google')}
                 disabled={isLoading || success}
               >
                 <GoogleSVG />
@@ -291,7 +274,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               <button
                 type="button"
                 className="social-button github"
-                onClick={() => handleOpenSocialPicker('github')}
+                onClick={() => handleRealOAuth('github')}
                 disabled={isLoading || success}
               >
                 <GitHubSVG />
@@ -325,7 +308,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                     onChange={(e) => setEmail(e.target.value)}
                     onFocus={() => setFocusedInput('email')}
                     onBlur={() => setFocusedInput(null)}
-                    placeholder="name@example.com"
+                    placeholder="name@example.com or username"
                     disabled={isLoading || success}
                     className="native-input"
                   />
@@ -416,17 +399,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           </div>
         </div>
 
-        {/* Social Account Picker Modal for Web */}
-        <AccountPickerModal
-          visible={pickerVisible}
-          provider={activeSocialProvider}
-          savedAccounts={savedAccounts}
-          mode="signin"
-          onClose={() => setPickerVisible(false)}
-          onSelectAccount={handleSelectSavedAccount}
-          onSubmitNewId={handleSubmitSocialId}
-          onRemoveAccount={removeSavedAccount}
-        />
 
         <style>{`
           .saved-accounts-box {
@@ -804,8 +776,24 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             color: #A3A3B2;
             font-size: 13px;
             text-align: center;
-            margin: 0 0 22px 0;
+            margin: 0 0 10px 0;
             line-height: 1.4;
+          }
+
+          .clerk-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: rgba(123, 234, 18, 0.08);
+            border: 1px solid rgba(123, 234, 18, 0.25);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #7BEA12;
+            margin: 0 auto 18px auto;
+            letter-spacing: 0.2px;
           }
 
           /* Status Banners */
@@ -1131,6 +1119,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             <Text style={styles.nativeTitle}>Welcome Back</Text>
             <Text style={styles.nativeSubtitle}>Sign in to continue to your bookshelf</Text>
 
+            <View style={styles.clerkBadgeRow}>
+              <ShieldCheck size={13} color={ACCENT} style={{ marginRight: 6 }} />
+              <Text style={styles.clerkBadgeText}>Secured by Clerk Authentication</Text>
+            </View>
+
             {/* Status Banners */}
             {error ? (
               <View style={styles.nativeErrorBanner}>
@@ -1184,7 +1177,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             <View style={styles.nativeSocialRow}>
               <TouchableOpacity
                 style={styles.nativeSocialBtn}
-                onPress={() => handleOpenSocialPicker('google')}
+                onPress={() => handleRealOAuth('google')}
                 disabled={isLoading || success}
                 activeOpacity={0.8}
               >
@@ -1192,7 +1185,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.nativeSocialBtn}
-                onPress={() => handleOpenSocialPicker('github')}
+                onPress={() => handleRealOAuth('github')}
                 disabled={isLoading || success}
                 activeOpacity={0.8}
               >
@@ -1217,7 +1210,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                   onChangeText={setEmail}
                   onFocus={() => setFocusedInput('email')}
                   onBlur={() => setFocusedInput(null)}
-                  placeholder="name@example.com"
+                  placeholder="name@example.com or username"
                   placeholderTextColor="#555562"
                   keyboardType="email-address"
                   autoCapitalize="none"
@@ -1289,17 +1282,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* Social Account Picker Modal for Native */}
-      <AccountPickerModal
-        visible={pickerVisible}
-        provider={activeSocialProvider}
-        savedAccounts={savedAccounts}
-        mode="signin"
-        onClose={() => setPickerVisible(false)}
-        onSelectAccount={handleSelectSavedAccount}
-        onSubmitNewId={handleSubmitSocialId}
-        onRemoveAccount={removeSavedAccount}
-      />
     </SafeAreaView>
   );
 };
@@ -1482,7 +1464,25 @@ const styles = StyleSheet.create({
     color: '#8D8D94',
     fontSize: 12,
     textAlign: 'center',
-    marginBottom: 18,
+    marginBottom: 8,
+  },
+  clerkBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(123, 234, 18, 0.08)',
+    borderColor: 'rgba(123, 234, 18, 0.25)',
+    borderWidth: 1,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  clerkBadgeText: {
+    color: ACCENT,
+    fontSize: 11,
+    fontWeight: '600',
   },
   nativeErrorBanner: {
     backgroundColor: 'rgba(255, 69, 69, 0.15)',

@@ -14,9 +14,18 @@ const getUserId = (req) => {
     try {
         const { userId } = getAuth(req);
         if (userId) return userId;
-    } catch {
-        // Clerk may not be authenticated
+    } catch {}
+
+    const authHeader = req.headers.authorization || req.headers["x-auth-token"] || "";
+    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : authHeader.trim();
+
+    if (token && token.includes(".")) {
+        try {
+            const payload = JSON.parse(Buffer.from(token.split(".")[1], "base64").toString("utf-8"));
+            if (payload.sub || payload.user_id) return payload.sub || payload.user_id;
+        } catch {}
     }
+
     return req.headers["x-user-id"] || "guest_user";
 };
 

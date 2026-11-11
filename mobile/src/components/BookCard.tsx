@@ -12,6 +12,7 @@ import { Star, ShoppingCart } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import { Book } from '../data/books';
 import { useCart } from '../context/CartContext';
+import { useTranslation } from '../i18n/LanguageContext';
 
 const { width } = Dimensions.get('window');
 
@@ -23,6 +24,7 @@ interface BookCardProps {
 
 const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) => {
   const { addToCart, isItemInCart } = useCart();
+  const { t } = useTranslation();
   const [isAdded, setIsAdded] = useState(false);
   const inCart = isItemInCart(book.id);
 
@@ -107,21 +109,25 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
               <span className="review-count">({book.reviews.toLocaleString()})</span>
             </div>
 
-            {/* Price Details */}
+            {/* Price Details - In Indian Rupees (₹) <= 1000 */}
             <div className="price-row">
-              <span className="current-price">${book.price.toFixed(2)}</span>
+              <span className="current-price">₹{book.price}</span>
               {hasDiscount && (
                 <>
-                  <span className="original-price">${book.originalPrice!.toFixed(2)}</span>
-                  <span className="discount-tag">({discountPercent}% off)</span>
+                  <span className="original-price">₹{book.originalPrice}</span>
+                  <span className="discount-tag">({discountPercent}% {t.off || 'off'})</span>
                 </>
               )}
             </div>
 
-            {/* Shipping & Badges */}
+            {/* Shipping & Dynamic Distributor Tags */}
             <div className="delivery-row">
-              <span className="prime-text"><i>prime</i></span>
-              <span className="delivery-msg">FREE delivery <b>Tomorrow</b></span>
+              {book.isPrime !== false && (
+                <span className="prime-text"><i>prime</i></span>
+              )}
+              <span className="delivery-msg">
+                {book.deliveryTag || t.freeDeliveryTomorrow || 'FREE delivery Tomorrow'}
+              </span>
             </div>
 
             {/* Category badge */}
@@ -133,7 +139,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
               onClick={handleAddToCart}
             >
               <ShoppingCart size={14} style={{ marginRight: 6 }} />
-              {isAdded ? '✓ Added' : inCart ? '✓ In Cart' : 'Add to Cart'}
+              {isAdded ? (t.added || '✓ Added') : inCart ? (t.inCart || '✓ In Cart') : (t.addToCart || 'Add to Cart')}
             </button>
           </div>
         </a>        <style>{`
@@ -423,19 +429,21 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
 
         {/* Price */}
         <View style={styles.nativePriceRow}>
-          <Text style={styles.nativePrice}>${book.price.toFixed(2)}</Text>
+          <Text style={styles.nativePrice}>₹{book.price}</Text>
           {hasDiscount && (
             <>
-              <Text style={styles.nativeOriginalPrice}>${book.originalPrice!.toFixed(2)}</Text>
-              <Text style={styles.nativeDiscount}>({discountPercent}% off)</Text>
+              <Text style={styles.nativeOriginalPrice}>₹{book.originalPrice}</Text>
+              <Text style={styles.nativeDiscount}>({discountPercent}% {t.off || 'off'})</Text>
             </>
           )}
         </View>
 
         {/* Delivery Details */}
         <View style={styles.nativeDeliveryRow}>
-          <Text style={styles.nativePrime}>prime</Text>
-          <Text style={styles.nativeDeliveryText}>FREE delivery Tomorrow</Text>
+          {book.isPrime !== false && <Text style={styles.nativePrime}>prime</Text>}
+          <Text style={styles.nativeDeliveryText}>
+            {book.deliveryTag || t.freeDeliveryTomorrow || 'FREE delivery Tomorrow'}
+          </Text>
         </View>
 
         {/* Category tag */}
@@ -450,7 +458,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
           onPress={handleAddToCart}
         >
           <Text style={[styles.nativeCartBtnText, (isAdded || inCart) && styles.nativeCartBtnTextAdded]}>
-            {isAdded ? '✓ Added' : inCart ? '✓ In Cart' : 'Add to Cart'}
+            {isAdded ? (t.added || '✓ Added') : inCart ? (t.inCart || '✓ In Cart') : (t.addToCart || 'Add to Cart')}
           </Text>
         </TouchableOpacity>
       </View>

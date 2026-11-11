@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './navigation/AppNavigator';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { LanguageProvider } from './i18n/LanguageContext';
 
 const TransparentTheme = {
   ...DefaultTheme,
@@ -17,14 +18,16 @@ const TransparentTheme = {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <CartProvider>
-          <NavigationContainer theme={TransparentTheme}>
-            <StatusBar style="light" />
-            <AppNavigator />
-          </NavigationContainer>
-        </CartProvider>
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <CartProvider>
+            <NavigationContainer theme={TransparentTheme}>
+              <StatusBar style="light" />
+              <AppNavigator />
+            </NavigationContainer>
+          </CartProvider>
+        </AuthProvider>
+      </LanguageProvider>
     </SafeAreaProvider>
   );
 }

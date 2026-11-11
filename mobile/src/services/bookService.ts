@@ -104,11 +104,59 @@ export const bookService = {
   },
 
   /**
-   * Create a new book listing
+   * Update an existing book (Distributor action: price <= 1000, isPrime, deliveryTag, stock)
+   */
+  updateBook: async (id: string, updates: Partial<Book>): Promise<Book> => {
+    try {
+      const res = await api.put<{ success: boolean; book: Book }>(`/api/books/${id}`, updates);
+      if (res && res.book) {
+        return res.book;
+      }
+    } catch (err: any) {
+      console.warn('Backend updateBook failed, applying to local copy:', err.message);
+    }
+    // Fallback local update
+    const idx = fallbackBooks.findIndex(b => b.id === id);
+    if (idx !== -1) {
+      fallbackBooks[idx] = { ...fallbackBooks[idx], ...updates };
+      return fallbackBooks[idx];
+    }
+    return { id, title: 'Updated Book', price: updates.price || 499, author: 'Unknown', coverImage: '', category: 'All' } as Book;
+  },
+
+  /**
+   * Create a new book listing (Price strictly <= 1000)
    */
   createBook: async (bookData: Partial<Book>): Promise<Book> => {
-    const res = await api.post<{ success: boolean; book: Book }>('/api/books', bookData);
-    return res.book;
+    try {
+      const res = await api.post<{ success: boolean; book: Book }>('/api/books', bookData);
+      if (res && res.book) {
+        return res.book;
+      }
+    } catch (err: any) {
+      console.warn('Backend createBook failed, creating locally:', err.message);
+    }
+    const newBook: Book = {
+      id: `bk_${Date.now()}`,
+      title: bookData.title || 'New Book',
+      author: bookData.author || 'Author',
+      price: Math.min(bookData.price || 499, 1000),
+      currency: 'INR',
+      rating: 4.8,
+      reviews: 1,
+      coverImage: bookData.coverImage || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400',
+      category: bookData.category || 'Programming',
+      description: bookData.description || 'Comprehensive textbook and reference guide.',
+      pages: 350,
+      language: 'English',
+      publisher: 'EduStore Press',
+      inStock: true,
+      stockCount: 50,
+      isPrime: bookData.isPrime ?? true,
+      deliveryTag: bookData.deliveryTag || 'FREE delivery Tomorrow',
+    };
+    fallbackBooks.unshift(newBook);
+    return newBook;
   },
 };
 

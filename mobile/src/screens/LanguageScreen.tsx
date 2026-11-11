@@ -17,27 +17,21 @@ import {
 import { colors } from '../theme/colors';
 import DarkGradientBg from '../components/DarkGradientBg';
 
+import { useLanguage } from '../i18n/LanguageContext';
+import { LanguageCode } from '../i18n/translations';
+
 interface LanguageScreenProps {
   navigation: any;
 }
 
 export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) => {
-  const [appLanguage, setAppLanguage] = useState('English');
+  const { language, setLanguage, t, languages } = useLanguage();
   const [subtitleLanguage, setSubtitleLanguage] = useState('English (Auto-generated)');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const languages = [
-    { code: 'en', name: 'English', native: 'English', default: true },
-    { code: 'kn', name: 'Kannada', native: 'ಕನ್ನಡ' },
-    { code: 'hi', name: 'Hindi', native: 'हिन्दी' },
-    { code: 'te', name: 'Telugu', native: 'తెలుగు' },
-    { code: 'ta', name: 'Tamil', native: 'தமிழ்' },
-    { code: 'mr', name: 'Marathi', native: 'मराठी' },
-  ];
-
-  const handleSelectLanguage = (lang: string) => {
-    setAppLanguage(lang);
-    setToastMessage(`App language set to ${lang}`);
+  const handleSelectLanguage = async (code: LanguageCode, name: string) => {
+    await setLanguage(code);
+    setToastMessage(`${t.language}: ${name} (${code.toUpperCase()})`);
     setTimeout(() => setToastMessage(null), 3000);
   };
 
@@ -55,8 +49,8 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) =>
               <ArrowLeft size={20} color="#FFFFFF" />
             </TouchableOpacity>
             <View style={styles.headerTitleWrap}>
-              <Text style={styles.headerTitle}>Language & Region</Text>
-              <Text style={styles.headerSubtitle}>App interface and video subtitles</Text>
+              <Text style={styles.headerTitle}>{t.languageAndRegion}</Text>
+              <Text style={styles.headerSubtitle}>English • हिन्दी • ಕನ್ನಡ</Text>
             </View>
           </View>
 
@@ -69,17 +63,17 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) =>
             <View style={styles.sectionCard}>
               <View style={styles.sectionHeader}>
                 <Globe size={18} color="#69D900" />
-                <Text style={styles.sectionTitle}>App Display Language</Text>
+                <Text style={styles.sectionTitle}>{t.language}</Text>
               </View>
 
               <View style={styles.langList}>
                 {languages.map((l) => {
-                  const selected = appLanguage === l.name;
+                  const selected = language === l.code;
                   return (
                     <TouchableOpacity
                       key={l.code}
                       style={[styles.langRow, selected && styles.langRowSelected]}
-                      onPress={() => handleSelectLanguage(l.name)}
+                      onPress={() => handleSelectLanguage(l.code, l.name)}
                     >
                       <View>
                         <Text style={[styles.langName, selected && styles.langNameSelected]}>

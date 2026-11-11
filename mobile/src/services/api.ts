@@ -41,7 +41,7 @@ export const getApiBaseUrl = (): string => {
   }
 
   // LAN IP fallback
-  return 'http://172.22.8.225:3000';
+  return 'http://10.46.170.225:3000';
 };
 
 export const setAuthToken = (token: string | null) => {

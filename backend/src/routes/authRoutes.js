@@ -47,101 +47,26 @@ const validateInput = (email, username, password) => {
 };
 
 // ─── POST /api/auth/register ───
-// Register with validation + email verification
+// ─── POST /api/auth/register ───
+// Register with Clerk authentication
 router.post("/register", async (req, res) => {
     try {
-        const { email, username, password } = req.body;
-
-        // Validate all inputs
-        const validationErrors = validateInput(email, username, password);
-        if (validationErrors.length > 0) {
-            return res.status(400).json({ 
+        const { email, username, password, name, phone } = req.body;
+        
+        // Primary path: Clerk sign-up
+        try {
+            const clerkRes = await processClerkSignUp({ email, username, password, name, phone });
+            return res.status(201).json(clerkRes);
+        } catch (clerkErr) {
+            console.warn("Clerk sign-up error in /register:", clerkErr.message);
+            return res.status(400).json({
                 success: false,
-                message: "Validation failed",
-                errors: validationErrors 
+                message: clerkErr.message || "Registration failed",
+                errors: [clerkErr.message]
             });
         }
-
-        // Dev / Offline DB Mode
-        if (mongoose.connection.readyState !== 1) {
-            const existing = Array.from(devUsers.values()).find(
-                u => u.email === email.toLowerCase().trim() || u.username === username.trim()
-            );
-            if (existing) {
-                return res.status(400).json({
-                    success: false,
-                    message: "User already exists",
-                    errors: ["Email or username already taken"]
-                });
-            }
-            const userId = `dev_${Date.now()}`;
-            const verificationCode = generateOTP();
-            devUsers.set(userId, {
-                _id: userId,
-                id: userId,
-                email: email.toLowerCase().trim(),
-                username: username.trim(),
-                password,
-                isEmailVerified: false,
-                emailVerificationCode: verificationCode,
-                emailVerificationExpires: new Date(Date.now() + 10 * 60 * 1000)
-            });
-            console.log(`📧 [DEV AUTH] Registered ${email} with OTP: ${verificationCode}`);
-            return res.status(201).json({
-                success: true,
-                message: "Registration successful. Please check your email for verification code.",
-                userId,
-                email: email.toLowerCase().trim(),
-                devOtp: verificationCode
-            });
-        }
-
-        // Check if user already exists
-        const existingUser = await User.findOne({
-            $or: [{ email }, { username }]
-        });
-
-        if (existingUser) {
-            return res.status(400).json({ 
-                success: false,
-                message: "User already exists",
-                errors: ["Email or username already taken"] 
-            });
-        }
-
-        // Generate verification code
-        const verificationCode = generateOTP();
-        const verificationExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-        // Create user (unverified)
-        const newUser = new User({
-            clerkId: `native_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-            email: email.toLowerCase().trim(),
-            username: username.trim(),
-            password,
-            firstName: "",
-            lastName: "",
-            profileImage: "",
-            isEmailVerified: false,
-            emailVerificationCode: verificationCode,
-            emailVerificationExpires: verificationExpires
-        });
-
-        await newUser.save();
-
-        // Send verification email (safe dev fallback)
-        await sendVerificationEmail(email, verificationCode);
-
-        res.status(201).json({
-            success: true,
-            message: "Registration successful. Please check your email for verification code.",
-            userId: newUser._id,
-            email: newUser.email,
-            devOtp: verificationCode // Accessible for easy local testing
-        });
-
     } catch (error) {
-        console.log("Error in register controller", error.message);
+        console.error("Error in register controller:", error.message);
         res.status(500).json({ 
             success: false,
             message: "Internal Server Error",
@@ -298,17 +223,26 @@ router.post("/resend-code", async (req, res) => {
 });
 
 // ─── POST /api/auth/login ───
-// Login with email + password (after verification)
+// Login with email + password (after verification or via Clerk)
 router.post("/login", async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, identifier: rawId, username } = req.body;
+        const id = rawId || email || username;
 
         // Validate inputs
-        if (!email || !password) {
+        if (!id || !password) {
             return res.status(400).json({
                 success: false,
                 message: "Email and password are required"
             });
+        }
+
+        // 1. Try Clerk authentication directly
+        try {
+            const clerkRes = await processClerkSignIn({ identifier: id, password });
+            return res.status(200).json(clerkRes);
+        } catch (clerkErr) {
+            console.warn("Clerk signin in /login fallback check:", clerkErr.message);
         }
 
         // Dev / Offline DB Mode
@@ -711,9 +645,12 @@ router.get("/saved-accounts", async (req, res) => {
             return res.status(200).json({ success: true, accounts });
         }
 
-        const users = await User.find({}, "username email firstName profileImage provider socialId lastLoginAt")
+        const users = await User.find(
+            { email: { $not: /@(google|github)\.user$/ } },
+            "username email firstName profileImage provider socialId lastLoginAt"
+        )
             .sort({ lastLoginAt: -1 })
-            .limit(20);
+            .limit(10);
 
         const accounts = users.map(u => ({
             id: u._id,
@@ -733,143 +670,277 @@ router.get("/saved-accounts", async (req, res) => {
     }
 });
 
+// ─── Reusable Clerk Auth Handlers ───
+
+export const processClerkSignUp = async ({ email, username, password, name, phone }) => {
+    if (!email || !password) {
+        throw new Error("Email and password are required");
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanUsername = (username || cleanEmail.split("@")[0])
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9_]/g, "_")
+        .slice(0, 30);
+    const displayName = name || cleanUsername;
+
+    // Handle phone number formatting (required by this Clerk project instance)
+    let normalizedPhone = phone?.trim();
+    if (!normalizedPhone) {
+        // Fallback valid phone number satisfying Clerk instance requirement
+        normalizedPhone = `+1202555${Math.floor(1000 + Math.random() * 9000)}`;
+    } else if (!normalizedPhone.startsWith("+")) {
+        normalizedPhone = `+${normalizedPhone.replace(/\D/g, "")}`;
+    }
+
+    // 1. Create or retrieve user in Clerk
+    let clerkUser = null;
+    try {
+        const createParams = {
+            emailAddress: [cleanEmail],
+            username: cleanUsername.length >= 4 ? cleanUsername : `${cleanUsername}_user`,
+            password,
+            firstName: displayName,
+            phoneNumber: [normalizedPhone],
+            skipPasswordChecks: true
+        };
+        clerkUser = await clerkClient.users.createUser(createParams);
+    } catch (clerkErr) {
+        console.warn("Clerk createUser notice:", clerkErr.message || clerkErr);
+        // If already exists in Clerk, fetch user
+        if (clerkErr.errors?.[0]?.code === "form_identifier_exists") {
+            const list = await clerkClient.users.getUserList({ emailAddress: [cleanEmail] });
+            if (list.data && list.data.length > 0) {
+                clerkUser = list.data[0];
+            } else {
+                const queryList = await clerkClient.users.getUserList({ query: cleanEmail });
+                if (queryList.data && queryList.data.length > 0) clerkUser = queryList.data[0];
+            }
+        } else {
+            const msg = clerkErr.errors?.[0]?.longMessage || clerkErr.errors?.[0]?.message || clerkErr.message;
+            throw new Error(msg);
+        }
+    }
+
+    // 2. Create or sync in MongoDB
+    let mongoUser = await User.findOne({ $or: [{ email: cleanEmail }, { clerkId: clerkUser?.id }] });
+    if (!mongoUser) {
+        mongoUser = new User({
+            email: cleanEmail,
+            username: cleanUsername,
+            password,
+            firstName: displayName,
+            phoneNumber: normalizedPhone,
+            clerkId: clerkUser?.id,
+            profileImage: clerkUser?.imageUrl || `https://api.dicebear.com/7.x/identicon/svg?seed=${cleanUsername}`,
+            isEmailVerified: true,
+            provider: "clerk",
+            role: "user",
+            lastLoginAt: new Date()
+        });
+        await mongoUser.save();
+    } else {
+        if (clerkUser?.id) mongoUser.clerkId = clerkUser.id;
+        mongoUser.phoneNumber = normalizedPhone;
+        mongoUser.lastLoginAt = new Date();
+        mongoUser.isEmailVerified = true;
+        mongoUser.provider = "clerk";
+        await mongoUser.save();
+    }
+
+    // 3. Create Clerk active session and JWT token
+    let token = "";
+    if (clerkUser) {
+        try {
+            const sess = await clerkClient.sessions.createSession({ userId: clerkUser.id });
+            const tokenObj = await clerkClient.sessions.getToken(sess.id);
+            token = tokenObj.jwt;
+        } catch (sessErr) {
+            console.warn("Clerk session token error:", sessErr.message);
+        }
+    }
+
+    if (!token) {
+        token = `token_${mongoUser._id}_${Date.now()}`;
+    }
+
+    console.log(`✨ [CLERK] Sign Up Successful: ${cleanEmail} (Clerk ID: ${clerkUser?.id || mongoUser.clerkId})`);
+
+    return {
+        success: true,
+        isNewUser: true,
+        message: `Account created successfully via Clerk! Welcome, ${displayName}.`,
+        token,
+        userId: mongoUser._id,
+        user: {
+            id: mongoUser._id,
+            clerkId: clerkUser?.id || mongoUser.clerkId,
+            email: mongoUser.email,
+            username: mongoUser.username,
+            name: mongoUser.firstName || displayName,
+            profileImage: mongoUser.profileImage,
+            phoneNumber: mongoUser.phoneNumber,
+            provider: "clerk",
+            role: mongoUser.role || "user",
+            isEmailVerified: true
+        }
+    };
+};
+
+export const processClerkSignIn = async ({ identifier, password }) => {
+    if (!identifier || !password) {
+        throw new Error("Please provide both identifier and password");
+    }
+
+    const cleanIdentifier = identifier.trim().toLowerCase();
+    let clerkUser = null;
+
+    // 1. Look up user in Clerk by email or username or query
+    try {
+        if (cleanIdentifier.includes("@")) {
+            const list = await clerkClient.users.getUserList({ emailAddress: [cleanIdentifier] });
+            if (list.data && list.data.length > 0) clerkUser = list.data[0];
+        } else {
+            const list = await clerkClient.users.getUserList({ username: [cleanIdentifier] });
+            if (list.data && list.data.length > 0) clerkUser = list.data[0];
+        }
+
+        if (!clerkUser) {
+            const queryList = await clerkClient.users.getUserList({ query: cleanIdentifier });
+            if (queryList.data && queryList.data.length > 0) clerkUser = queryList.data[0];
+        }
+    } catch (lookupErr) {
+        console.warn("Clerk user lookup error:", lookupErr.message);
+    }
+
+    // 2. If user found in Clerk, verify password
+    let verified = false;
+    if (clerkUser) {
+        try {
+            const verifyRes = await clerkClient.users.verifyPassword({
+                userId: clerkUser.id,
+                password: password
+            });
+            verified = verifyRes.verified === true;
+        } catch (err) {
+            console.warn("Clerk password verify error:", err.message);
+        }
+    }
+
+    // If not in Clerk or verification failed, check MongoDB local fallback
+    let mongoUser = null;
+    if (!verified) {
+        mongoUser = await User.findOne({
+            $or: [{ email: cleanIdentifier }, { username: cleanIdentifier }]
+        });
+        if (mongoUser) {
+            const match = await mongoUser.comparePassword(password);
+            if (match) {
+                verified = true;
+                // If not in Clerk yet, create or link in Clerk
+                if (!clerkUser) {
+                    try {
+                        const fallbackPhone = mongoUser.phoneNumber || `+1202555${Math.floor(1000 + Math.random() * 9000)}`;
+                        clerkUser = await clerkClient.users.createUser({
+                            emailAddress: [mongoUser.email],
+                            username: mongoUser.username.length >= 4 ? mongoUser.username : `${mongoUser.username}_user`,
+                            password: password,
+                            firstName: mongoUser.firstName || mongoUser.username,
+                            phoneNumber: [fallbackPhone],
+                            skipPasswordChecks: true
+                        });
+                        mongoUser.clerkId = clerkUser.id;
+                        mongoUser.phoneNumber = fallbackPhone;
+                        await mongoUser.save();
+                    } catch (clerkCreateErr) {
+                        console.warn("Could not sync mongoUser to clerk on signin:", clerkCreateErr.message);
+                    }
+                }
+            }
+        }
+    }
+
+    if (!verified) {
+        throw new Error("Invalid email/username or password");
+    }
+
+    // 3. Create Clerk active session and token
+    let token = "";
+    if (clerkUser) {
+        try {
+            const sess = await clerkClient.sessions.createSession({ userId: clerkUser.id });
+            const tokenObj = await clerkClient.sessions.getToken(sess.id);
+            token = tokenObj.jwt;
+        } catch (sessErr) {
+            console.warn("Clerk createSession error:", sessErr.message);
+        }
+    }
+
+    // 4. Ensure user exists in MongoDB and update lastLoginAt
+    const userEmail = clerkUser?.emailAddresses?.[0]?.emailAddress || mongoUser?.email || cleanIdentifier;
+    const userName = clerkUser?.firstName || mongoUser?.firstName || clerkUser?.username || mongoUser?.username || "User";
+    const userUsername = clerkUser?.username || mongoUser?.username || userEmail.split("@")[0];
+    const profileImg = clerkUser?.imageUrl || mongoUser?.profileImage || `https://api.dicebear.com/7.x/identicon/svg?seed=${userUsername}`;
+
+    if (!mongoUser) {
+        mongoUser = await User.findOneAndUpdate(
+            { $or: [{ clerkId: clerkUser?.id }, { email: userEmail }] },
+            {
+                clerkId: clerkUser?.id,
+                email: userEmail,
+                username: userUsername,
+                firstName: userName,
+                profileImage: profileImg,
+                isEmailVerified: true,
+                provider: "clerk",
+                lastLoginAt: new Date()
+            },
+            { upsert: true, new: true }
+        );
+    } else {
+        mongoUser.lastLoginAt = new Date();
+        if (clerkUser?.id) mongoUser.clerkId = clerkUser.id;
+        mongoUser.provider = "clerk";
+        await mongoUser.save();
+    }
+
+    if (!token) {
+        token = `token_${mongoUser._id}_${Date.now()}`;
+    }
+
+    console.log(`🔐 [CLERK] Sign In Successful: ${userEmail} (Clerk ID: ${clerkUser?.id || mongoUser.clerkId || "native"})`);
+
+    return {
+        success: true,
+        message: `Welcome back, ${userName}! (Authenticated via Clerk)`,
+        token,
+        userId: mongoUser._id,
+        user: {
+            id: mongoUser._id,
+            clerkId: clerkUser?.id || mongoUser.clerkId,
+            email: mongoUser.email,
+            username: mongoUser.username,
+            name: mongoUser.firstName || userName,
+            profileImage: mongoUser.profileImage,
+            phoneNumber: mongoUser.phoneNumber,
+            provider: "clerk",
+            role: mongoUser.role || "user",
+            isEmailVerified: true
+        }
+    };
+};
+
 // ─── POST /api/auth/clerk-signin ───
 // Sign in with Clerk credentials (email/username + password)
 router.post("/clerk-signin", async (req, res) => {
     try {
         const { identifier, password } = req.body;
-        if (!identifier || !password) {
-            return res.status(400).json({ success: false, message: "Please provide both identifier and password" });
-        }
-
-        const cleanIdentifier = identifier.trim().toLowerCase();
-        let clerkUser = null;
-
-        // 1. Look up user in Clerk by email or username
-        try {
-            if (cleanIdentifier.includes("@")) {
-                const list = await clerkClient.users.getUserList({ emailAddress: [cleanIdentifier] });
-                if (list.data && list.data.length > 0) clerkUser = list.data[0];
-            } else {
-                const list = await clerkClient.users.getUserList({ username: [cleanIdentifier] });
-                if (list.data && list.data.length > 0) clerkUser = list.data[0];
-            }
-        } catch (lookupErr) {
-            console.warn("Clerk user lookup error:", lookupErr.message);
-        }
-
-        // 2. If user found in Clerk, verify password
-        let verified = false;
-        if (clerkUser) {
-            try {
-                const verifyRes = await clerkClient.users.verifyPassword({
-                    userId: clerkUser.id,
-                    password: password
-                });
-                verified = verifyRes.verified === true;
-            } catch (err) {
-                console.warn("Clerk password verify error:", err.message);
-            }
-        }
-
-        // If not in Clerk or verification failed, check MongoDB local fallback
-        let mongoUser = null;
-        if (!verified) {
-            mongoUser = await User.findOne({
-                $or: [{ email: cleanIdentifier }, { username: cleanIdentifier }]
-            });
-            if (mongoUser) {
-                const match = await mongoUser.comparePassword(password);
-                if (match) {
-                    verified = true;
-                    // If not in Clerk yet, create or link in Clerk
-                    if (!clerkUser) {
-                        try {
-                            clerkUser = await clerkClient.users.createUser({
-                                emailAddress: [mongoUser.email],
-                                username: mongoUser.username.length >= 4 ? mongoUser.username : `${mongoUser.username}_user`,
-                                password: password,
-                                firstName: mongoUser.firstName || mongoUser.username,
-                                skipPasswordChecks: true
-                            });
-                            mongoUser.clerkId = clerkUser.id;
-                            await mongoUser.save();
-                        } catch (clerkCreateErr) {
-                            console.warn("Could not sync mongoUser to clerk on signin:", clerkCreateErr.message);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!verified) {
-            return res.status(401).json({ success: false, message: "Invalid email/username or password" });
-        }
-
-        // 3. Create Clerk active session and token
-        let token = "";
-        if (clerkUser) {
-            try {
-                const sess = await clerkClient.sessions.createSession({ userId: clerkUser.id });
-                const tokenObj = await clerkClient.sessions.getToken(sess.id);
-                token = tokenObj.jwt;
-            } catch (sessErr) {
-                console.warn("Clerk createSession error:", sessErr.message);
-            }
-        }
-
-        // 4. Ensure user exists in MongoDB and update lastLoginAt
-        const userEmail = clerkUser?.emailAddresses?.[0]?.emailAddress || mongoUser?.email || cleanIdentifier;
-        const userName = clerkUser?.firstName || mongoUser?.firstName || clerkUser?.username || mongoUser?.username || "User";
-        const userUsername = clerkUser?.username || mongoUser?.username || userEmail.split("@")[0];
-        const profileImg = clerkUser?.imageUrl || mongoUser?.profileImage || `https://api.dicebear.com/7.x/identicon/svg?seed=${userUsername}`;
-
-        if (!mongoUser) {
-            mongoUser = await User.findOneAndUpdate(
-                { $or: [{ clerkId: clerkUser?.id }, { email: userEmail }] },
-                {
-                    clerkId: clerkUser?.id,
-                    email: userEmail,
-                    username: userUsername,
-                    firstName: userName,
-                    profileImage: profileImg,
-                    isEmailVerified: true,
-                    provider: "clerk",
-                    lastLoginAt: new Date()
-                },
-                { upsert: true, new: true }
-            );
-        } else {
-            mongoUser.lastLoginAt = new Date();
-            if (clerkUser?.id) mongoUser.clerkId = clerkUser.id;
-            await mongoUser.save();
-        }
-
-        if (!token) {
-            token = `token_${mongoUser._id}_${Date.now()}`;
-        }
-
-        console.log(`🔐 [CLERK] Sign In Successful: ${userEmail} (Clerk ID: ${clerkUser?.id || 'native'})`);
-
-        return res.status(200).json({
-            success: true,
-            message: `Welcome back, ${userName}! (Authenticated via Clerk)`,
-            token,
-            user: {
-                id: mongoUser._id,
-                clerkId: clerkUser?.id || mongoUser.clerkId,
-                email: mongoUser.email,
-                username: mongoUser.username,
-                name: mongoUser.firstName || userName,
-                profileImage: mongoUser.profileImage,
-                provider: "clerk",
-                role: mongoUser.role || "user",
-                isEmailVerified: true
-            }
-        });
+        const result = await processClerkSignIn({ identifier, password });
+        return res.status(200).json(result);
     } catch (error) {
-        console.error("Error in clerk-signin:", error);
-        res.status(500).json({ success: false, message: error.message || "Sign in failed" });
+        console.error("Error in clerk-signin:", error.message);
+        res.status(401).json({ success: false, message: error.message || "Sign in failed" });
     }
 });
 
@@ -878,100 +949,11 @@ router.post("/clerk-signin", async (req, res) => {
 router.post("/clerk-signup", async (req, res) => {
     try {
         const { email, username, password, name, phone } = req.body;
-        if (!email || !password) {
-            return res.status(400).json({ success: false, message: "Email and password are required" });
-        }
-
-        const cleanEmail = email.trim().toLowerCase();
-        const cleanUsername = (username || cleanEmail.split("@")[0]).trim().toLowerCase().replace(/[^a-z0-9_]/g, "_").slice(0, 30);
-        const displayName = name || cleanUsername;
-
-        // 1. Create in Clerk
-        let clerkUser = null;
-        try {
-            const createParams = {
-                emailAddress: [cleanEmail],
-                username: cleanUsername.length >= 4 ? cleanUsername : `${cleanUsername}_user`,
-                password,
-                firstName: displayName,
-                skipPasswordChecks: true
-            };
-            if (phone) {
-                createParams.phoneNumber = [phone];
-            }
-            clerkUser = await clerkClient.users.createUser(createParams);
-        } catch (clerkErr) {
-            console.warn("Clerk createUser error:", clerkErr.message || clerkErr);
-            // If already exists in Clerk, fetch user
-            if (clerkErr.errors?.[0]?.code === "form_identifier_exists") {
-                const list = await clerkClient.users.getUserList({ emailAddress: [cleanEmail] });
-                if (list.data && list.data.length > 0) clerkUser = list.data[0];
-            } else {
-                const msg = clerkErr.errors?.[0]?.message || clerkErr.message;
-                return res.status(400).json({ success: false, message: msg });
-            }
-        }
-
-        // 2. Create in MongoDB
-        let mongoUser = await User.findOne({ $or: [{ email: cleanEmail }, { clerkId: clerkUser?.id }] });
-        if (!mongoUser) {
-            mongoUser = new User({
-                email: cleanEmail,
-                username: cleanUsername,
-                password,
-                firstName: displayName,
-                clerkId: clerkUser?.id,
-                profileImage: clerkUser?.imageUrl || `https://api.dicebear.com/7.x/identicon/svg?seed=${cleanUsername}`,
-                isEmailVerified: true,
-                provider: "clerk",
-                role: "user",
-                lastLoginAt: new Date()
-            });
-            await mongoUser.save();
-        } else {
-            if (clerkUser?.id) mongoUser.clerkId = clerkUser.id;
-            mongoUser.lastLoginAt = new Date();
-            await mongoUser.save();
-        }
-
-        // 3. Create Clerk session and token
-        let token = "";
-        if (clerkUser) {
-            try {
-                const sess = await clerkClient.sessions.createSession({ userId: clerkUser.id });
-                const tokenObj = await clerkClient.sessions.getToken(sess.id);
-                token = tokenObj.jwt;
-            } catch (sessErr) {
-                console.warn("Clerk session token error:", sessErr.message);
-            }
-        }
-
-        if (!token) {
-            token = `token_${mongoUser._id}_${Date.now()}`;
-        }
-
-        console.log(`✨ [CLERK] Sign Up Successful: ${cleanEmail} (Clerk ID: ${clerkUser?.id})`);
-
-        return res.status(201).json({
-            success: true,
-            isNewUser: true,
-            message: `Account created successfully via Clerk! Welcome, ${displayName}.`,
-            token,
-            user: {
-                id: mongoUser._id,
-                clerkId: clerkUser?.id || mongoUser.clerkId,
-                email: mongoUser.email,
-                username: mongoUser.username,
-                name: mongoUser.firstName || displayName,
-                profileImage: mongoUser.profileImage,
-                provider: "clerk",
-                role: mongoUser.role || "user",
-                isEmailVerified: true
-            }
-        });
+        const result = await processClerkSignUp({ email, username, password, name, phone });
+        return res.status(201).json(result);
     } catch (error) {
-        console.error("Error in clerk-signup:", error);
-        res.status(500).json({ success: false, message: error.message || "Registration failed" });
+        console.error("Error in clerk-signup:", error.message);
+        res.status(400).json({ success: false, message: error.message || "Registration failed" });
     }
 });
 
@@ -1030,6 +1012,92 @@ router.post("/clerk-sync", async (req, res) => {
     } catch (error) {
         console.error("Error in clerk-sync:", error);
         res.status(500).json({ success: false, message: error.message || "Failed to sync Clerk account" });
+    }
+});
+
+// ─── POST /api/auth/clerk-session ───
+// Resolve a completed Clerk session ID (e.g. from real Google / GitHub OAuth callback)
+router.post("/clerk-session", async (req, res) => {
+    try {
+        const { sessionId } = req.body;
+        if (!sessionId) {
+            return res.status(400).json({ success: false, message: "Missing sessionId parameter" });
+        }
+
+        console.log(`🔐 [CLERK] Resolving real OAuth session: ${sessionId}`);
+        const session = await clerkClient.sessions.getSession(sessionId);
+        if (!session || !session.userId) {
+            return res.status(400).json({ success: false, message: "Session not found or inactive" });
+        }
+
+        const clerkUser = await clerkClient.users.getUser(session.userId);
+        if (!clerkUser) {
+            return res.status(404).json({ success: false, message: "Clerk user profile not found" });
+        }
+
+        // Get session token JWT
+        let token = "";
+        try {
+            const tokenObj = await clerkClient.sessions.getToken(sessionId);
+            token = tokenObj?.jwt || "";
+        } catch (tokenErr) {
+            console.warn("Could not retrieve session token JWT:", tokenErr.message);
+        }
+
+        const primaryEmail = clerkUser.emailAddresses?.[0]?.emailAddress?.toLowerCase() || `${clerkUser.id}@clerk.user`;
+        const displayName = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || clerkUser.username || primaryEmail.split("@")[0];
+        const username = (clerkUser.username || primaryEmail.split("@")[0]).replace(/[^a-z0-9_]/g, "_").slice(0, 30);
+        const avatar = clerkUser.imageUrl || `https://api.dicebear.com/7.x/identicon/svg?seed=${username}`;
+        const phone = clerkUser.phoneNumbers?.[0]?.phoneNumber || "";
+
+        // Determine real provider (Google vs GitHub vs Clerk)
+        const hasGoogle = clerkUser.externalAccounts?.some(acc => acc.provider?.includes("google"));
+        const hasGithub = clerkUser.externalAccounts?.some(acc => acc.provider?.includes("github"));
+        const provider = hasGoogle ? "google" : hasGithub ? "github" : "clerk";
+
+        let user = await User.findOneAndUpdate(
+            { $or: [{ clerkId: clerkUser.id }, { email: primaryEmail }] },
+            {
+                clerkId: clerkUser.id,
+                email: primaryEmail,
+                username,
+                firstName: displayName,
+                profileImage: avatar,
+                phoneNumber: phone,
+                provider,
+                isEmailVerified: true,
+                lastLoginAt: new Date()
+            },
+            { upsert: true, new: true }
+        );
+
+        if (!token) {
+            token = `token_${user._id}_${Date.now()}`;
+        }
+
+        console.log(`✅ [CLERK] Real ${provider.toUpperCase()} ID Authenticated: ${primaryEmail} (${displayName})`);
+
+        return res.status(200).json({
+            success: true,
+            message: `Welcome, ${displayName}! (Signed in with real ${provider === 'google' ? 'Google' : 'GitHub'} ID)`,
+            token,
+            userId: user._id,
+            user: {
+                id: user._id,
+                clerkId: clerkUser.id,
+                email: user.email,
+                username: user.username,
+                name: user.firstName || displayName,
+                profileImage: user.profileImage,
+                phoneNumber: user.phoneNumber,
+                provider: user.provider,
+                role: user.role || "user",
+                isEmailVerified: true
+            }
+        });
+    } catch (error) {
+        console.error("Error in clerk-session:", error.message || error);
+        return res.status(500).json({ success: false, message: error.message || "Failed to resolve Clerk session" });
     }
 });
 
@@ -1160,6 +1228,114 @@ router.get("/me", async (req, res) => {
             success: false, 
             message: "Internal Server Error" 
         });
+    }
+});
+
+// ─── POST /api/auth/set-role ───
+// Assign or toggle role between distributor and consumer
+router.post("/set-role", async (req, res) => {
+    try {
+        const { userId, email, role } = req.body;
+        const targetRole = role === "distributor" ? "distributor" : "consumer";
+
+        let user = null;
+        if (mongoose.connection.readyState === 1) {
+            if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+                user = await User.findByIdAndUpdate(userId, { role: targetRole }, { new: true });
+            } else if (email) {
+                user = await User.findOneAndUpdate({ email: email.toLowerCase() }, { role: targetRole }, { new: true });
+            }
+        }
+
+        if (!user && devUsers) {
+            for (const [id, u] of devUsers.entries()) {
+                if (id === userId || u.email === email) {
+                    u.role = targetRole;
+                    user = u;
+                    break;
+                }
+            }
+        }
+
+        console.log(`👤 [ROLE] Updated ${email || userId} to "${targetRole}"`);
+
+        return res.status(200).json({
+            success: true,
+            message: `Role updated to ${targetRole}`,
+            role: targetRole,
+            user: user ? {
+                id: user._id || user.id,
+                username: user.username,
+                email: user.email,
+                role: targetRole
+            } : null
+        });
+    } catch (err) {
+        console.error("Error setting role:", err);
+        res.status(500).json({ success: false, message: "Failed to update role" });
+    }
+});
+
+// ─── GET /api/auth/distributor-database ───
+// Database of Consumers and Distributors for distributor management view
+router.get("/distributor-database", async (req, res) => {
+    try {
+        if (mongoose.connection.readyState === 1) {
+            const users = await User.find(
+                {},
+                "username email firstName lastName phoneNumber profileImage role provider lastLoginAt createdAt"
+            ).sort({ createdAt: -1 });
+
+            const consumers = users
+                .filter(u => u.role !== "distributor")
+                .map(u => ({
+                    id: String(u._id),
+                    name: [u.firstName, u.lastName].filter(Boolean).join(" ") || u.username,
+                    username: u.username,
+                    email: u.email,
+                    phone: u.phoneNumber || "Not provided",
+                    role: "consumer",
+                    provider: u.provider || "local",
+                    createdAt: u.createdAt,
+                    lastLoginAt: u.lastLoginAt
+                }));
+
+            const distributors = users
+                .filter(u => u.role === "distributor")
+                .map(u => ({
+                    id: String(u._id),
+                    name: [u.firstName, u.lastName].filter(Boolean).join(" ") || u.username,
+                    username: u.username,
+                    email: u.email,
+                    phone: u.phoneNumber || "Not provided",
+                    role: "distributor",
+                    provider: u.provider || "clerk",
+                    createdAt: u.createdAt,
+                    lastLoginAt: u.lastLoginAt
+                }));
+
+            return res.status(200).json({
+                success: true,
+                total: users.length,
+                consumersCount: consumers.length,
+                distributorsCount: distributors.length,
+                consumers,
+                distributors
+            });
+        }
+
+        const allDev = Array.from(devUsers.values());
+        return res.status(200).json({
+            success: true,
+            total: allDev.length,
+            consumersCount: allDev.filter(u => u.role !== "distributor").length,
+            distributorsCount: allDev.filter(u => u.role === "distributor").length,
+            consumers: allDev.filter(u => u.role !== "distributor"),
+            distributors: allDev.filter(u => u.role === "distributor")
+        });
+    } catch (err) {
+        console.error("Error fetching distributor database:", err);
+        res.status(500).json({ success: false, message: "Failed to fetch user database" });
     }
 });
 

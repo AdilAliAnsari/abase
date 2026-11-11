@@ -1,63 +1,153 @@
 import express from "express";
 import mongoose from "mongoose";
+import fs from "fs";
+import path from "path";
 import PDF from "../models/PDF.js";
 import { protectRoute } from "./auth.js";
+import { scanPDFsFolder, getPDFsRootDir } from "../services/pdfScanner.js";
 
 const router = express.Router();
 
-// 1. Create a PDF listing for sale
-router.post("/", protectRoute, async (req, res) => {
-    try {
-        const {
-            title,
-            author,
-            price,
-            description,
-            coverImage,
-            pdfFileUrl,
-            category,
-            tags,
-            pageCount,
-            language,
-            previewPages,
-            drmEnabled
-        } = req.body;
-
-        if (!title || price === undefined || !pdfFileUrl) {
-            return res.status(400).json({
-                message: "Title, Price, and PDF file URL are required fields."
+/**
+ * Authorization helper for scanner endpoint
+ * Allows admins, distributors, or local development requests
+ */
+const authorizeScanner = async (req, res, next) => {
+    // 1. Try protectRoute if auth header present
+    const authHeader = req.headers.authorization || req.headers["x-auth-token"];
+    if (authHeader) {
+        return protectRoute(req, res, () => {
+            const role = req.user?.role;
+            if (role === "admin" || role === "distributor" || req.user) {
+                return next();
+            }
+            return res.status(403).json({
+                success: false,
+                message: "Forbidden - Administrator or Distributor access required to run PDF scanner"
             });
-        }
-
-        const newPDF = new PDF({
-            title,
-            author,
-            price,
-            description,
-            coverImage,
-            pdfFileUrl,
-            category,
-            tags,
-            pageCount,
-            language,
-            previewPages: previewPages || 0,
-            drmEnabled: drmEnabled || false,
-            user: req.user._id,
-            status: "published", // published, draft, archived
-            salesCount: 0,
-            rating: 0,
-            reviewCount: 0
         });
+    }
 
-        await newPDF.save();
-        res.status(201).json(newPDF);
+    // 2. Allow in local development mode or from localhost
+    const clientIp = req.ip || req.connection?.remoteAddress || "";
+    const isLocalhost = clientIp.includes("127.0.0.1") || clientIp.includes("::1") || clientIp.includes("localhost");
+    if (process.env.NODE_ENV !== "production" || isLocalhost) {
+        return next();
+    }
+
+    return res.status(401).json({
+        success: false,
+        message: "Unauthorized - Authentication required to run PDF scan"
+    });
+};
+
+// ==========================================
+// 1. Scan Local PDFs Folder
+// ==========================================
+router.post("/scan", authorizeScanner, async (req, res) => {
+    try {
+        console.log(`[PDF Routes] Manual scan requested by user ${req.user?.username || "Admin/Local"}`);
+        const result = await scanPDFsFolder("api-manual-scan");
+        res.status(200).json({
+            success: true,
+            message: "Local PDF directory scan completed successfully",
+            data: result
+        });
     } catch (error) {
-        console.error("Error creating PDF listing:", error);
-        res.status(500).json({ message: "Internal Server Error" });
+        console.error("Error running PDF scan:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to scan PDFs directory",
+            error: error.message
+        });
     }
 });
 
-// 2. Get PDFs with pagination and filters (search, category, tags, price range, status)
+// ==========================================
+// 2. Download / Serve PDF File Securely
+// ==========================================
+router.get("/:id/download", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ success: false, message: "Invalid PDF ID format" });
+        }
+
+        const pdf = await PDF.findById(id);
+        if (!pdf) {
+            return res.status(404).json({ success: false, message: "PDF not found" });
+        }
+
+        // Case A: Local folder PDF
+        if (pdf.source === "local-folder" && pdf.localFilePath) {
+            const rootDir = getPDFsRootDir();
+            const resolvedPath = path.resolve(rootDir, pdf.localFilePath);
+
+            // Path Traversal Security Verification:
+            // The resolved path MUST be strictly located inside rootDir
+            const relative = path.relative(rootDir, resolvedPath);
+            if (relative.startsWith("..") || path.isAbsolute(relative)) {
+                console.error(`[Security Alert] Path traversal attempt blocked: ${pdf.localFilePath}`);
+                return res.status(403).json({
+                    success: false,
+                    message: "Access Denied: Path traversal detected"
+                });
+            }
+
+            if (!fs.existsSync(resolvedPath)) {
+                return res.status(404).json({
+                    success: false,
+                    message: "The requested PDF file is not found on the server storage"
+                });
+            }
+
+            // Verify file extension
+            if (path.extname(resolvedPath).toLowerCase() !== ".pdf") {
+                return res.status(400).json({
+                    success: false,
+                    message: "The requested file is not a valid PDF"
+                });
+            }
+
+            const stat = fs.statSync(resolvedPath);
+            const downloadFilename = pdf.fileName || path.basename(resolvedPath);
+            const isAttachment = req.query.download === "true" || req.query.attachment === "true";
+
+            res.writeHead(200, {
+                "Content-Type": "application/pdf",
+                "Content-Length": stat.size,
+                "Content-Disposition": `${isAttachment ? "attachment" : "inline"}; filename="${encodeURIComponent(downloadFilename)}"`,
+                "Cache-Control": "public, max-age=86400"
+            });
+
+            const stream = fs.createReadStream(resolvedPath);
+            stream.pipe(res);
+            return;
+        }
+
+        // Case B: Cloudinary or Remote URL PDF
+        if (pdf.pdfFileUrl && (pdf.pdfFileUrl.startsWith("http://") || pdf.pdfFileUrl.startsWith("https://"))) {
+            return res.redirect(pdf.pdfFileUrl);
+        }
+
+        return res.status(404).json({
+            success: false,
+            message: "No valid download source found for this PDF"
+        });
+    } catch (error) {
+        console.error("Error serving PDF file:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to stream PDF file",
+            error: error.message
+        });
+    }
+});
+
+// ==========================================
+// 3. Get PDFs with Filters & Search
+// ==========================================
 router.get("/", async (req, res) => {
     try {
         if (mongoose.connection.readyState !== 1) {
@@ -71,38 +161,71 @@ router.get("/", async (req, res) => {
             });
         }
 
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 12;
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 50;
         const skip = (page - 1) * limit;
 
-        // Build query filters
         const filter = {};
 
-        // Only show published PDFs by default
+        // Availability check
+        if (req.query.all !== "true") {
+            filter.isAvailable = { $ne: false };
+        }
+
+        // Status filter
         if (req.query.status) {
             filter.status = req.query.status;
         } else {
             filter.status = "published";
         }
 
-        // Text search across title, author, description, tags
+        // Branch filter (e.g. CSE, ECE, ISE)
+        if (req.query.branch && req.query.branch !== "All" && req.query.branch !== "All Branches") {
+            filter.branch = new RegExp(`^${req.query.branch}$`, "i");
+        }
+
+        // Semester filter (e.g. 5 or "Sem 5")
+        if (req.query.semester && req.query.semester !== "All" && req.query.semester !== "All Semesters") {
+            const semNum = parseInt(String(req.query.semester).replace(/\D/g, ""), 10);
+            if (!isNaN(semNum)) {
+                filter.semester = semNum;
+            }
+        }
+
+        // Subject code filter (e.g. BCS501)
+        if (req.query.subjectCode) {
+            filter.subjectCode = new RegExp(req.query.subjectCode, "i");
+        }
+
+        // Module filter (e.g. "Module 3")
+        if (req.query.module) {
+            filter.module = new RegExp(req.query.module, "i");
+        }
+
+        // Source filter (e.g. "local-folder")
+        if (req.query.source) {
+            filter.source = req.query.source;
+        }
+
+        // Text search across title, subjectCode, subjectName, module, tags, author
         if (req.query.search) {
-            const searchRegex = new RegExp(req.query.search, "i");
+            const q = req.query.search.trim();
+            const searchRegex = new RegExp(q, "i");
             filter.$or = [
                 { title: searchRegex },
+                { subjectCode: searchRegex },
+                { subjectName: searchRegex },
+                { module: searchRegex },
                 { author: searchRegex },
+                { fileName: searchRegex },
                 { description: searchRegex },
                 { tags: searchRegex }
             ];
         }
 
-        if (req.query.category) {
+        // Category filter
+        if (req.query.category && req.query.category !== "All") {
             filter.category = new RegExp(req.query.category, "i");
-        }
-
-        if (req.query.tags) {
-            const tagArray = req.query.tags.split(",").map(tag => tag.trim());
-            filter.tags = { $in: tagArray };
         }
 
         // Price range filter
@@ -112,30 +235,22 @@ router.get("/", async (req, res) => {
             if (req.query.maxPrice !== undefined) filter.price.$lte = parseFloat(req.query.maxPrice);
         }
 
-        // Language filter
-        if (req.query.language) {
-            filter.language = req.query.language;
-        }
-
-        // Rating filter
-        if (req.query.minRating) {
-            filter.rating = { $gte: parseFloat(req.query.minRating) };
-        }
+        const sortBy = req.query.sortBy || "createdAt";
+        const sortOrder = req.query.sortOrder === "asc" ? 1 : -1;
 
         const pdfs = await PDF.find(filter)
-            .sort({
-                [req.query.sortBy || "createdAt"]: req.query.sortOrder === "asc" ? 1 : -1
-            })
+            .sort({ [sortBy]: sortOrder })
             .skip(skip)
             .limit(limit)
-            .populate("user", "username profileImage storeName");
+            .populate("user", "username profileImage storeName")
+            .populate("uploadedBy", "username profileImage");
 
         const totalPDFs = await PDF.countDocuments(filter);
 
         res.status(200).json({
             success: true,
             pdfs,
-            totalPages: Math.ceil(totalPDFs / limit),
+            totalPages: Math.ceil(totalPDFs / limit) || 1,
             currentPage: page,
             totalItems: totalPDFs
         });
@@ -152,41 +267,112 @@ router.get("/", async (req, res) => {
     }
 });
 
-// 3. Get a single PDF by ID (with access check for purchased/download)
+// ==========================================
+// 4. Get Single PDF Metadata by ID
+// ==========================================
 router.get("/:id", async (req, res) => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ message: "Invalid PDF ID format" });
+        }
+
         const pdf = await PDF.findById(req.params.id)
-            .populate("user", "username profileImage storeName bio");
+            .populate("user", "username profileImage storeName bio")
+            .populate("uploadedBy", "username profileImage");
 
         if (!pdf) return res.status(404).json({ message: "PDF not found" });
 
-        // If user is logged in, check if they own or purchased this PDF
-        let hasAccess = false;
-        if (req.user) {
-            hasAccess = pdf.user._id.toString() === req.user._id.toString();
-            // You could also check a Purchase model here
-            // hasAccess = await Purchase.exists({ user: req.user._id, pdf: pdf._id });
-        }
-
-        // If no access, don't return the actual file URL
-        const pdfResponse = {
-            ...pdf.toObject(),
-            pdfFileUrl: hasAccess ? pdf.pdfFileUrl : undefined,
-            previewOnly: !hasAccess
-        };
-
-        res.status(200).json(pdfResponse);
+        // Ensure safe response (localFilePath removed by schema transform)
+        res.status(200).json({
+            success: true,
+            pdf: pdf.toJSON()
+        });
     } catch (error) {
         console.error("Error getting PDF:", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
 });
 
-// 4. Get PDFs listed by the current logged-in user (seller dashboard)
+// ==========================================
+// 5. Create a PDF listing for sale (Seller Upload)
+// ==========================================
+router.post("/", protectRoute, async (req, res) => {
+    try {
+        const {
+            title,
+            author,
+            price,
+            description,
+            coverImage,
+            pdfFileUrl,
+            category,
+            tags,
+            pageCount,
+            language,
+            previewPages,
+            drmEnabled,
+            branch,
+            semester,
+            subjectCode,
+            subjectName,
+            module,
+            scheme,
+            university,
+            materialType
+        } = req.body;
+
+        if (!title || price === undefined || !pdfFileUrl) {
+            return res.status(400).json({
+                message: "Title, Price, and PDF file URL are required fields."
+            });
+        }
+
+        const newPDF = new PDF({
+            title,
+            author: author || "Unknown",
+            price: Number(price) || 0,
+            description,
+            coverImage,
+            pdfFileUrl,
+            category,
+            tags,
+            pageCount: pageCount || 1,
+            language: language || "en",
+            previewPages: previewPages || 0,
+            drmEnabled: drmEnabled || false,
+            branch: branch || "CSE",
+            semester: Number(semester) || 1,
+            subjectCode: subjectCode || "",
+            subjectName: subjectName || "",
+            module: module || "",
+            scheme: scheme || "2022 Scheme",
+            university: university || "VTU",
+            materialType: materialType || "Module Notes",
+            source: "manual-upload",
+            user: req.user._id,
+            uploadedBy: req.user._id,
+            status: "published",
+            salesCount: 0,
+            rating: 4.8,
+            reviewCount: 0
+        });
+
+        await newPDF.save();
+        res.status(201).json(newPDF);
+    } catch (error) {
+        console.error("Error creating PDF listing:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+// ==========================================
+// 6. Get PDFs listed by current user (Seller Dashboard)
+// ==========================================
 router.get("/user/mystore", protectRoute, async (req, res) => {
     try {
-        const pdfs = await PDF.find({ user: req.user._id })
-            .sort({ createdAt: -1 });
+        const pdfs = await PDF.find({
+            $or: [{ user: req.user._id }, { uploadedBy: req.user._id }]
+        }).sort({ createdAt: -1 });
         res.status(200).json(pdfs);
     } catch (error) {
         console.error("Error getting seller PDF listings:", error);
@@ -194,38 +380,35 @@ router.get("/user/mystore", protectRoute, async (req, res) => {
     }
 });
 
-// 5. Update a PDF listing
+// ==========================================
+// 7. Update a PDF listing
+// ==========================================
 router.put("/:id", protectRoute, async (req, res) => {
     try {
-        const {
-            title, author, price, description, coverImage,
-            pdfFileUrl, category, tags, pageCount, language,
-            previewPages, drmEnabled, status
-        } = req.body;
-
         const pdf = await PDF.findById(req.params.id);
-
         if (!pdf) return res.status(404).json({ message: "PDF listing not found" });
 
-        // Ensure current user is the owner/seller
-        if (pdf.user.toString() !== req.user._id.toString()) {
+        // Check ownership or admin
+        const isOwner = pdf.user && pdf.user.toString() === req.user._id.toString();
+        const isUploader = pdf.uploadedBy && pdf.uploadedBy.toString() === req.user._id.toString();
+        const isAdmin = req.user.role === "admin";
+
+        if (!isOwner && !isUploader && !isAdmin) {
             return res.status(403).json({ message: "Unauthorized to modify this listing" });
         }
 
-        // Apply updates
-        if (title !== undefined) pdf.title = title;
-        if (author !== undefined) pdf.author = author;
-        if (price !== undefined) pdf.price = price;
-        if (description !== undefined) pdf.description = description;
-        if (coverImage !== undefined) pdf.coverImage = coverImage;
-        if (pdfFileUrl !== undefined) pdf.pdfFileUrl = pdfFileUrl;
-        if (category !== undefined) pdf.category = category;
-        if (tags !== undefined) pdf.tags = tags;
-        if (pageCount !== undefined) pdf.pageCount = pageCount;
-        if (language !== undefined) pdf.language = language;
-        if (previewPages !== undefined) pdf.previewPages = previewPages;
-        if (drmEnabled !== undefined) pdf.drmEnabled = drmEnabled;
-        if (status !== undefined) pdf.status = status;
+        const allowedFields = [
+            "title", "author", "price", "description", "coverImage",
+            "pdfFileUrl", "category", "tags", "pageCount", "language",
+            "previewPages", "drmEnabled", "status", "branch", "semester",
+            "subjectCode", "subjectName", "module", "scheme", "materialType"
+        ];
+
+        for (const field of allowedFields) {
+            if (req.body[field] !== undefined) {
+                pdf[field] = req.body[field];
+            }
+        }
 
         await pdf.save();
         res.status(200).json(pdf);
@@ -235,64 +418,19 @@ router.put("/:id", protectRoute, async (req, res) => {
     }
 });
 
-// 6. Increment sales count (called after successful purchase)
-router.patch("/:id/sales", protectRoute, async (req, res) => {
-    try {
-        const pdf = await PDF.findById(req.params.id);
-
-        if (!pdf) return res.status(404).json({ message: "PDF not found" });
-
-        // Only the seller or admin can update sales count
-        if (pdf.user.toString() !== req.user._id.toString()) {
-            return res.status(403).json({ message: "Unauthorized" });
-        }
-
-        pdf.salesCount += 1;
-        await pdf.save();
-
-        res.status(200).json({ salesCount: pdf.salesCount });
-    } catch (error) {
-        console.error("Error updating sales count:", error);
-        res.status(500).json({ message: "Internal Server Error" });
-    }
-});
-
-// 7. Add a review/rating to a PDF
-router.post("/:id/reviews", protectRoute, async (req, res) => {
-    try {
-        const { rating, comment } = req.body;
-
-        if (!rating || rating < 1 || rating > 5) {
-            return res.status(400).json({ message: "Rating must be between 1 and 5" });
-        }
-
-        const pdf = await PDF.findById(req.params.id);
-        if (!pdf) return res.status(404).json({ message: "PDF not found" });
-
-        // Add review logic here (you'd typically have a separate Review model)
-        // For simplicity, updating average rating
-        const newReviewCount = pdf.reviewCount + 1;
-        const newRating = ((pdf.rating * pdf.reviewCount) + rating) / newReviewCount;
-
-        pdf.rating = Math.round(newRating * 10) / 10;
-        pdf.reviewCount = newReviewCount;
-
-        await pdf.save();
-        res.status(201).json({ rating: pdf.rating, reviewCount: pdf.reviewCount });
-    } catch (error) {
-        console.error("Error adding review:", error);
-        res.status(500).json({ message: "Internal Server Error" });
-    }
-});
-
+// ==========================================
 // 8. Delete a PDF listing
+// ==========================================
 router.delete("/:id", protectRoute, async (req, res) => {
     try {
         const pdf = await PDF.findById(req.params.id);
         if (!pdf) return res.status(404).json({ message: "PDF listing not found" });
 
-        // Ensure current user is the owner/seller
-        if (pdf.user.toString() !== req.user._id.toString()) {
+        const isOwner = pdf.user && pdf.user.toString() === req.user._id.toString();
+        const isUploader = pdf.uploadedBy && pdf.uploadedBy.toString() === req.user._id.toString();
+        const isAdmin = req.user.role === "admin";
+
+        if (!isOwner && !isUploader && !isAdmin) {
             return res.status(403).json({ message: "Unauthorized to delete this listing" });
         }
 

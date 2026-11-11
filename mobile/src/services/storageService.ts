@@ -8,7 +8,9 @@ export interface SavedAccount {
   username: string;
   name: string;
   avatar?: string;
-  provider: 'google' | 'github' | 'local';
+  provider: 'google' | 'github' | 'local' | 'clerk';
+  clerkId?: string;
+  phoneNumber?: string;
   socialId?: string;
   lastUsedAt: string;
   token?: string;
@@ -129,6 +131,13 @@ export const storageService = {
       console.warn('Failed to save account record:', e);
       return [];
     }
+  },
+
+  /**
+   * Alias for addSavedAccount
+   */
+  saveAccountRecord: async (account: SavedAccount): Promise<SavedAccount[]> => {
+    return storageService.addSavedAccount(account);
   },
 
   /**
