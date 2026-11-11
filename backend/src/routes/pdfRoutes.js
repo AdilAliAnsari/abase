@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
 import PDF from "../models/PDF.js";
+import Notification from "../models/Notification.js";
+import User from "../models/User.js";
 import { protectRoute } from "./auth.js";
 import { scanPDFsFolder, getPDFsRootDir } from "../services/pdfScanner.js";
 
@@ -61,6 +63,31 @@ router.post("/scan", authorizeScanner, async (req, res) => {
             error: error.message
         });
     }
+    if (!Number.isFinite(Number(price)) || Number(price) < 0) {
+      return res.status(400).json({ success: false, message: "Price must be a non-negative number." });
+    }
+
+    const pdf = await PDF.create({
+      title: title.trim(), author: author?.trim() || "Unknown", price: Number(price), description,
+      coverImage, pdfFileUrl: pdfFileUrl.trim(), category, tags: Array.isArray(tags) ? tags : [],
+      pageCount: pageCount ? Number(pageCount) : 1, language: language || "en",
+      previewPages: previewPages ? Number(previewPages) : 0, drmEnabled: Boolean(drmEnabled),
+      subjectCode, scheme, branch, year, semester: semester ? Number(semester) : undefined,
+      university, materialType, fileSize, user: req.user._id, status: "published", salesCount: 0,
+    });
+
+    const customers = await User.find({ _id: { $ne: req.user._id }, role: "user" }).select("_id").lean();
+    if (customers.length) {
+      const message = `New study material "${pdf.title}" by ${pdf.author} is now available.`;
+      await Notification.insertMany(customers.map(customer => ({
+        user: customer._id, title: "New PDF uploaded", message, type: "pdf", pdf: pdf._id,
+      })));
+    }
+    return res.status(201).json({ success: true, pdf, notificationsCreated: customers.length, message: "PDF published and customers notified." });
+  } catch (error) {
+    console.error("Error creating PDF listing:", error);
+    return res.status(500).json({ success: false, message: "Could not publish PDF." });
+  }
 });
 
 // ==========================================
@@ -265,6 +292,26 @@ router.get("/", async (req, res) => {
             error: error.message
         });
     }
+    const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 12));
+    const filter = { status: "published" };
+    if (req.query.search) {
+      const safeSearch = String(req.query.search).replace(/[.*+?^$\{\}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(safeSearch, "i");
+      filter.$or = [{ title: regex }, { author: regex }, { description: regex }, { tags: regex }, { subjectCode: regex }];
+    }
+    if (req.query.category) filter.category = new RegExp(String(req.query.category), "i");
+    if (req.query.tags) filter.tags = { $in: String(req.query.tags).split(",").map(tag => tag.trim()) };
+    if (req.query.language) filter.language = String(req.query.language);
+    const [pdfs, totalItems] = await Promise.all([
+      PDF.find(filter).populate("user", "username profileImage storeName").sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
+      PDF.countDocuments(filter),
+    ]);
+    res.json({ success: true, pdfs, totalPages: Math.ceil(totalItems / limit), currentPage: page, totalItems });
+  } catch (error) {
+    console.error("Error getting PDF listings:", error);
+    res.status(500).json({ success: false, message: "Could not load PDFs." });
+  }
 });
 
 // ==========================================

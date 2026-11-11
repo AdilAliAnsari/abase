@@ -210,6 +210,12 @@ export const PDFCard: React.FC<PDFCardProps> = ({
           )}
         </View>
 
+        {(pdf.uploadedAt || pdf.createdAt) && (
+          <Text style={styles.institutionText}>
+            Added: {new Date(pdf.uploadedAt || pdf.createdAt as string).toLocaleDateString()}
+          </Text>
+        )}
+
         {/* Description */}
         <Text style={styles.listDesc} numberOfLines={2}>
           {pdf.description}

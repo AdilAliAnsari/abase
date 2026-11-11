@@ -182,6 +182,10 @@ export const api = {
     });
   },
 
+  patch: <T = any>(endpoint: string, data?: any) => {
+    return apiRequest<T>(endpoint, { method: 'PATCH', body: data ? JSON.stringify(data) : undefined });
+  },
+
   delete: <T = any>(endpoint: string) => {
     return apiRequest<T>(endpoint, { method: 'DELETE' });
   },

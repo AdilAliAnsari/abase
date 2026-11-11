@@ -2,10 +2,10 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
-
 import authRoutes from "./routes/authRoutes.js";
 import bookRoutes from "./routes/bookRoutes.js";
 import pdfRoutes from "./routes/pdfRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
@@ -17,13 +17,8 @@ import { initPdfScanner } from "./services/pdfScanner.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
-app.use(express.json({
-    verify: (req, res, buf) => {
-        req.rawBody = buf.toString();
-    }
-}));
+app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf.toString(); } }));
 app.use(clerkMiddleware());
 
 // Health check and diagnostic for mobile connection testing
@@ -67,14 +62,11 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/ai", aiRoutes);
 
-// Error handlers
 app.use((err, req, res, next) => {
-    console.error("Error:", err.stack);
-    res.status(err.status || 500).json({
-        success: false,
-        error: err.message || "Internal Server Error"
-    });
+  console.error("Error:", err.stack);
+  res.status(err.status || 500).json({ success: false, error: err.message || "Internal Server Error" });
 });
+app.use((req, res) => res.status(404).json({ success: false, error: "Route not found" }));
 
 app.use((req, res) => {
     res.status(404).json({ success: false, error: "Route not found" });
