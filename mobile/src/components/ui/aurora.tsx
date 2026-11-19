@@ -16,6 +16,25 @@ function mergeRefs<T>(...refs: (Ref<T> | undefined)[]) {
   };
 }
 
+function parseSafeNativeColor(colorStr: string | undefined, defaultColor: string): string {
+  if (!colorStr) return defaultColor;
+  const str = colorStr.trim();
+  if (str.startsWith("var(")) {
+    const match = str.match(/,\s*([^)]+)\)/);
+    if (match && match[1]) {
+      return parseSafeNativeColor(match[1].trim(), defaultColor);
+    }
+    return defaultColor;
+  }
+  if (str.toLowerCase() === "transparent") {
+    return "rgba(6, 8, 12, 0)";
+  }
+  if (str.startsWith("#") || str.startsWith("rgba(") || str.startsWith("rgb(")) {
+    return str;
+  }
+  return defaultColor;
+}
+
 // Where each light starts, how much slower than `duration` it drifts, and
 // how far into its drift it begins, so the three never move in step.
 const LIGHTS = [
@@ -38,19 +57,14 @@ export interface AuroraProps extends ComponentProps<"div"> {
  * Slow, soft light drifting behind its content. Three radial gradients
  * moved with transforms only: no blur filters, no canvas. The lights pause
  * while off screen and hold still with `prefers-reduced-motion`.
- *
- * @example
- * <Aurora className="rounded-xl border p-10" colors={["#38bdf8", "#a78bfa", "#f472b6"]}>
- *   <h2>…</h2>
- * </Aurora>
  */
 export const Aurora = React.forwardRef<HTMLDivElement, AuroraProps>(
   function Aurora(
     {
       colors = [
-        "var(--primary, #FFFFFF)",
-        "var(--muted-foreground, rgba(255, 255, 255, 0.75))",
-        "var(--accent-foreground, rgba(255, 255, 255, 0.45))",
+        "rgba(255, 255, 255, 0.75)",
+        "rgba(255, 255, 255, 0.45)",
+        "rgba(255, 255, 255, 0.25)",
       ],
       duration = 20,
       intensity = 0.35,
@@ -62,36 +76,37 @@ export const Aurora = React.forwardRef<HTMLDivElement, AuroraProps>(
     ref
   ) {
     // -------------------------------------------------------------
-    // Native (iOS / Android) with matching soft drifting ambient lights
+    // Native (iOS / Android) with matching soft monochrome ambient lights
     // -------------------------------------------------------------
     if (Platform.OS !== "web") {
-      const c0 = colors[0]?.includes("#") ? colors[0] : "#38bdf8";
-      const c1 = colors[1]?.includes("#") ? colors[1] : "#a78bfa";
-      const c2 = colors[2]?.includes("#") ? colors[2] : "#f472b6";
+      const c0 = parseSafeNativeColor(colors[0], "rgba(255, 255, 255, 0.75)");
+      const c1 = parseSafeNativeColor(colors[1], "rgba(255, 255, 255, 0.45)");
+      const c2 = parseSafeNativeColor(colors[2], "rgba(255, 255, 255, 0.25)");
+      const transparentStop = "rgba(6, 8, 12, 0)";
 
       return (
         <View style={[{ flex: 1, backgroundColor: "#06080C", position: "relative" }, style]}>
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
-            {/* Light 1 */}
+            {/* Light 1: Soft top-left glow */}
             <LinearGradient
-              colors={[c0, "transparent"]}
-              start={{ x: 0.05, y: 0.0 }}
-              end={{ x: 0.75, y: 0.65 }}
+              colors={[c0, transparentStop]}
+              start={{ x: 0.0, y: 0.0 }}
+              end={{ x: 0.7, y: 0.6 }}
               style={[StyleSheet.absoluteFill, { opacity: intensity }]}
             />
-            {/* Light 2 */}
+            {/* Light 2: Soft top-right glow */}
             <LinearGradient
-              colors={[c1, "transparent"]}
-              start={{ x: 0.85, y: 0.05 }}
-              end={{ x: 0.35, y: 0.75 }}
-              style={[StyleSheet.absoluteFill, { opacity: intensity }]}
-            />
-            {/* Light 3 */}
-            <LinearGradient
-              colors={[c2, "transparent"]}
-              start={{ x: 0.45, y: 0.55 }}
-              end={{ x: 0.9, y: 0.95 }}
+              colors={[c1, transparentStop]}
+              start={{ x: 0.9, y: 0.05 }}
+              end={{ x: 0.35, y: 0.7 }}
               style={[StyleSheet.absoluteFill, { opacity: intensity * 0.85 }]}
+            />
+            {/* Light 3: Soft center-bottom glow */}
+            <LinearGradient
+              colors={[c2, transparentStop]}
+              start={{ x: 0.3, y: 0.45 }}
+              end={{ x: 0.85, y: 0.95 }}
+              style={[StyleSheet.absoluteFill, { opacity: intensity * 0.7 }]}
             />
           </View>
           {children ? <View style={{ flex: 1, zIndex: 10 }}>{children}</View> : null}

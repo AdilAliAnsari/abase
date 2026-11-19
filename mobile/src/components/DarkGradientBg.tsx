@@ -15,7 +15,7 @@ export const DarkGradientBg: React.FC<DarkGradientBgProps> = ({
   children,
   style,
   className = "",
-  colors = ["#FFFFFF", "rgba(255, 255, 255, 0.75)", "rgba(255, 255, 255, 0.45)"],
+  colors = ["rgba(255, 255, 255, 0.75)", "rgba(255, 255, 255, 0.45)", "rgba(255, 255, 255, 0.25)"],
   duration = 20,
   intensity = 0.35,
 }) => {
