@@ -1015,6 +1015,47 @@ router.post("/clerk-sync", async (req, res) => {
     }
 });
 
+// ─── POST /api/auth/oauth-url ───
+// Generate real Clerk OAuth URL for Google/GitHub (avoids browser Origin/Authorization conflict)
+router.post("/oauth-url", async (req, res) => {
+    try {
+        const { provider, redirectUrl } = req.body;
+        const strategy = provider === "github" ? "oauth_github" : "oauth_google";
+        const targetRedirect = redirectUrl || "http://localhost:8081";
+
+        const clerkKey = process.env.CLERK_PUBLISHABLE_KEY || "pk_test_dG9sZXJhbnQtY2hpcG11bmstMzcuY2xlcmsuYWNjb3VudHMuZGV2JA";
+        const fapiBase = "https://tolerant-chipmunk-37.clerk.accounts.dev/v1";
+
+        const fapiRes = await fetch(`${fapiBase}/client/sign_ins?_is_native=true`, {
+            method: "POST",
+            headers: {
+                Authorization: clerkKey,
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `strategy=${strategy}&redirect_url=${encodeURIComponent(targetRedirect)}`,
+        });
+
+        const data = await fapiRes.json();
+        if (!fapiRes.ok || data.errors) {
+            const errDetail = data.errors?.[0]?.long_message || data.errors?.[0]?.message || "Clerk OAuth error";
+            return res.status(400).json({ success: false, message: errDetail });
+        }
+
+        const verification = data.response?.first_factor_verification;
+        const url = verification?.external_verification_redirect_url;
+
+        return res.status(200).json({
+            success: true,
+            url,
+            strategy,
+            expireAt: verification?.expire_at,
+        });
+    } catch (err) {
+        console.error("Error generating OAuth URL in backend:", err.message);
+        return res.status(500).json({ success: false, message: err.message || "Failed to generate OAuth URL" });
+    }
+});
+
 // ─── POST /api/auth/clerk-session ───
 // Resolve a completed Clerk session ID (e.g. from real Google / GitHub OAuth callback)
 router.post("/clerk-session", async (req, res) => {

@@ -191,18 +191,49 @@ export const clerkService = {
     const strategy = provider === 'google' ? 'oauth_google' : 'oauth_github';
     const redirectUrl = getOAuthRedirectUrl();
 
+    // Strategy 1: Request OAuth URL via backend server (avoids browser Origin/Authorization conflict on Web)
+    try {
+      const backendRes = await api.post<{ success: boolean; url: string; strategy: string; expireAt?: number }>(
+        '/api/auth/oauth-url',
+        { provider, redirectUrl }
+      );
+      if (backendRes && backendRes.url) {
+        return {
+          url: backendRes.url,
+          strategy: (backendRes.strategy as any) || strategy,
+          expireAt: backendRes.expireAt,
+        };
+      }
+    } catch (backendErr: any) {
+      console.warn('Backend oauth-url endpoint error, falling back to direct Clerk FAPI:', backendErr?.message);
+    }
+
+    // Strategy 2: Direct Clerk FAPI fetch (native mobile or direct fallback)
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+    if (Platform.OS !== 'web') {
+      headers['Authorization'] = CLERK_PUBLISHABLE_KEY;
+    }
+
     const resp = await fetch(`${CLERK_FAPI_BASE}/client/sign_ins?_is_native=true`, {
       method: 'POST',
-      headers: {
-        Authorization: CLERK_PUBLISHABLE_KEY,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
+      headers,
       body: `strategy=${strategy}&redirect_url=${encodeURIComponent(redirectUrl)}`,
     });
 
     const data = await resp.json();
+    if (!resp.ok || data.errors) {
+      const errDetail = data.errors?.[0]?.long_message || data.errors?.[0]?.message || 'Clerk authorization error';
+      throw new Error(errDetail);
+    }
+
     const verification = data.response?.first_factor_verification;
     const url = verification?.external_verification_redirect_url;
+
+    if (!url) {
+      throw new Error(`Could not generate real ${provider} authorization link.`);
+    }
 
     return {
       url,
