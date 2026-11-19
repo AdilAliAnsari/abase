@@ -170,7 +170,7 @@ export default function AiChat({ navigation: propNavigation }: { navigation?: an
   const [modalType, setModalType] = useState<"mention" | "agent" | "model" | null>(null);
 
   const listRef = useRef<FlatList>(null);
-  const textInputRef = useRef<TextInput>(null);
+  const textInputRef = useRef<any>(null);
   const idCounter = useRef(0);
 
   const nextId = () => `m${idCounter.current++}`;

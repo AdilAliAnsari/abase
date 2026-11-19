@@ -27,6 +27,7 @@ import {
   Zap,
 } from 'lucide-react-native';
 import { Book } from '../data/books';
+import { CartItem } from '../services/cartService';
 import api from '../services/api';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -45,11 +46,13 @@ export interface AmazonAddress {
   isDefault?: boolean;
 }
 
-interface AmazonBuyNowModalProps {
+export interface AmazonBuyNowModalProps {
   visible: boolean;
   onClose: () => void;
-  book: Book | null;
-  quantity: number;
+  book?: Book | null;
+  quantity?: number;
+  items?: CartItem[];
+  totalAmount?: number;
   onSuccess?: (order: any) => void;
 }
 
@@ -72,6 +75,8 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
   onClose,
   book,
   quantity = 1,
+  items,
+  totalAmount,
   onSuccess,
 }) => {
   // Current active address
@@ -103,7 +108,15 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
   const [completedOrder, setCompletedOrder] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const totalPrice = (book?.price || 0) * quantity;
+  const computedItemsCount = items && items.length > 0
+    ? items.reduce((sum, i) => sum + i.quantity, 0)
+    : quantity;
+
+  const totalPrice = totalAmount !== undefined
+    ? totalAmount
+    : (items && items.length > 0
+        ? items.reduce((sum, i) => sum + i.price * i.quantity, 0)
+        : ((book?.price || 0) * quantity));
 
   const handleSaveAddress = () => {
     if (!formName.trim() || !formPhone.trim() || !formFlat.trim() || !formArea.trim() || !formCity.trim() || !formPincode.trim()) {
@@ -129,7 +142,7 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
   };
 
   const handlePlaceOrder = async () => {
-    if (!book) return;
+    if (!book && (!items || items.length === 0)) return;
     setIsProcessing(true);
     setErrorMessage('');
 
@@ -149,9 +162,8 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
               email: 'student@abase.edu',
             },
             notes: {
-              bookId: book.id,
-              bookTitle: book.title,
-              quantity: quantity,
+              orderType: items && items.length > 0 ? 'cart_order' : 'single_book',
+              itemsCount: computedItemsCount,
               deliveryAddress: `${address.flat}, ${address.area}, ${address.city} - ${address.pincode}`,
             },
           });
@@ -175,18 +187,30 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
       }
 
       // Step 2: Persist Order in Backend
+      const orderItems = items && items.length > 0
+        ? items.map(i => ({
+            id: i.bookId,
+            bookId: i.bookId,
+            title: i.title,
+            author: i.author,
+            price: i.price,
+            quantity: i.quantity,
+            coverImage: i.coverImage,
+          }))
+        : [
+            {
+              id: book!.id,
+              bookId: book!.id,
+              title: book!.title,
+              author: book!.author,
+              price: book!.price,
+              quantity: quantity,
+              coverImage: book!.coverImage,
+            },
+          ];
+
       const orderPayload = {
-        items: [
-          {
-            id: book.id,
-            bookId: book.id,
-            title: book.title,
-            author: book.author,
-            price: book.price,
-            quantity: quantity,
-            coverImage: book.coverImage,
-          },
-        ],
+        items: orderItems,
         shippingAddress: address,
         deliverySpeed: deliverySpeed === 'prime' ? 'FREE Prime Delivery' : 'Standard Delivery',
         estimatedDelivery: deliverySpeed === 'prime' ? 'Tomorrow by 9 PM' : 'In 2-3 Days',
@@ -279,7 +303,11 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
                 </View>
                 <View style={styles.successRow}>
                   <Text style={styles.successLabel}>Items:</Text>
-                  <Text style={styles.successValue}>{book?.title} (Qty: {quantity})</Text>
+                  <Text style={styles.successValue}>
+                    {items && items.length > 0
+                      ? `${items.length} titles (${computedItemsCount} items)`
+                      : `${book?.title} (Qty: ${quantity})`}
+                  </Text>
                 </View>
                 <View style={styles.successRow}>
                   <Text style={styles.successLabel}>Payment Method:</Text>
@@ -303,15 +331,32 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
               {/* Product Brief */}
               <View style={styles.productBriefCard}>
                 <View style={styles.productBriefInfo}>
-                  <Text style={styles.productBriefTitle} numberOfLines={2}>
-                    {book?.title}
-                  </Text>
-                  <Text style={styles.productBriefAuthor}>by {book?.author}</Text>
-                  <View style={styles.productBriefPriceRow}>
-                    <Text style={styles.productBriefPrice}>₹{book?.price}</Text>
-                    <Text style={styles.productBriefQty}>Qty: {quantity}</Text>
-                    <Text style={styles.productBriefSubtotal}>Subtotal: ₹{totalPrice}</Text>
-                  </View>
+                  {items && items.length > 0 ? (
+                    <>
+                      <Text style={styles.productBriefTitle}>
+                        Cart Order ({items.length} titles, {computedItemsCount} items)
+                      </Text>
+                      <Text style={styles.productBriefAuthor} numberOfLines={2}>
+                        {items.map(i => `${i.title} (x${i.quantity})`).join(', ')}
+                      </Text>
+                      <View style={styles.productBriefPriceRow}>
+                        <Text style={styles.productBriefPrice}>Total: ₹{totalPrice}</Text>
+                        <Text style={styles.productBriefQty}>Free Delivery</Text>
+                      </View>
+                    </>
+                  ) : (
+                    <>
+                      <Text style={styles.productBriefTitle} numberOfLines={2}>
+                        {book?.title}
+                      </Text>
+                      <Text style={styles.productBriefAuthor}>by {book?.author}</Text>
+                      <View style={styles.productBriefPriceRow}>
+                        <Text style={styles.productBriefPrice}>₹{book?.price}</Text>
+                        <Text style={styles.productBriefQty}>Qty: {quantity}</Text>
+                        <Text style={styles.productBriefSubtotal}>Subtotal: ₹{totalPrice}</Text>
+                      </View>
+                    </>
+                  )}
                 </View>
               </View>
 
@@ -568,7 +613,7 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
               <View style={styles.sectionCard}>
                 <Text style={styles.sectionTitle}>Order Summary</Text>
                 <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Items ({quantity}):</Text>
+                  <Text style={styles.summaryLabel}>Items ({computedItemsCount}):</Text>
                   <Text style={styles.summaryValue}>₹{totalPrice}</Text>
                 </View>
                 <View style={styles.summaryRow}>

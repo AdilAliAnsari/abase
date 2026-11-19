@@ -63,6 +63,21 @@ router.post("/scan", authorizeScanner, async (req, res) => {
             error: error.message
         });
     }
+});
+
+// Distributor creates and publishes a PDF listing
+router.post("/", protectRoute, async (req, res) => {
+  try {
+    const {
+      title, author, price, description, coverImage, pdfFileUrl,
+      category, tags, pageCount, language, previewPages, drmEnabled,
+      subjectCode, subjectName, module, scheme, branch, year, semester, university,
+      materialType, fileSize
+    } = req.body;
+
+    if (!title?.trim() || price === undefined || !pdfFileUrl?.trim()) {
+      return res.status(400).json({ success: false, message: "Title, price, and PDF URL are required." });
+    }
     if (!Number.isFinite(Number(price)) || Number(price) < 0) {
       return res.status(400).json({ success: false, message: "Price must be a non-negative number." });
     }
@@ -72,8 +87,9 @@ router.post("/scan", authorizeScanner, async (req, res) => {
       coverImage, pdfFileUrl: pdfFileUrl.trim(), category, tags: Array.isArray(tags) ? tags : [],
       pageCount: pageCount ? Number(pageCount) : 1, language: language || "en",
       previewPages: previewPages ? Number(previewPages) : 0, drmEnabled: Boolean(drmEnabled),
-      subjectCode, scheme, branch, year, semester: semester ? Number(semester) : undefined,
-      university, materialType, fileSize, user: req.user._id, status: "published", salesCount: 0,
+      subjectCode, subjectName, module, scheme, branch, year, semester: semester ? Number(semester) : undefined,
+      university, materialType, fileSize, user: req.user._id, uploadedBy: req.user._id,
+      source: "manual-upload", status: "published", salesCount: 0, rating: 4.8, reviewCount: 0
     });
 
     const customers = await User.find({ _id: { $ne: req.user._id }, role: "user" }).select("_id").lean();
@@ -292,26 +308,6 @@ router.get("/", async (req, res) => {
             error: error.message
         });
     }
-    const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
-    const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 12));
-    const filter = { status: "published" };
-    if (req.query.search) {
-      const safeSearch = String(req.query.search).replace(/[.*+?^$\{\}()|[\]\\]/g, "\\$&");
-      const regex = new RegExp(safeSearch, "i");
-      filter.$or = [{ title: regex }, { author: regex }, { description: regex }, { tags: regex }, { subjectCode: regex }];
-    }
-    if (req.query.category) filter.category = new RegExp(String(req.query.category), "i");
-    if (req.query.tags) filter.tags = { $in: String(req.query.tags).split(",").map(tag => tag.trim()) };
-    if (req.query.language) filter.language = String(req.query.language);
-    const [pdfs, totalItems] = await Promise.all([
-      PDF.find(filter).populate("user", "username profileImage storeName").sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
-      PDF.countDocuments(filter),
-    ]);
-    res.json({ success: true, pdfs, totalPages: Math.ceil(totalItems / limit), currentPage: page, totalItems });
-  } catch (error) {
-    console.error("Error getting PDF listings:", error);
-    res.status(500).json({ success: false, message: "Could not load PDFs." });
-  }
 });
 
 // ==========================================
@@ -340,77 +336,6 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-// ==========================================
-// 5. Create a PDF listing for sale (Seller Upload)
-// ==========================================
-router.post("/", protectRoute, async (req, res) => {
-    try {
-        const {
-            title,
-            author,
-            price,
-            description,
-            coverImage,
-            pdfFileUrl,
-            category,
-            tags,
-            pageCount,
-            language,
-            previewPages,
-            drmEnabled,
-            branch,
-            semester,
-            subjectCode,
-            subjectName,
-            module,
-            scheme,
-            university,
-            materialType
-        } = req.body;
-
-        if (!title || price === undefined || !pdfFileUrl) {
-            return res.status(400).json({
-                message: "Title, Price, and PDF file URL are required fields."
-            });
-        }
-
-        const newPDF = new PDF({
-            title,
-            author: author || "Unknown",
-            price: Number(price) || 0,
-            description,
-            coverImage,
-            pdfFileUrl,
-            category,
-            tags,
-            pageCount: pageCount || 1,
-            language: language || "en",
-            previewPages: previewPages || 0,
-            drmEnabled: drmEnabled || false,
-            branch: branch || "CSE",
-            semester: Number(semester) || 1,
-            subjectCode: subjectCode || "",
-            subjectName: subjectName || "",
-            module: module || "",
-            scheme: scheme || "2022 Scheme",
-            university: university || "VTU",
-            materialType: materialType || "Module Notes",
-            source: "manual-upload",
-            user: req.user._id,
-            uploadedBy: req.user._id,
-            status: "published",
-            salesCount: 0,
-            rating: 4.8,
-            reviewCount: 0
-        });
-
-        await newPDF.save();
-        res.status(201).json(newPDF);
-    } catch (error) {
-        console.error("Error creating PDF listing:", error);
-        res.status(500).json({ message: "Internal Server Error" });
-    }
-});
 
 // ==========================================
 // 6. Get PDFs listed by current user (Seller Dashboard)

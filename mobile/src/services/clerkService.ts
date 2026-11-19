@@ -1,8 +1,11 @@
 import { Platform } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
 import api, { setAuthToken } from './api';
 import storageService, { SavedAccount } from './storageService';
 import { UserProfile, AuthResponse } from './authService';
+
+WebBrowser.maybeCompleteAuthSession();
 
 declare const process: any;
 
@@ -30,6 +33,17 @@ export interface ClerkOAuthResult {
   strategy: 'oauth_google' | 'oauth_github';
   expireAt?: number;
 }
+
+export const getOAuthRedirectUrl = (): string => {
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  try {
+    return Linking.createURL('auth/callback');
+  } catch {
+    return 'abase://auth/callback';
+  }
+};
 
 export const clerkService = {
   /**
@@ -175,10 +189,7 @@ export const clerkService = {
    */
   getOAuthUrl: async (provider: 'google' | 'github'): Promise<ClerkOAuthResult> => {
     const strategy = provider === 'google' ? 'oauth_google' : 'oauth_github';
-    const redirectUrl =
-      Platform.OS === 'web' && typeof window !== 'undefined'
-        ? window.location.origin
-        : 'abase://auth/callback';
+    const redirectUrl = getOAuthRedirectUrl();
 
     const resp = await fetch(`${CLERK_FAPI_BASE}/client/sign_ins?_is_native=true`, {
       method: 'POST',
@@ -273,10 +284,24 @@ export const clerkService = {
       });
     } else {
       // Mobile Native flow
-      const result = await WebBrowser.openAuthSessionAsync(url, 'abase://auth/callback');
+      const redirectUrl = getOAuthRedirectUrl();
+      const result = await WebBrowser.openAuthSessionAsync(url, redirectUrl);
+
       if (result.type === 'success' && result.url) {
-        const urlObj = new URL(result.url);
-        const sessionId = urlObj.searchParams.get('__clerk_created_session');
+        let sessionId: string | null = null;
+        try {
+          const match = result.url.match(/[?&#]__clerk_created_session=([^&#]+)/);
+          if (match) {
+            sessionId = decodeURIComponent(match[1]);
+          } else {
+            const urlObj = new URL(result.url);
+            sessionId = urlObj.searchParams.get('__clerk_created_session') || urlObj.searchParams.get('created_session_id');
+          }
+        } catch {
+          const match = result.url.match(/[?&#]__clerk_created_session=([^&#]+)/);
+          if (match) sessionId = decodeURIComponent(match[1]);
+        }
+
         if (sessionId) {
           return clerkService.resolveSession(sessionId);
         }

@@ -9,7 +9,6 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
-import notificationRoutes from "./routes/notificationRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import { connectDB, getDbStatus } from "./lib/db.js";
 import { initPdfScanner } from "./services/pdfScanner.js";
@@ -67,10 +66,6 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ success: false, error: err.message || "Internal Server Error" });
 });
 app.use((req, res) => res.status(404).json({ success: false, error: "Route not found" }));
-
-app.use((req, res) => {
-    res.status(404).json({ success: false, error: "Route not found" });
-});
 
 // Start server listening on all network interfaces
 app.listen(PORT, "0.0.0.0", async () => {

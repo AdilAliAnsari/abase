@@ -24,13 +24,15 @@ import {
   Tag,
   CheckCircle2,
   Sparkles,
-  BookOpen
+  BookOpen,
+  Zap,
 } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import DarkGradientBg from '../components/DarkGradientBg';
 import { useCart } from '../context/CartContext';
 import { CartItem } from '../services/cartService';
 import { useTranslation } from '../i18n/LanguageContext';
+import AmazonBuyNowModal from '../components/AmazonBuyNowModal';
 
 const ACCENT = '#7BEA12';
 const ACCENT_GLOW = 'rgba(123, 234, 18, 0.35)';
@@ -59,6 +61,7 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
   const [promoError, setPromoError] = useState('');
 
   // Checkout modal state
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
 
@@ -112,14 +115,9 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
     }
   };
 
-  // Checkout action
+  // Checkout action - Open Amazon Checkout Modal
   const handleProceedCheckout = () => {
-    setIsCheckingOut(true);
-    setTimeout(() => {
-      setIsCheckingOut(false);
-      setCheckoutSuccess(true);
-      clearCart();
-    }, 1500);
+    setIsCheckoutModalOpen(true);
   };
 
   return (
@@ -189,6 +187,33 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
               contentContainerStyle={styles.scrollContent}
               showsVerticalScrollIndicator={false}
             >
+              {/* Quick Buy Card (Amazon Style - always at the top) */}
+              <View style={styles.topBuyCard}>
+                <View style={styles.topBuyInfoRow}>
+                  <Text style={styles.topSubtotalLabel}>
+                    Subtotal ({totalCount} {totalCount === 1 ? 'item' : 'items'}):
+                  </Text>
+                  <Text style={styles.topSubtotalPrice}>₹{finalTotal}</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.topBuyBtn}
+                  onPress={handleProceedCheckout}
+                  activeOpacity={0.85}
+                >
+                  <Zap size={18} color="#000000" fill="#000000" style={{ marginRight: 6 }} />
+                  <Text style={styles.topBuyBtnText}>
+                    Proceed to Buy ({totalCount} {totalCount === 1 ? 'item' : 'items'})
+                  </Text>
+                  <ArrowRight size={18} color="#000000" style={{ marginLeft: 6 }} />
+                </TouchableOpacity>
+                <View style={styles.topGuaranteeRow}>
+                  <ShieldCheck size={14} color={ACCENT} />
+                  <Text style={styles.topGuaranteeText}>
+                    Eligible for FREE Prime Delivery & 100% Purchase Protection
+                  </Text>
+                </View>
+              </View>
+
               {/* Items Card List */}
               <View style={styles.itemsListSection}>
                 {items.map((item: CartItem) => {
@@ -359,19 +384,13 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
 
                 {/* Checkout Button */}
                 <TouchableOpacity
-                  style={[styles.checkoutBtn, isCheckingOut && { opacity: 0.7 }]}
+                  style={styles.checkoutBtn}
                   onPress={handleProceedCheckout}
-                  disabled={isCheckingOut}
                   activeOpacity={0.85}
                 >
-                  {isCheckingOut ? (
-                    <ActivityIndicator size="small" color="#000000" />
-                  ) : (
-                    <>
-                      <Text style={styles.checkoutBtnText}>{t.proceedToCheckout || 'Proceed to Checkout'}</Text>
-                      <ArrowRight size={18} color="#000000" style={{ marginLeft: 8 }} />
-                    </>
-                  )}
+                  <Zap size={18} color="#000000" fill="#000000" style={{ marginRight: 8 }} />
+                  <Text style={styles.checkoutBtnText}>{t.proceedToCheckout || 'Proceed to Checkout'}</Text>
+                  <ArrowRight size={18} color="#000000" style={{ marginLeft: 8 }} />
                 </TouchableOpacity>
 
                 {/* Security Guarantee Badge */}
@@ -384,6 +403,38 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
               </View>
             </ScrollView>
           )}
+
+          {/* Sticky Bottom Bar for Instant Checkout */}
+          {items.length > 0 && (
+            <View style={styles.stickyBar}>
+              <View style={styles.stickyLeft}>
+                <Text style={styles.stickyLabel}>Total Amount</Text>
+                <Text style={styles.stickyPrice}>₹{finalTotal}</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.stickyBtn}
+                onPress={handleProceedCheckout}
+                activeOpacity={0.85}
+              >
+                <Zap size={16} color="#000000" fill="#000000" style={{ marginRight: 6 }} />
+                <Text style={styles.stickyBtnText}>Proceed to Buy</Text>
+                <ArrowRight size={16} color="#000000" style={{ marginLeft: 6 }} />
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Amazon Checkout Modal */}
+          <AmazonBuyNowModal
+            visible={isCheckoutModalOpen}
+            onClose={() => setIsCheckoutModalOpen(false)}
+            items={items}
+            totalAmount={finalTotal}
+            onSuccess={(order) => {
+              setIsCheckoutModalOpen(false);
+              clearCart();
+              navigation.navigate('PurchaseHistory');
+            }}
+          />
 
           {/* Checkout Success Modal */}
           <Modal visible={checkoutSuccess} transparent animationType="fade">
@@ -536,7 +587,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
-    paddingBottom: 40,
+    paddingBottom: 110,
   },
   itemsListSection: {
     marginBottom: 16,
@@ -882,6 +933,121 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalBtnText: {
+    color: '#000000',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+
+  // Top Buy Card (Amazon Style)
+  topBuyCard: {
+    backgroundColor: 'rgba(22, 28, 20, 0.95)',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(123, 234, 18, 0.35)',
+    shadowColor: ACCENT,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  topBuyInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    marginBottom: 12,
+  },
+  topSubtotalLabel: {
+    fontSize: 16,
+    color: '#E0E0E0',
+    fontWeight: '600',
+    marginRight: 6,
+  },
+  topSubtotalPrice: {
+    fontSize: 22,
+    color: ACCENT,
+    fontWeight: '800',
+  },
+  topBuyBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: ACCENT,
+    paddingVertical: 14,
+    borderRadius: 12,
+    shadowColor: ACCENT,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  topBuyBtnText: {
+    color: '#000000',
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  topGuaranteeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+    gap: 6,
+  },
+  topGuaranteeText: {
+    color: 'rgba(255, 255, 255, 0.65)',
+    fontSize: 11,
+    fontWeight: '500',
+  },
+
+  // Sticky Bottom Checkout Bar
+  stickyBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#0E140B',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(123, 234, 18, 0.25)',
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: Platform.OS === 'ios' ? 28 : 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    elevation: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+  },
+  stickyLeft: {
+    flex: 1,
+  },
+  stickyLabel: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontWeight: '500',
+  },
+  stickyPrice: {
+    fontSize: 20,
+    color: ACCENT,
+    fontWeight: '800',
+  },
+  stickyBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: ACCENT,
+    paddingHorizontal: 20,
+    paddingVertical: 13,
+    borderRadius: 12,
+    shadowColor: ACCENT,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  stickyBtnText: {
     color: '#000000',
     fontSize: 14,
     fontWeight: '800',
