@@ -400,7 +400,7 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
                 <Text style={styles.amazonPayText}>checkout</Text>
               </View>
               <View style={styles.secureBadge}>
-                <Lock size={12} color="#69D900" />
+                <Lock size={12} color="#FFFFFF" />
                 <Text style={styles.secureBadgeText}>100% Secure</Text>
               </View>
             </View>
@@ -414,7 +414,7 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
             /* Order Placed Success View */
             <ScrollView contentContainerStyle={styles.successContent}>
               <View style={styles.successIconCircle}>
-                <CheckCircle2 size={56} color="#69D900" />
+                <CheckCircle2 size={56} color="#FFFFFF" />
               </View>
               <Text style={styles.successTitle}>Order Placed, thank you!</Text>
               <Text style={styles.successOrderId}>
@@ -502,7 +502,7 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
               <View style={styles.sectionCard}>
                 <View style={styles.sectionHeaderRow}>
                   <View style={styles.sectionIconRow}>
-                    <MapPin size={18} color="#FF9900" />
+                    <MapPin size={18} color="#FFFFFF" />
                     <Text style={styles.sectionTitle}>1. Delivery Address</Text>
                   </View>
                   <TouchableOpacity
@@ -672,7 +672,7 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
               <View style={styles.sectionCard}>
                 <View style={styles.sectionHeaderRow}>
                   <View style={styles.sectionIconRow}>
-                    <Truck size={18} color="#FF9900" />
+                    <Truck size={18} color="#FFFFFF" />
                     <Text style={styles.sectionTitle}>2. Delivery Speed</Text>
                   </View>
                 </View>
@@ -709,7 +709,7 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
               <View style={styles.sectionCard}>
                 <View style={styles.sectionHeaderRow}>
                   <View style={styles.sectionIconRow}>
-                    <CreditCard size={18} color="#FF9900" />
+                    <CreditCard size={18} color="#FFFFFF" />
                     <Text style={styles.sectionTitle}>3. Payment Method</Text>
                   </View>
                 </View>
@@ -915,7 +915,7 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
                               }}
                               activeOpacity={0.8}
                             >
-                              <Plus size={15} color="#7BEA12" />
+                              <Plus size={15} color="#FFFFFF" />
                               <Text style={styles.addCardToggleText}>+ Add another card</Text>
                             </TouchableOpacity>
                           </View>
@@ -1024,7 +1024,7 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
                     <Text style={styles.optionTitle}>Cash on Delivery / Pay on Delivery</Text>
                     <Text style={styles.optionSubtitle}>Pay with cash or UPI on delivery at your doorstep</Text>
                   </View>
-                  <Banknote size={18} color="#69D900" />
+                  <Banknote size={18} color="#FFFFFF" />
                 </TouchableOpacity>
               </View>
 
@@ -1055,7 +1055,7 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
 
               {/* Trust & Guarantee Banner */}
               <View style={styles.trustBanner}>
-                <ShieldCheck size={20} color="#FF9900" />
+                <ShieldCheck size={20} color="#FFFFFF" />
                 <Text style={styles.trustText}>
                   Amazon A-to-z Guarantee • 100% Purchase Protection & Easy Returns
                 </Text>
@@ -1130,7 +1130,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   amazonLogoText: {
-    color: '#FF9900',
+    color: '#FFFFFF',
     fontSize: 20,
     fontWeight: '900',
     letterSpacing: -0.5,
@@ -1144,15 +1144,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(105, 217, 0, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.25)',
   },
   secureBadgeText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 11,
     fontWeight: '700',
   },
@@ -1196,7 +1196,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   productBriefPrice: {
-    color: '#FF9900',
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '800',
   },
@@ -1205,7 +1205,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   productBriefSubtotal: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 13,
     fontWeight: '700',
     marginLeft: 'auto',
@@ -1238,10 +1238,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
-    backgroundColor: 'rgba(255, 153, 0, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   changeAddressText: {
-    color: '#FF9900',
+    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '700',
   },
@@ -1250,7 +1250,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 153, 0, 0.2)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   addressNameRow: {
     flexDirection: 'row',
@@ -1264,13 +1264,13 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   defaultPill: {
-    backgroundColor: '#FF9900',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 6,
     paddingVertical: 1,
     borderRadius: 4,
   },
   defaultPillText: {
-    color: '#0F1111',
+    color: '#000000',
     fontSize: 9,
     fontWeight: '800',
   },
@@ -1297,7 +1297,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   addressInstructions: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 11,
     marginTop: 4,
     fontStyle: 'italic',
@@ -1306,7 +1306,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   formSectionSubtitle: {
-    color: '#FF9900',
+    color: '#FFFFFF',
     fontSize: 13,
     fontWeight: '700',
     marginBottom: 10,
@@ -1354,8 +1354,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   typePillActive: {
-    backgroundColor: '#FF9900',
-    borderColor: '#FF9900',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
   },
   typePillText: {
     color: '#FFFFFF',
@@ -1363,18 +1363,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   typePillTextActive: {
-    color: '#0F1111',
+    color: '#000000',
     fontWeight: '800',
   },
   saveAddressBtn: {
-    backgroundColor: '#FF9900',
+    backgroundColor: '#FFFFFF',
     borderRadius: 8,
     paddingVertical: 10,
     alignItems: 'center',
     marginTop: 14,
   },
   saveAddressBtnText: {
-    color: '#0F1111',
+    color: '#000000',
     fontSize: 13,
     fontWeight: '700',
   },
@@ -1390,8 +1390,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   optionRowSelected: {
-    borderColor: '#FF9900',
-    backgroundColor: 'rgba(255, 153, 0, 0.08)',
+    borderColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
   },
   radioCircle: {
     width: 18,
@@ -1401,8 +1401,8 @@ const styles = StyleSheet.create({
     borderColor: '#888',
   },
   radioCircleActive: {
-    borderColor: '#FF9900',
-    backgroundColor: '#FF9900',
+    borderColor: '#FFFFFF',
+    backgroundColor: '#FFFFFF',
   },
   primeTitleRow: {
     flexDirection: 'row',
@@ -1410,7 +1410,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   primeTextLogo: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontWeight: '900',
     fontSize: 13,
     fontStyle: 'italic',
@@ -1426,7 +1426,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   freeText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '800',
   },
@@ -1436,15 +1436,15 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   razorpayBadge: {
-    backgroundColor: 'rgba(10, 97, 246, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: 'rgba(10, 97, 246, 0.4)',
+    borderColor: 'rgba(255, 255, 255, 0.25)',
   },
   razorpayBadgeText: {
-    color: '#3B82F6',
+    color: '#FFFFFF',
     fontSize: 10,
     fontWeight: '700',
   },
@@ -1463,7 +1463,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   summaryFreeValue: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 13,
     fontWeight: '700',
   },
@@ -1483,7 +1483,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   summaryTotalValue: {
-    color: '#FF9900',
+    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '900',
   },
@@ -1505,14 +1505,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     padding: 12,
-    backgroundColor: 'rgba(255, 153, 0, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255, 153, 0, 0.18)',
+    borderColor: 'rgba(255, 255, 255, 0.18)',
     marginBottom: 16,
   },
   trustText: {
-    color: '#FF9900',
+    color: '#FFFFFF',
     fontSize: 11,
     flex: 1,
     lineHeight: 16,
@@ -1530,7 +1530,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 153, 0, 0.2)',
+    borderTopColor: 'rgba(255, 255, 255, 0.2)',
   },
   stickyPriceWrap: {
     minWidth: 70,
@@ -1541,27 +1541,27 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   stickyPriceValue: {
-    color: '#FF9900',
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '900',
   },
   placeOrderBtn: {
     flex: 1,
-    backgroundColor: '#FFA41C',
+    backgroundColor: '#FFFFFF',
     borderRadius: 22,
     height: 44,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    shadowColor: '#FFA41C',
+    shadowColor: '#FFFFFF',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 4,
   },
   placeOrderBtnText: {
-    color: '#0F1111',
+    color: '#000000',
     fontSize: 14,
     fontWeight: '800',
   },
@@ -1573,7 +1573,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(105, 217, 0, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -1585,7 +1585,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   successOrderId: {
-    color: '#FF9900',
+    color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '700',
     marginBottom: 4,
@@ -1602,7 +1602,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.25)',
     marginBottom: 24,
   },
   successRow: {
@@ -1624,7 +1624,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   successValueHighlight: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '800',
   },
@@ -1634,12 +1634,12 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   successValueTotal: {
-    color: '#FF9900',
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '900',
   },
   continueShoppingBtn: {
-    backgroundColor: '#FF9900',
+    backgroundColor: '#FFFFFF',
     borderRadius: 22,
     paddingVertical: 12,
     paddingHorizontal: 32,
@@ -1647,7 +1647,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   continueShoppingText: {
-    color: '#0F1111',
+    color: '#000000',
     fontSize: 14,
     fontWeight: '800',
   },
@@ -1657,7 +1657,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#14181B',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 153, 0, 0.3)',
+    borderColor: 'rgba(255, 255, 255, 0.25)',
     padding: 12,
     marginTop: 8,
     marginBottom: 8,
@@ -1679,7 +1679,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   subToggleBtnActive: {
-    backgroundColor: '#FF9900',
+    backgroundColor: '#FFFFFF',
   },
   subToggleText: {
     color: 'rgba(255, 255, 255, 0.75)',
@@ -1687,7 +1687,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   subToggleTextActive: {
-    color: '#0F1111',
+    color: '#000000',
     fontWeight: '800',
   },
   subSectionTitle: {
@@ -1725,8 +1725,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   upiTileActive: {
-    borderColor: '#FF9900',
-    backgroundColor: 'rgba(255, 153, 0, 0.12)',
+    borderColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
   },
   upiTileTitle: {
     flex: 1,
@@ -1742,8 +1742,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.4)',
   },
   smallRadioActive: {
-    borderColor: '#FF9900',
-    backgroundColor: '#FF9900',
+    borderColor: '#FFFFFF',
+    backgroundColor: '#FFFFFF',
   },
   upiIconPhonePe: {
     width: 24,
@@ -1793,7 +1793,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   upiIconTextOther: {
-    color: '#7BEA12',
+    color: '#FFFFFF',
     fontSize: 13,
     fontWeight: '900',
   },
@@ -1832,7 +1832,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   savedCardCountText: {
-    color: '#7BEA12',
+    color: '#FFFFFF',
     fontSize: 11,
     fontWeight: '600',
   },
@@ -1848,8 +1848,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   savedCardItemSelected: {
-    borderColor: '#FF9900',
-    backgroundColor: 'rgba(255, 153, 0, 0.1)',
+    borderColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   cardTypeBadge: {
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
@@ -1884,7 +1884,7 @@ const styles = StyleSheet.create({
   cvvInput: {
     backgroundColor: '#0C0F11',
     borderWidth: 1,
-    borderColor: '#FF9900',
+    borderColor: '#FFFFFF',
     borderRadius: 6,
     width: 48,
     height: 28,
@@ -1900,15 +1900,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 10,
     borderRadius: 8,
-    backgroundColor: 'rgba(123, 234, 18, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: 'rgba(123, 234, 18, 0.35)',
+    borderColor: 'rgba(255, 255, 255, 0.35)',
     marginTop: 4,
     gap: 6,
   },
   addCardToggleText: {
-    color: '#7BEA12',
+    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '700',
   },
@@ -1947,13 +1947,13 @@ const styles = StyleSheet.create({
   cardBrandPill: {
     position: 'absolute',
     right: 8,
-    backgroundColor: '#FF9900',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
   },
   cardBrandPillText: {
-    color: '#0F1111',
+    color: '#000000',
     fontSize: 9,
     fontWeight: '900',
   },
@@ -1987,8 +1987,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkboxSquareActive: {
-    backgroundColor: '#7BEA12',
-    borderColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
   },
   saveCardCheckboxText: {
     color: 'rgba(255, 255, 255, 0.75)',

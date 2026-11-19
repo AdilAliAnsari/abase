@@ -89,7 +89,7 @@ export const PDFCard: React.FC<PDFCardProps> = ({
               <Text style={styles.subjectCodeText}>{pdf.subjectCode}</Text>
             </View>
             <View style={styles.ratingBox}>
-              <Star size={11} color="#FF9900" fill="#FF9900" />
+              <Star size={11} color="#FFFFFF" fill="#FFFFFF" />
               <Text style={styles.ratingText}>{pdf.rating.toFixed(1)}</Text>
             </View>
           </View>
@@ -100,22 +100,22 @@ export const PDFCard: React.FC<PDFCardProps> = ({
 
           {/* Lecturer / Seller */}
           <View style={styles.lecturerRow}>
-            <GraduationCap size={12} color="#69D900" />
+            <GraduationCap size={12} color="#FFFFFF" />
             <Text style={styles.gridAuthor} numberOfLines={1}>
               {pdf.lecturer?.name || pdf.author}
             </Text>
             {pdf.lecturer?.verified && (
-              <BadgeCheck size={12} color="#69D900" />
+              <BadgeCheck size={12} color="#FFFFFF" />
             )}
           </View>
 
           <View style={styles.metaRow}>
             <View style={styles.metaItem}>
-              <Layers size={11} color="#69D900" />
+              <Layers size={11} color="#FFFFFF" />
               <Text style={styles.metaText}>{pdf.pageCount} pgs</Text>
             </View>
             <View style={styles.metaItem}>
-              <HardDrive size={11} color="#69D900" />
+              <HardDrive size={11} color="#FFFFFF" />
               <Text style={styles.metaText}>{pdf.fileSize}</Text>
             </View>
           </View>
@@ -127,7 +127,7 @@ export const PDFCard: React.FC<PDFCardProps> = ({
               onPress={() => onView(pdf)}
               activeOpacity={0.8}
             >
-              <Eye size={13} color="#0B2405" />
+              <Eye size={13} color="#000000" />
               <Text style={styles.viewBtnText}>View Drive</Text>
             </TouchableOpacity>
 
@@ -139,7 +139,7 @@ export const PDFCard: React.FC<PDFCardProps> = ({
               {downloading ? (
                 <CheckCircle2 size={15} color="#FFFFFF" />
               ) : (
-                <Download size={15} color="#69D900" />
+                <Download size={15} color="#FFFFFF" />
               )}
             </TouchableOpacity>
           </View>
@@ -179,7 +179,7 @@ export const PDFCard: React.FC<PDFCardProps> = ({
             </View>
           </View>
           <View style={styles.ratingBox}>
-            <Star size={12} color="#FF9900" fill="#FF9900" />
+            <Star size={12} color="#FFFFFF" fill="#FFFFFF" />
             <Text style={styles.ratingText}>{pdf.rating.toFixed(1)}</Text>
           </View>
         </View>
@@ -192,13 +192,13 @@ export const PDFCard: React.FC<PDFCardProps> = ({
         {/* Lecturer / Faculty Seller Details */}
         <View style={styles.lecturerDetailsBox}>
           <View style={styles.lecturerNameRow}>
-            <GraduationCap size={13} color="#69D900" />
+            <GraduationCap size={13} color="#FFFFFF" />
             <Text style={styles.lecturerNameText}>
               By <Text style={styles.lecturerHighlight}>{pdf.lecturer?.name || pdf.author}</Text>
             </Text>
             {pdf.lecturer?.verified && (
               <View style={styles.verifiedBadge}>
-                <BadgeCheck size={12} color="#0B2405" />
+                <BadgeCheck size={12} color="#000000" />
                 <Text style={styles.verifiedBadgeText}>Faculty</Text>
               </View>
             )}
@@ -225,11 +225,11 @@ export const PDFCard: React.FC<PDFCardProps> = ({
         <View style={styles.listFooter}>
           <View style={styles.metaRow}>
             <View style={styles.metaItem}>
-              <Layers size={12} color="#69D900" />
+              <Layers size={12} color="#FFFFFF" />
               <Text style={styles.metaText}>{pdf.pageCount} pgs</Text>
             </View>
             <View style={styles.metaItem}>
-              <HardDrive size={12} color="#69D900" />
+              <HardDrive size={12} color="#FFFFFF" />
               <Text style={styles.metaText}>{pdf.fileSize}</Text>
             </View>
           </View>
@@ -240,7 +240,7 @@ export const PDFCard: React.FC<PDFCardProps> = ({
               onPress={() => onView(pdf)}
               activeOpacity={0.8}
             >
-              <Eye size={14} color="#0B2405" />
+              <Eye size={14} color="#000000" />
               <Text style={styles.viewBtnListText}>View in Drive</Text>
             </TouchableOpacity>
 
@@ -258,7 +258,7 @@ export const PDFCard: React.FC<PDFCardProps> = ({
                 </>
               ) : (
                 <>
-                  <Download size={13} color="#69D900" />
+                  <Download size={13} color="#FFFFFF" />
                   <Text style={styles.downloadBtnListText}>Download</Text>
                 </>
               )}
@@ -274,10 +274,10 @@ const styles = StyleSheet.create({
   // Grid Styles
   gridCard: {
     width: '48%',
-    backgroundColor: 'rgba(18, 22, 16, 0.75)',
+    backgroundColor: '#121218',
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.18)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     overflow: 'hidden',
     marginBottom: 14,
     shadowColor: '#000',
@@ -300,15 +300,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 6,
     left: 6,
-    backgroundColor: 'rgba(11, 36, 5, 0.92)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderWidth: 1,
-    borderColor: '#69D900',
+    borderColor: 'rgba(255, 255, 255, 0.4)',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
   },
   schemePillText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 9,
     fontWeight: '800',
   },
@@ -337,22 +337,22 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   badgeTopRated: {
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
   },
   badgeExamReady: {
-    backgroundColor: '#C45500',
+    backgroundColor: '#FFFFFF',
   },
   badgeFeatured: {
-    backgroundColor: '#007600',
+    backgroundColor: '#FFFFFF',
   },
   badgePopular: {
-    backgroundColor: '#FF5A2B',
+    backgroundColor: '#FFFFFF',
   },
   badgeNew: {
-    backgroundColor: '#0084FF',
+    backgroundColor: '#FFFFFF',
   },
   badgePillText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 8,
     fontWeight: '900',
     letterSpacing: 0.3,
@@ -367,15 +367,15 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   subjectCodeBox: {
-    backgroundColor: 'rgba(105, 217, 0, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     paddingHorizontal: 6,
     paddingVertical: 1.5,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.25)',
   },
   subjectCodeText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 9,
     fontWeight: '800',
     letterSpacing: 0.4,
@@ -431,14 +431,14 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 34,
     borderRadius: 8,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
   },
   viewBtnText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 11,
     fontWeight: '800',
   },
@@ -448,22 +448,22 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: 'rgba(27, 27, 41, 0.85)',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   downloadBtnActive: {
-    backgroundColor: '#067D62',
-    borderColor: '#056B54',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: '#FFFFFF',
   },
 
   // List Styles
   listCard: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(18, 22, 16, 0.75)',
+    backgroundColor: '#121218',
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.18)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     overflow: 'hidden',
     marginBottom: 12,
     padding: 10,
@@ -490,9 +490,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 6,
     left: 6,
-    backgroundColor: 'rgba(11, 36, 5, 0.92)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderWidth: 1,
-    borderColor: '#69D900',
+    borderColor: 'rgba(255, 255, 255, 0.4)',
     paddingHorizontal: 5,
     paddingVertical: 2,
     borderRadius: 4,
@@ -555,21 +555,21 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   lecturerHighlight: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontWeight: '700',
   },
   verifiedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 5,
     paddingVertical: 1,
     borderRadius: 4,
     marginLeft: 4,
   },
   verifiedBadgeText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 9,
     fontWeight: '800',
   },
@@ -598,14 +598,14 @@ const styles = StyleSheet.create({
     height: 32,
     paddingHorizontal: 10,
     borderRadius: 7,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
   },
   viewBtnListText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 11,
     fontWeight: '800',
   },
@@ -615,14 +615,14 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     backgroundColor: 'rgba(27, 27, 41, 0.85)',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
   },
   downloadBtnListText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 11,
     fontWeight: '700',
   },

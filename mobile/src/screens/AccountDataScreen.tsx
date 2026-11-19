@@ -91,7 +91,7 @@ export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation
               <Text style={styles.headerSubtitle}>Student profile & academic details</Text>
             </View>
             <TouchableOpacity style={styles.saveHeaderBtn} onPress={handleSave}>
-              <Save size={16} color="#0B2405" />
+              <Save size={16} color="#000000" />
               <Text style={styles.saveHeaderText}>Save</Text>
             </TouchableOpacity>
           </View>
@@ -158,7 +158,7 @@ export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation
 
               <Text style={styles.inputLabel}>University Serial Number (USN)</Text>
               <View style={styles.inputWrap}>
-                <GraduationCap size={16} color="#69D900" />
+                <GraduationCap size={16} color="#FFFFFF" />
                 <TextInput
                   style={styles.input}
                   value={usn}
@@ -171,7 +171,7 @@ export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation
 
               <Text style={styles.inputLabel}>Engineering College / Institution</Text>
               <View style={styles.inputWrap}>
-                <Building2 size={16} color="#69D900" />
+                <Building2 size={16} color="#FFFFFF" />
                 <TextInput
                   style={styles.input}
                   value={college}
@@ -183,7 +183,7 @@ export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation
 
               <Text style={styles.inputLabel}>Branch / Department</Text>
               <View style={styles.inputWrap}>
-                <BookOpen size={16} color="#69D900" />
+                <BookOpen size={16} color="#FFFFFF" />
                 <TextInput
                   style={styles.input}
                   value={branch}
@@ -223,7 +223,7 @@ export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation
 
               <Text style={styles.inputLabel}>Full Name</Text>
               <View style={styles.inputWrap}>
-                <User size={16} color="#69D900" />
+                <User size={16} color="#FFFFFF" />
                 <TextInput
                   style={styles.input}
                   value={fullName}
@@ -235,7 +235,7 @@ export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation
 
               <Text style={styles.inputLabel}>Student Email Address</Text>
               <View style={styles.inputWrap}>
-                <Mail size={16} color="#69D900" />
+                <Mail size={16} color="#FFFFFF" />
                 <TextInput
                   style={styles.input}
                   value={email}
@@ -248,7 +248,7 @@ export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation
 
               <Text style={styles.inputLabel}>Mobile Phone Number</Text>
               <View style={styles.inputWrap}>
-                <Phone size={16} color="#69D900" />
+                <Phone size={16} color="#FFFFFF" />
                 <TextInput
                   style={styles.input}
                   value={phone}
@@ -262,7 +262,7 @@ export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation
 
             {/* Save Button */}
             <TouchableOpacity style={styles.bigSaveBtn} onPress={handleSave}>
-              <Save size={18} color="#0B2405" />
+              <Save size={18} color="#000000" />
               <Text style={styles.bigSaveBtnText}>Save Profile Changes</Text>
             </TouchableOpacity>
 
@@ -272,7 +272,7 @@ export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation
           {/* Toast */}
           {toastMessage && (
             <View style={styles.toast}>
-              <CheckCircle2 size={16} color="#69D900" />
+              <CheckCircle2 size={16} color="#FFFFFF" />
               <Text style={styles.toastText}>{toastMessage}</Text>
             </View>
           )}
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(105, 217, 0, 0.15)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     backgroundColor: 'rgba(18, 18, 24, 0.85)',
     gap: 12,
   },
@@ -307,34 +307,34 @@ const styles = StyleSheet.create({
   },
   headerTitleWrap: { flex: 1 },
   headerTitle: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' },
-  headerSubtitle: { color: '#69D900', fontSize: 11, fontWeight: '600' },
+  headerSubtitle: { color: '#8D8D94', fontSize: 11, fontWeight: '600' },
   saveHeaderBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 8,
   },
-  saveHeaderText: { color: '#0B2405', fontSize: 12, fontWeight: '800' },
+  saveHeaderText: { color: '#000000', fontSize: 12, fontWeight: '800' },
   scrollView: { flex: 1 },
   scrollContent: { padding: 16, gap: 14 },
   profileBadgeCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-    backgroundColor: 'rgba(18, 22, 16, 0.85)',
+    backgroundColor: '#121218',
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   avatarLarge: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -343,23 +343,23 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
     borderWidth: 2,
-    borderColor: '#69D900',
-    backgroundColor: '#0B2405',
+    borderColor: '#FFFFFF',
+    backgroundColor: '#1B1B29',
   },
-  avatarLargeText: { color: '#0B2405', fontSize: 20, fontWeight: '900' },
+  avatarLargeText: { color: '#000000', fontSize: 20, fontWeight: '900' },
   profileBadgeText: { flex: 1 },
   profileName: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' },
   profileUsn: { color: '#8D8D94', fontSize: 12, marginTop: 2 },
   academicPillRow: { flexDirection: 'row', gap: 6, marginTop: 6 },
   vtuPill: {
-    backgroundColor: 'rgba(105, 217, 0, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: '#69D900',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
-  vtuPillText: { color: '#69D900', fontSize: 10, fontWeight: '700' },
+  vtuPillText: { color: '#FFFFFF', fontSize: 10, fontWeight: '700' },
   branchPill: {
     backgroundColor: 'rgba(27, 27, 41, 0.8)',
     paddingHorizontal: 6,
@@ -404,12 +404,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingVertical: 14,
     borderRadius: 12,
     marginTop: 6,
   },
-  bigSaveBtnText: { color: '#0B2405', fontSize: 14, fontWeight: '800' },
+  bigSaveBtnText: { color: '#000000', fontSize: 14, fontWeight: '800' },
   toast: {
     position: 'absolute',
     bottom: 20,
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(18, 18, 24, 0.95)',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#69D900',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
@@ -435,14 +435,14 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(123, 234, 18, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(123, 234, 18, 0.4)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   switchAccountBtnText: {
-    color: '#7BEA12',
+    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '700',
   },

@@ -118,7 +118,7 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ navigation }) => {
                   <View style={styles.senderInfo}>
                     <View style={styles.senderNameRow}>
                       <Text style={styles.senderName}>{msg.sender}</Text>
-                      {msg.verified && <BadgeCheck size={13} color="#69D900" />}
+                      {msg.verified && <BadgeCheck size={13} color="#FFFFFF" />}
                     </View>
                     <Text style={styles.senderRole}>{msg.role}</Text>
                   </View>
@@ -145,7 +145,7 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ navigation }) => {
                         setSelectedChat(null);
                       }}
                     >
-                      <Send size={15} color="#0B2405" />
+                      <Send size={15} color="#000000" />
                     </TouchableOpacity>
                   </View>
                 )}
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(105, 217, 0, 0.15)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     backgroundColor: 'rgba(18, 18, 24, 0.85)',
     gap: 12,
   },
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   },
   headerTitleWrap: { flex: 1 },
   headerTitle: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' },
-  headerSubtitle: { color: '#69D900', fontSize: 11, fontWeight: '600' },
+  headerSubtitle: { color: '#FFFFFF', fontSize: 11, fontWeight: '600' },
   searchWrap: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.18)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     gap: 8,
     height: 42,
   },
@@ -203,28 +203,28 @@ const styles = StyleSheet.create({
   scrollView: { flex: 1 },
   scrollContent: { padding: 16, paddingTop: 4, gap: 12 },
   msgCard: {
-    backgroundColor: 'rgba(18, 22, 16, 0.8)',
+    backgroundColor: 'rgba(18, 18, 24, 0.8)',
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.06)',
   },
   msgCardUnread: {
-    borderColor: 'rgba(105, 217, 0, 0.35)',
-    backgroundColor: 'rgba(18, 22, 16, 0.95)',
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+    backgroundColor: 'rgba(18, 18, 24, 0.95)',
   },
   msgTopRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
   avatarCircle: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: 'rgba(105, 217, 0, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderWidth: 1,
-    borderColor: '#69D900',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { color: '#69D900', fontSize: 13, fontWeight: '800' },
+  avatarText: { color: '#FFFFFF', fontSize: 13, fontWeight: '800' },
   senderInfo: { flex: 1 },
   senderNameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   senderName: { color: '#FFFFFF', fontSize: 13, fontWeight: '700' },
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 8,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },

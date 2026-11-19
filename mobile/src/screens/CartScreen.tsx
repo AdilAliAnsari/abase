@@ -34,8 +34,8 @@ import { CartItem } from '../services/cartService';
 import { useTranslation } from '../i18n/LanguageContext';
 import AmazonBuyNowModal from '../components/AmazonBuyNowModal';
 
-const ACCENT = '#7BEA12';
-const ACCENT_GLOW = 'rgba(123, 234, 18, 0.35)';
+const ACCENT = '#FFFFFF';
+const ACCENT_GLOW = 'rgba(255, 255, 255, 0.35)';
 
 interface CartScreenProps {
   navigation: any;
@@ -203,7 +203,7 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
                           />
                         ) : (
                           <View style={styles.coverPlaceholder}>
-                            <BookOpen size={24} color="#69D900" />
+                            <BookOpen size={24} color="#FFFFFF" />
                           </View>
                         )}
                       </View>
@@ -495,12 +495,12 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: 'rgba(123, 234, 18, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: 'rgba(123, 234, 18, 0.3)',
+    borderColor: 'rgba(255, 255, 255, 0.25)',
   },
   emptyTitle: {
     fontSize: 22,
@@ -550,9 +550,9 @@ const styles = StyleSheet.create({
   // Cart Item Card
   cartCard: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(22, 26, 20, 0.65)',
+    backgroundColor: 'rgba(18, 18, 24, 0.65)',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.15)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     borderRadius: 16,
     padding: 12,
     marginBottom: 12,
@@ -582,7 +582,7 @@ const styles = StyleSheet.create({
   },
   categoryBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(105, 217, 0, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
@@ -671,9 +671,9 @@ const styles = StyleSheet.create({
 
   // Promo Section
   promoSection: {
-    backgroundColor: 'rgba(22, 26, 20, 0.65)',
+    backgroundColor: 'rgba(18, 18, 24, 0.65)',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.15)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     borderRadius: 16,
     padding: 14,
     marginBottom: 16,
@@ -726,9 +726,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(123, 234, 18, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(123, 234, 18, 0.3)',
+    borderColor: 'rgba(255, 255, 255, 0.25)',
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -754,9 +754,9 @@ const styles = StyleSheet.create({
 
   // Order Summary Card
   summaryCard: {
-    backgroundColor: 'rgba(22, 26, 20, 0.8)',
+    backgroundColor: 'rgba(18, 18, 24, 0.8)',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.18)',
     borderRadius: 18,
     padding: 18,
     marginBottom: 20,
@@ -851,7 +851,7 @@ const styles = StyleSheet.create({
     maxWidth: 380,
     backgroundColor: '#161914',
     borderWidth: 1,
-    borderColor: 'rgba(123, 234, 18, 0.35)',
+    borderColor: 'rgba(255, 255, 255, 0.35)',
     borderRadius: 22,
     padding: 24,
     alignItems: 'center',
@@ -860,7 +860,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(123, 234, 18, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,

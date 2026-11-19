@@ -46,10 +46,10 @@ export const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }
   };
 
   const subjectBreakdown = [
-    { subject: 'Data Structures & Applications', code: 'BCS304', hours: '14.2 hrs', percent: 34, color: '#69D900' },
-    { subject: 'Database Management Systems', code: 'BCS501', hours: '11.8 hrs', percent: 28, color: '#00D2FF' },
-    { subject: 'Operating Systems', code: 'BCS402', hours: '9.5 hrs', percent: 22, color: '#FF9900' },
-    { subject: 'AI & Machine Learning', code: 'BAI502', hours: '7.0 hrs', percent: 16, color: '#A855F7' },
+    { subject: 'Data Structures & Applications', code: 'BCS304', hours: '14.2 hrs', percent: 34, color: '#FFFFFF' },
+    { subject: 'Database Management Systems', code: 'BCS501', hours: '11.8 hrs', percent: 28, color: 'rgba(255, 255, 255, 0.75)' },
+    { subject: 'Operating Systems', code: 'BCS402', hours: '9.5 hrs', percent: 22, color: 'rgba(255, 255, 255, 0.5)' },
+    { subject: 'AI & Machine Learning', code: 'BAI502', hours: '7.0 hrs', percent: 16, color: 'rgba(255, 255, 255, 0.35)' },
   ];
 
   const weeklyActivity = [
@@ -80,7 +80,7 @@ export const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }
               <Text style={styles.headerSubtitle}>VTU Academic Learning Progress</Text>
             </View>
             <View style={styles.streakBadge}>
-              <Flame size={15} color="#FF9900" fill="#FF9900" />
+              <Flame size={15} color="#FFFFFF" fill="#FFFFFF" />
               <Text style={styles.streakText}>{stats.streakDays}d</Text>
             </View>
           </View>
@@ -109,7 +109,7 @@ export const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }
             <View style={styles.metricsGrid}>
               <View style={styles.metricCard}>
                 <View style={styles.metricIconWrap}>
-                  <Clock size={20} color="#69D900" />
+                  <Clock size={20} color="#FFFFFF" />
                 </View>
                 <Text style={styles.metricValue}>{stats.studyHours}</Text>
                 <Text style={styles.metricLabel}>Total Study Time</Text>
@@ -117,30 +117,30 @@ export const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }
               </View>
 
               <View style={styles.metricCard}>
-                <View style={[styles.metricIconWrap, { backgroundColor: 'rgba(0, 210, 255, 0.12)', borderColor: 'rgba(0, 210, 255, 0.3)' }]}>
-                  <FileText size={20} color="#00D2FF" />
+                <View style={[styles.metricIconWrap, { backgroundColor: 'rgba(255, 255, 255, 0.1)', borderColor: 'rgba(255, 255, 255, 0.2)' }]}>
+                  <FileText size={20} color="#FFFFFF" />
                 </View>
                 <Text style={styles.metricValue}>{stats.pdfsRead}</Text>
                 <Text style={styles.metricLabel}>VTU Notes Read</Text>
-                <Text style={[styles.metricTrend, { color: '#00D2FF' }]}>5 modules completed</Text>
+                <Text style={[styles.metricTrend, { color: '#FFFFFF' }]}>5 modules completed</Text>
               </View>
 
               <View style={styles.metricCard}>
-                <View style={[styles.metricIconWrap, { backgroundColor: 'rgba(168, 85, 247, 0.12)', borderColor: 'rgba(168, 85, 247, 0.3)' }]}>
-                  <Tv size={20} color="#A855F7" />
+                <View style={[styles.metricIconWrap, { backgroundColor: 'rgba(255, 255, 255, 0.1)', borderColor: 'rgba(255, 255, 255, 0.2)' }]}>
+                  <Tv size={20} color="#FFFFFF" />
                 </View>
                 <Text style={styles.metricValue}>{stats.videosWatched}</Text>
                 <Text style={styles.metricLabel}>Lectures Watched</Text>
-                <Text style={[styles.metricTrend, { color: '#A855F7' }]}>MX Player HD Streams</Text>
+                <Text style={[styles.metricTrend, { color: '#FFFFFF' }]}>MX Player HD Streams</Text>
               </View>
 
               <View style={styles.metricCard}>
-                <View style={[styles.metricIconWrap, { backgroundColor: 'rgba(255, 153, 0, 0.12)', borderColor: 'rgba(255, 153, 0, 0.3)' }]}>
-                  <Award size={20} color="#FF9900" />
+                <View style={[styles.metricIconWrap, { backgroundColor: 'rgba(255, 255, 255, 0.1)', borderColor: 'rgba(255, 255, 255, 0.2)' }]}>
+                  <Award size={20} color="#FFFFFF" />
                 </View>
                 <Text style={styles.metricValue}>{stats.completionRate}</Text>
                 <Text style={styles.metricLabel}>Syllabus Covered</Text>
-                <Text style={[styles.metricTrend, { color: '#FF9900' }]}>Exam Ready Grade A+</Text>
+                <Text style={[styles.metricTrend, { color: '#FFFFFF' }]}>Exam Ready Grade A+</Text>
               </View>
             </View>
 
@@ -201,7 +201,7 @@ export const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }
 
             {/* Faculty Recommendations Banner */}
             <View style={styles.recommendationBanner}>
-              <Zap size={18} color="#69D900" />
+              <Zap size={18} color="#FFFFFF" />
               <View style={{ flex: 1 }}>
                 <Text style={styles.recTitle}>Prof. Ramesh Kumar's Tip</Text>
                 <Text style={styles.recText}>
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(105, 217, 0, 0.15)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     backgroundColor: 'rgba(18, 18, 24, 0.85)',
     gap: 12,
   },
@@ -243,19 +243,19 @@ const styles = StyleSheet.create({
   },
   headerTitleWrap: { flex: 1 },
   headerTitle: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' },
-  headerSubtitle: { color: '#69D900', fontSize: 11, fontWeight: '600' },
+  headerSubtitle: { color: '#8D8D94', fontSize: 11, fontWeight: '600' },
   streakBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(255, 153, 0, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#FF9900',
+    borderColor: '#FFFFFF',
   },
-  streakText: { color: '#FF9900', fontSize: 12, fontWeight: '800' },
+  streakText: { color: '#FFFFFF', fontSize: 12, fontWeight: '800' },
   filterRow: {
     flexDirection: 'row',
     paddingHorizontal: 16,
@@ -271,11 +271,11 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   filterChipActive: {
-    backgroundColor: '#69D900',
-    borderColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
   },
   filterChipText: { color: '#B8B8C2', fontSize: 11, fontWeight: '600' },
-  filterChipTextActive: { color: '#0B2405', fontWeight: '800' },
+  filterChipTextActive: { color: '#000000', fontWeight: '800' },
   scrollView: { flex: 1 },
   scrollContent: { padding: 16, gap: 14 },
   metricsGrid: {
@@ -285,32 +285,32 @@ const styles = StyleSheet.create({
   },
   metricCard: {
     width: (SCREEN_WIDTH - 44) / 2,
-    backgroundColor: 'rgba(18, 22, 16, 0.75)',
+    backgroundColor: '#121218',
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.18)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   metricIconWrap: {
     width: 38,
     height: 38,
     borderRadius: 10,
-    backgroundColor: 'rgba(105, 217, 0, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
   },
   metricValue: { color: '#FFFFFF', fontSize: 20, fontWeight: '800' },
   metricLabel: { color: '#8D8D94', fontSize: 11, marginTop: 2 },
-  metricTrend: { color: '#69D900', fontSize: 10, fontWeight: '700', marginTop: 6 },
+  metricTrend: { color: '#FFFFFF', fontSize: 10, fontWeight: '700', marginTop: 6 },
   sectionCard: {
-    backgroundColor: 'rgba(18, 22, 16, 0.75)',
+    backgroundColor: '#121218',
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.18)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   sectionTitle: { color: '#FFFFFF', fontSize: 14, fontWeight: '700' },
-  sectionSub: { color: '#69D900', fontSize: 11, fontWeight: '600' },
+  sectionSub: { color: '#8D8D94', fontSize: 11, fontWeight: '600' },
   chartContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -339,11 +339,11 @@ const styles = StyleSheet.create({
   },
   barFill: {
     width: '100%',
-    backgroundColor: 'rgba(105, 217, 0, 0.4)',
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
     borderRadius: 7,
   },
   barFillTarget: {
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
   },
   barDay: { color: '#B8B8C2', fontSize: 10, fontWeight: '600' },
   subjectList: { gap: 12 },
@@ -351,8 +351,8 @@ const styles = StyleSheet.create({
   subjectHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   subjectNameBox: { flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 },
   subjectCodeBadge: {
-    backgroundColor: 'rgba(105, 217, 0, 0.15)',
-    color: '#69D900',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    color: '#FFFFFF',
     fontSize: 9,
     fontWeight: '800',
     paddingHorizontal: 4,
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   recTitle: { color: '#FFFFFF', fontSize: 12, fontWeight: '700', marginBottom: 2 },
   recText: { color: '#B8B8C2', fontSize: 11, lineHeight: 16 },

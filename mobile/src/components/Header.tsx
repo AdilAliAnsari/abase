@@ -117,7 +117,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 className="search-icon"
                 viewBox="0 0 24 24"
                 aria-hidden="true"
-                style={{ width: 21, height: 21, fill: 'none', stroke: isFocused ? 'rgb(0, 183, 255)' : '#fff', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }}
+                style={{ width: 21, height: 21, fill: 'none', stroke: isFocused ? '#FFFFFF' : '#fff', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }}
               >
                 <circle cx="11" cy="11" r="7" />
                 <line x1="16.5" y1="16.5" x2="22" y2="22" />
@@ -223,7 +223,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 <div className="active-user-badge">
                   <span
                     className="active-badge-dot"
-                    style={{ backgroundColor: isDistributor ? '#7BEA12' : '#00B7FF' }}
+                    style={{ backgroundColor: '#FFFFFF' }}
                   />
                   {isDistributor ? 'Distributor ID Active' : 'Consumer Account'} • {user.provider ? (user.provider.charAt(0).toUpperCase() + user.provider.slice(1)) : 'Active'}
                 </div>
@@ -342,7 +342,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
           {/* DISTRIBUTOR PORTAL & DATABASE SECTION (Hidden for regular consumers, shown ONLY for distributor ID) */}
           {isDistributor && (
             <>
-              <div className="menu-section-header" style={{ color: '#7BEA12', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div className="menu-section-header" style={{ color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span>🛡️</span>
                 <span>{t.distributorPortal || 'Distributor Hub'}</span>
               </div>
@@ -350,27 +350,27 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 <button
                   className="list-item distributor-hub-btn"
                   onClick={() => { setMenuOpen(false); navigation.navigate('Distributor'); }}
-                  style={{ backgroundColor: 'rgba(123, 234, 18, 0.08)', border: '1px solid rgba(123, 234, 18, 0.3)' }}
+                  style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.2)' }}
                 >
-                  <svg className="list-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: '#7BEA12', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 20, height: 20 }}>
+                  <svg className="list-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: '#FFFFFF', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 20, height: 20 }}>
                     <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                   </svg>
-                  <span style={{ color: '#7BEA12', fontWeight: '700' }}>
+                  <span style={{ color: '#FFFFFF', fontWeight: '700' }}>
                     {t.tagEditor || 'Tag & Price Manager (Max ₹1000)'}
                   </span>
                 </button>
                 <button
                   className="list-item distributor-db-btn"
                   onClick={() => { setMenuOpen(false); navigation.navigate('Distributor'); }}
-                  style={{ backgroundColor: 'rgba(0, 183, 255, 0.08)', border: '1px solid rgba(0, 183, 255, 0.3)' }}
+                  style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.2)' }}
                 >
-                  <svg className="list-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: '#00B7FF', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 20, height: 20 }}>
+                  <svg className="list-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: '#FFFFFF', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 20, height: 20 }}>
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                     <circle cx="9" cy="7" r="4" />
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
-                  <span style={{ color: '#00B7FF', fontWeight: '700' }}>
+                  <span style={{ color: '#FFFFFF', fontWeight: '700' }}>
                     {t.database || 'Consumer & Distributor DB'}
                   </span>
                 </button>
@@ -385,7 +385,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
               className="list-item"
               onClick={() => { setMenuOpen(false); navigation.navigate('Cart'); }}
             >
-              <svg className="list-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: '#7BEA12', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 20, height: 20 }}>
+              <svg className="list-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: '#FFFFFF', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 20, height: 20 }}>
                 <path d="M3 4h2l2.5 11h10l3-8H6" />
                 <circle cx="9" cy="19" r="1.5" />
                 <circle cx="17" cy="19" r="1.5" />
@@ -591,7 +591,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             transition: 0.3s ease;
           }
           .search-box-wrap:hover .search-icon {
-            stroke: rgb(0, 183, 255);
+            stroke: #FFFFFF;
             transform: scale(1.1);
           }
           .search-box input {
@@ -652,8 +652,8 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             position: absolute;
             top: -4px;
             right: -4px;
-            background: #7BEA12;
-            color: #070B0E;
+            background: #FFFFFF;
+            color: #000000;
             font-size: 11px;
             font-weight: 800;
             min-width: 18px;
@@ -663,7 +663,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             align-items: center;
             justify-content: center;
             padding: 0 4px;
-            box-shadow: 0 2px 8px rgba(123, 234, 18, 0.4);
+            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.4);
           }
           .header-icon:hover {
             background: #6469f2;
@@ -681,7 +681,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
           .profile {
             width: 44px;
             height: 44px;
-            border: 2px solid rgb(0, 183, 255);
+            border: 2px solid #FFFFFF;
             border-radius: 50%;
             background-color: #171722;
             color: white;
@@ -774,7 +774,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             align-items: center;
             gap: 12px;
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(123, 234, 18, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 16px;
             padding: 12px;
             margin-bottom: 10px;
@@ -783,8 +783,8 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             width: 42px;
             height: 42px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #7BEA12, #1C4405);
-            color: #061A02;
+            background: linear-gradient(135deg, #FFFFFF, #D1D5DB);
+            color: #000000;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -797,7 +797,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             height: 42px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #7BEA12;
+            border: 2px solid #FFFFFF;
             flex-shrink: 0;
           }
           .active-user-info {
@@ -825,7 +825,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            color: #7BEA12;
+            color: #FFFFFF;
             font-size: 10px;
             font-weight: 700;
             margin-top: 4px;
@@ -834,8 +834,8 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: #7BEA12;
-            box-shadow: 0 0 6px #7BEA12;
+            background: #FFFFFF;
+            box-shadow: 0 0 6px #FFFFFF;
           }
           .active-user-actions {
             display: flex;
@@ -853,12 +853,12 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             transition: all 0.2s ease;
           }
           .active-action-btn.switch-btn {
-            background: rgba(123, 234, 18, 0.15);
-            color: #7BEA12;
-            border: 1px solid rgba(123, 234, 18, 0.4);
+            background: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.3);
           }
           .active-action-btn.switch-btn:hover {
-            background: rgba(123, 234, 18, 0.3);
+            background: rgba(255, 255, 255, 0.2);
           }
           .active-action-btn.logout-btn {
             background: rgba(255, 69, 58, 0.12);
@@ -869,9 +869,9 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             background: rgba(255, 69, 58, 0.25);
           }
           .active-action-btn.login-btn {
-            background: #7BEA12;
-            color: #061A02;
-            border: 1px solid #91F232;
+            background: #FFFFFF;
+            color: #000000;
+            border: 1px solid #FFFFFF;
             height: 36px;
           }
           .verify-banner {
@@ -912,9 +912,10 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             right: 0;
             width: 10px;
             height: 10px;
-            background: #FF5A2B;
+            background: #FFFFFF;
             border: 2px solid #18181A;
             border-radius: 50%;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
           }
           .envelope-icon {
             width: 18px;
@@ -976,9 +977,8 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             transform: translateY(-2px);
           }
           .grid-card.active {
-            background-image: radial-gradient(at 41% 94%, hsl(189, 97%, 36%) 0px, transparent 85%);
-            background-color: #12b3d6;
-            border-color: rgba(255, 255, 255, 0.25);
+            background-color: #FFFFFF;
+            border-color: #FFFFFF;
           }
           .grid-icon {
             width: 22px;
@@ -990,10 +990,10 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             stroke-linejoin: round;
           }
           .grid-card.active .grid-icon {
-            stroke: #ffffff;
+            stroke: #000000 !important;
           }
           .grid-card.active span {
-            color: #ffffff !important;
+            color: #000000 !important;
           }
           .grid-card span {
             color: rgba(255, 255, 255, 0.85);
@@ -1124,7 +1124,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
               />
             ) : (
               <LinearGradient
-                colors={['#7BEA12', '#215305']}
+                colors={['#FFFFFF', '#D1D5DB']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.nativeProfileGradient}
@@ -1142,7 +1142,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
           {/* Rotating gradient background */}
           <Animated.View style={[styles.nativeRotatingGradient, { transform: [{ rotate: spin }] }]}>
             <LinearGradient
-              colors={['rgb(0, 183, 255)', 'rgb(0, 72, 102)']}
+              colors={['rgba(255, 255, 255, 0.8)', 'rgba(255, 255, 255, 0.2)']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={StyleSheet.absoluteFill}
@@ -1219,13 +1219,13 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                     <View
                       style={[
                         styles.nativeBadgeDot,
-                        { backgroundColor: isDistributor ? '#7BEA12' : '#00B7FF' },
+                        { backgroundColor: '#FFFFFF' },
                       ]}
                     />
                     <Text
                       style={[
                         styles.nativeUserBadgeText,
-                        { color: isDistributor ? '#7BEA12' : '#00B7FF' },
+                        { color: '#FFFFFF' },
                       ]}
                     >
                       {isDistributor ? 'Distributor ID Active' : 'Consumer Account'} • {user.provider ? (user.provider.charAt(0).toUpperCase() + user.provider.slice(1)) : 'Active'}
@@ -1305,12 +1305,12 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                   }}
                 >
                   <LinearGradient
-                    colors={['hsl(189, 97%, 36%)', 'rgba(18, 179, 214, 0.25)']}
+                    colors={['#FFFFFF', '#E5E7EB']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.nativeGridCardActiveGradient}
                   >
-                    <Home size={22} color="#FFF" />
+                    <Home size={22} color="#000000" />
                     <Text style={styles.nativeGridCardTextActive}>{t.home || 'Home'}</Text>
                   </LinearGradient>
                 </TouchableOpacity>
@@ -1352,18 +1352,18 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
               {/* DISTRIBUTOR PORTAL & DATABASE SECTION (Hidden for regular consumers) */}
               {isDistributor && (
                 <>
-                  <Text style={[styles.nativeSectionHeader, { color: '#7BEA12' }]}>
+                  <Text style={[styles.nativeSectionHeader, { color: '#FFFFFF' }]}>
                     🛡️ {t.distributorPortal || 'Distributor Hub'}
                   </Text>
                   <TouchableOpacity
                     style={[
                       styles.nativeListItem,
                       {
-                        backgroundColor: 'rgba(123, 234, 18, 0.08)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
                         borderRadius: 12,
                         paddingHorizontal: 10,
                         borderWidth: 1,
-                        borderColor: 'rgba(123, 234, 18, 0.3)',
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
                       },
                     ]}
                     activeOpacity={0.8}
@@ -1372,8 +1372,8 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                       navigation.navigate('Distributor');
                     }}
                   >
-                    <Tag size={20} color="#7BEA12" style={styles.nativeListIcon} />
-                    <Text style={[styles.nativeListItemText, { color: '#7BEA12', fontWeight: '700' }]}>
+                    <Tag size={20} color="#FFFFFF" style={styles.nativeListIcon} />
+                    <Text style={[styles.nativeListItemText, { color: '#FFFFFF', fontWeight: '700' }]}>
                       {t.tagEditor || 'Tag & Price Manager (Max ₹1000)'}
                     </Text>
                   </TouchableOpacity>
@@ -1381,12 +1381,12 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                     style={[
                       styles.nativeListItem,
                       {
-                        backgroundColor: 'rgba(0, 183, 255, 0.08)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
                         borderRadius: 12,
                         paddingHorizontal: 10,
                         marginTop: 6,
                         borderWidth: 1,
-                        borderColor: 'rgba(0, 183, 255, 0.3)',
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
                       },
                     ]}
                     activeOpacity={0.8}
@@ -1395,8 +1395,8 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                       navigation.navigate('Distributor');
                     }}
                   >
-                    <Database size={20} color="#00B7FF" style={styles.nativeListIcon} />
-                    <Text style={[styles.nativeListItemText, { color: '#00B7FF', fontWeight: '700' }]}>
+                    <Database size={20} color="#FFFFFF" style={styles.nativeListIcon} />
+                    <Text style={[styles.nativeListItemText, { color: '#FFFFFF', fontWeight: '700' }]}>
                       {t.database || 'Consumer & Distributor DB'}
                     </Text>
                   </TouchableOpacity>
@@ -1413,7 +1413,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                   navigation.navigate('Cart');
                 }}
               >
-                <ShoppingCart size={20} color="#7BEA12" style={styles.nativeListIcon} />
+                <ShoppingCart size={20} color="#FFFFFF" style={styles.nativeListIcon} />
                 <Text style={styles.nativeListItemText}>
                   {t.myCart || 'My Cart'} {totalCount > 0 ? `(${totalCount})` : ''}
                 </Text>
@@ -1521,7 +1521,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -4,
     right: -4,
-    backgroundColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
     minWidth: 18,
     height: 18,
     borderRadius: 9,
@@ -1532,7 +1532,7 @@ const styles = StyleSheet.create({
     borderColor: '#0A0A0E',
   },
   nativeBadgeText: {
-    color: '#070B0E',
+    color: '#000000',
     fontSize: 10,
     fontWeight: '800',
   },
@@ -1555,7 +1555,7 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 2,
-    borderColor: 'rgb(0, 183, 255)',
+    borderColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1564,11 +1564,11 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 2,
-    borderColor: 'rgb(0, 183, 255)',
+    borderColor: '#FFFFFF',
     backgroundColor: '#1E1E2E',
   },
   nativeProfileText: {
-    color: '#fff',
+    color: '#000000',
     fontWeight: '700',
     fontSize: 14,
   },
@@ -1688,7 +1688,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#FF5A2B',
+    backgroundColor: '#FFFFFF',
     borderWidth: 2,
     borderColor: '#18181A',
   },
@@ -1739,7 +1739,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   nativeGridCardTextActive: {
-    color: '#fff',
+    color: '#000000',
     fontSize: 13,
     fontWeight: '600',
   },
@@ -1781,13 +1781,13 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: 'rgba(123, 234, 18, 0.3)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   nativeUserAvatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
@@ -1797,12 +1797,12 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     borderWidth: 1.5,
-    borderColor: '#7BEA12',
+    borderColor: '#FFFFFF',
     marginRight: 10,
     backgroundColor: '#161922',
   },
   nativeUserAvatarText: {
-    color: '#061A02',
+    color: '#000000',
     fontSize: 14,
     fontWeight: '800',
   },
@@ -1829,10 +1829,10 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
   },
   nativeUserBadgeText: {
-    color: '#7BEA12',
+    color: '#FFFFFF',
     fontSize: 10,
     fontWeight: '700',
   },
@@ -1845,14 +1845,14 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 32,
     borderRadius: 16,
-    backgroundColor: 'rgba(123, 234, 18, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(123, 234, 18, 0.4)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   nativeSwitchBtnText: {
-    color: '#7BEA12',
+    color: '#FFFFFF',
     fontSize: 11,
     fontWeight: '700',
   },
@@ -1875,12 +1875,12 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
   },
   nativeLoginBtnText: {
-    color: '#061A02',
+    color: '#000000',
     fontSize: 12,
     fontWeight: '800',
   },

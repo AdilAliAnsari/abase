@@ -19,8 +19,8 @@ import { useAuth } from '../context/AuthContext';
 import { SavedAccount } from '../services/storageService';
 import Aurora from '../components/ui/aurora';
 
-const ACCENT = '#7BEA12';
-const ACCENT_GLOW = 'rgba(123, 234, 18, 0.35)';
+const ACCENT = '#FFFFFF';
+const ACCENT_GLOW = 'rgba(255, 255, 255, 0.35)';
 
 interface LoginScreenProps {
   navigation: any;
@@ -218,7 +218,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             {/* Inner Grid Motif */}
             <div className="inner-grid" />
 
-            {/* Logo Section with Glowing Green Accent */}
+            {/* Logo Section with Glowing White Accent */}
             <div className="logo-badge-wrap">
               <div className="logo-badge">
                 <span className="logo-symbol">📚</span>
@@ -229,7 +229,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             <h1 className="card-title">Welcome Back</h1>
             <p className="card-subtitle">Sign in to continue to your digital bookshelf</p>
             <div className="clerk-pill">
-              <ShieldCheck size={13} color="#7BEA12" />
+              <ShieldCheck size={13} color="#FFFFFF" />
               <span>Secured by Clerk Authentication</span>
             </div>
 
@@ -389,7 +389,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 ) : (
                   <>
                     <span>Sign In</span>
-                    <span className="arrow-icon"><ArrowRight size={16} color="#061A02" /></span>
+                    <span className="arrow-icon"><ArrowRight size={16} color="#000000" /></span>
                   </>
                 )}
                 <div className="button-sweep" />
@@ -414,7 +414,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         <style>{`
           .saved-accounts-box {
             background: rgba(25, 28, 39, 0.7);
-            border: 1px solid rgba(123, 234, 18, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 14px;
             padding: 12px;
             margin-bottom: 16px;
@@ -434,13 +434,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             letter-spacing: 0.5px;
           }
           .permanent-badge {
-            background: rgba(123, 234, 18, 0.15);
-            color: #7BEA12;
+            background: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF;
             font-size: 10px;
             font-weight: 700;
             padding: 2px 6px;
             border-radius: 6px;
-            border: 1px solid rgba(123, 234, 18, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
           }
           .saved-accounts-list {
             display: flex;
@@ -461,8 +461,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             transition: 0.2s ease;
           }
           .saved-account-chip:hover {
-            border-color: #7BEA12;
-            background: rgba(123, 234, 18, 0.08);
+            border-color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.08);
             transform: translateX(2px);
           }
           .chip-avatar {
@@ -470,13 +470,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             height: 28px;
             border-radius: 50%;
             background: #272B3C;
-            color: #7BEA12;
+            color: #FFFFFF;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 12px;
             font-weight: 700;
-            border: 1px solid rgba(123, 234, 18, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.4);
             flex-shrink: 0;
             overflow: hidden;
           }
@@ -506,7 +506,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             text-overflow: ellipsis;
           }
           .chip-arrow {
-            color: #7BEA12;
+            color: #FFFFFF;
             font-size: 14px;
             font-weight: 700;
           }
@@ -534,7 +534,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             width: 100vw;
             max-width: 900px;
             height: 55vh;
-            background: radial-gradient(ellipse at center, rgba(123, 234, 18, 0.22) 0%, rgba(105, 217, 0, 0.08) 50%, transparent 75%);
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 50%, transparent 75%);
             filter: blur(70px);
             pointer-events: none;
             animation: pulseGlow 7s ease-in-out infinite alternate;
@@ -548,7 +548,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             width: 85vw;
             max-width: 800px;
             height: 45vh;
-            background: radial-gradient(ellipse at center, rgba(123, 234, 18, 0.18) 0%, transparent 70%);
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
             filter: blur(80px);
             pointer-events: none;
             animation: pulseGlow 9s ease-in-out infinite alternate-reverse;
@@ -560,7 +560,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             top: 30%;
             width: 320px;
             height: 320px;
-            background: rgba(123, 234, 18, 0.06);
+            background: rgba(255, 255, 255, 0.04);
             border-radius: 50%;
             filter: blur(90px);
             pointer-events: none;
@@ -572,7 +572,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             bottom: 25%;
             width: 340px;
             height: 340px;
-            background: rgba(123, 234, 18, 0.05);
+            background: rgba(255, 255, 255, 0.04);
             border-radius: 50%;
             filter: blur(90px);
             pointer-events: none;
@@ -606,7 +606,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             position: absolute;
             inset: -2px;
             border-radius: 24px;
-            background: linear-gradient(135deg, rgba(123, 234, 18, 0.25), rgba(123, 234, 18, 0.05), rgba(123, 234, 18, 0.2));
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.15));
             filter: blur(14px);
             opacity: 0.6;
             pointer-events: none;
@@ -632,8 +632,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             left: -50%;
             width: 50%;
             height: 2px;
-            background: linear-gradient(90deg, transparent, #7BEA12, #FFFFFF, #7BEA12, transparent);
-            box-shadow: 0 0 10px #7BEA12;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), #FFFFFF, rgba(255, 255, 255, 0.4), transparent);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             animation: beamTop 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
           }
 
@@ -643,8 +643,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             right: 0;
             width: 2px;
             height: 50%;
-            background: linear-gradient(180deg, transparent, #7BEA12, #FFFFFF, #7BEA12, transparent);
-            box-shadow: 0 0 10px #7BEA12;
+            background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.4), #FFFFFF, rgba(255, 255, 255, 0.4), transparent);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             animation: beamRight 3s cubic-bezier(0.4, 0, 0.2, 1) infinite 0.75s;
           }
 
@@ -654,8 +654,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             right: -50%;
             width: 50%;
             height: 2px;
-            background: linear-gradient(270deg, transparent, #7BEA12, #FFFFFF, #7BEA12, transparent);
-            box-shadow: 0 0 10px #7BEA12;
+            background: linear-gradient(270deg, transparent, rgba(255, 255, 255, 0.4), #FFFFFF, rgba(255, 255, 255, 0.4), transparent);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             animation: beamBottom 3s cubic-bezier(0.4, 0, 0.2, 1) infinite 1.5s;
           }
 
@@ -665,8 +665,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             left: 0;
             width: 2px;
             height: 50%;
-            background: linear-gradient(0deg, transparent, #7BEA12, #FFFFFF, #7BEA12, transparent);
-            box-shadow: 0 0 10px #7BEA12;
+            background: linear-gradient(0deg, transparent, rgba(255, 255, 255, 0.4), #FFFFFF, rgba(255, 255, 255, 0.4), transparent);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             animation: beamLeft 3s cubic-bezier(0.4, 0, 0.2, 1) infinite 2.25s;
           }
 
@@ -696,8 +696,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             width: 4px;
             height: 4px;
             border-radius: 50%;
-            background: #7BEA12;
-            box-shadow: 0 0 6px #7BEA12;
+            background: #FFFFFF;
+            box-shadow: 0 0 6px #FFFFFF;
             opacity: 0.6;
           }
           .corner-dot.tl { top: 2px; left: 2px; }
@@ -708,13 +708,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           /* Glass Card */
           .glass-card {
             position: relative;
-            background: rgba(13, 17, 12, 0.72);
+            background: rgba(18, 18, 24, 0.72);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(123, 234, 18, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 20px;
             padding: 36px 32px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 20px rgba(123, 234, 18, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 20px rgba(255, 255, 255, 0.06);
             box-sizing: border-box;
             z-index: 2;
             overflow: hidden;
@@ -724,8 +724,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             position: absolute;
             inset: 0;
             background-image: 
-              linear-gradient(to right, rgba(123, 234, 18, 0.04) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(123, 234, 18, 0.04) 1px, transparent 1px);
+              linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
             background-size: 28px 28px;
             pointer-events: none;
             opacity: 0.6;
@@ -749,8 +749,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             z-index: 10;
           }
           .close-button:hover {
-            background: rgba(123, 234, 18, 0.2);
-            border-color: #7BEA12;
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #FFFFFF;
             transform: scale(1.05);
           }
 
@@ -763,13 +763,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             width: 48px;
             height: 48px;
             border-radius: 24px;
-            background: rgba(123, 234, 18, 0.1);
-            border: 1px solid rgba(123, 234, 18, 0.35);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            box-shadow: 0 0 16px rgba(123, 234, 18, 0.25);
+            box-shadow: 0 0 16px rgba(255, 255, 255, 0.25);
           }
           .logo-symbol {
             font-size: 24px;
@@ -778,7 +778,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             position: absolute;
             inset: 0;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(123, 234, 18, 0.3) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
             pointer-events: none;
           }
 
@@ -803,13 +803,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             align-items: center;
             justify-content: center;
             gap: 6px;
-            background: rgba(123, 234, 18, 0.08);
-            border: 1px solid rgba(123, 234, 18, 0.25);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 11px;
             font-weight: 600;
-            color: #7BEA12;
+            color: #FFFFFF;
             margin: 0 auto 18px auto;
             letter-spacing: 0.2px;
           }
@@ -827,9 +827,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             text-align: center;
           }
           .status-success {
-            background: rgba(123, 234, 18, 0.15);
-            border: 1px solid #7BEA12;
-            color: #7BEA12;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid #FFFFFF;
+            color: #FFFFFF;
             padding: 10px 14px;
             border-radius: 10px;
             font-size: 12px;
@@ -860,8 +860,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             transition: all 0.2s ease;
           }
           .social-button:hover {
-            background: rgba(123, 234, 18, 0.12);
-            border-color: rgba(123, 234, 18, 0.4);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.4);
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
           }
@@ -918,9 +918,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             box-sizing: border-box;
           }
           .field-box.focused {
-            background: rgba(123, 234, 18, 0.06);
-            border-color: #7BEA12;
-            box-shadow: 0 0 14px rgba(123, 234, 18, 0.25);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: #FFFFFF;
+            box-shadow: 0 0 14px rgba(255, 255, 255, 0.25);
           }
           .field-icon {
             color: #8D8D94;
@@ -928,7 +928,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             transition: color 0.2s;
           }
           .field-box.focused .field-icon {
-            color: #7BEA12;
+            color: #FFFFFF;
           }
           .native-input {
             flex: 1;
@@ -957,7 +957,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             transition: color 0.2s;
           }
           .toggle-eye:hover {
-            color: #7BEA12;
+            color: #FFFFFF;
           }
 
           /* Options */
@@ -990,16 +990,16 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             transition: all 0.2s ease;
           }
           .custom-checkbox.checked {
-            background: #7BEA12;
-            border-color: #7BEA12;
-            box-shadow: 0 0 8px rgba(123, 234, 18, 0.4);
+            background: #FFFFFF;
+            border-color: #FFFFFF;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
           }
           .checkbox-text {
             color: #A3A3B2;
             font-size: 12px;
           }
           .forgot-link {
-            color: #7BEA12;
+            color: #FFFFFF;
             font-weight: 600;
             text-decoration: none;
             font-size: 12px;
@@ -1016,9 +1016,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             width: 100%;
             height: 48px;
             border-radius: 24px;
-            background: #7BEA12;
-            border: 1px solid #91F232;
-            color: #061A02;
+            background: #FFFFFF;
+            border: 1px solid #FFFFFF;
+            color: #000000;
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
@@ -1029,12 +1029,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             margin-top: 8px;
             overflow: hidden;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 16px rgba(123, 234, 18, 0.35);
+            box-shadow: 0 0 16px rgba(255, 255, 255, 0.35);
           }
           .submit-button:hover {
-            background: #8BF227;
+            background: #E5E7EB;
             transform: translateY(-1px);
-            box-shadow: 0 0 24px rgba(123, 234, 18, 0.55);
+            box-shadow: 0 0 24px rgba(255, 255, 255, 0.55);
           }
           .submit-button:disabled {
             opacity: 0.65;
@@ -1081,7 +1081,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           .switch-btn {
             background: transparent;
             border: none;
-            color: #7BEA12;
+            color: #FFFFFF;
             font-weight: 700;
             cursor: pointer;
             padding: 0;
@@ -1317,7 +1317,7 @@ const styles = StyleSheet.create({
     padding: 14,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: 'rgba(123, 234, 18, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   nativeSavedHeader: {
     flexDirection: 'row',
@@ -1336,12 +1336,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(123, 234, 18, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(123, 234, 18, 0.3)',
+    borderColor: 'rgba(255, 255, 255, 0.25)',
   },
   nativeSavedBadgeText: {
     color: ACCENT,
@@ -1371,7 +1371,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(123, 234, 18, 0.4)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     overflow: 'hidden',
   },
   nativeSavedAvatarImg: {
@@ -1409,7 +1409,7 @@ const styles = StyleSheet.create({
     left: '10%',
     right: '10%',
     height: 220,
-    backgroundColor: 'rgba(123, 234, 18, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 110,
     transform: [{ scaleX: 1.5 }],
     opacity: 0.7,
@@ -1420,7 +1420,7 @@ const styles = StyleSheet.create({
     left: '15%',
     right: '15%',
     height: 180,
-    backgroundColor: 'rgba(123, 234, 18, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     borderRadius: 90,
     opacity: 0.6,
   },
@@ -1455,10 +1455,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   nativeCard: {
-    backgroundColor: 'rgba(13, 17, 12, 0.85)',
+    backgroundColor: 'rgba(18, 18, 24, 0.85)',
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(123, 234, 18, 0.22)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     padding: 24,
     shadowColor: ACCENT,
     shadowOffset: { width: 0, height: 6 },
@@ -1474,9 +1474,9 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: 'rgba(123, 234, 18, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(123, 234, 18, 0.4)',
+    borderColor: 'rgba(255, 255, 255, 0.25)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1500,8 +1500,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(123, 234, 18, 0.08)',
-    borderColor: 'rgba(123, 234, 18, 0.25)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     borderWidth: 1,
     paddingVertical: 4,
     paddingHorizontal: 12,
@@ -1529,7 +1529,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   nativeSuccessBanner: {
-    backgroundColor: 'rgba(123, 234, 18, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderColor: ACCENT,
     borderWidth: 1,
     borderRadius: 10,
@@ -1602,7 +1602,7 @@ const styles = StyleSheet.create({
   },
   nativeInputBoxFocused: {
     borderColor: ACCENT,
-    backgroundColor: 'rgba(123, 234, 18, 0.06)',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
   },
   nativeInput: {
     flex: 1,
@@ -1620,14 +1620,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   nativeSubmitBtn: {
-    backgroundColor: ACCENT,
-    borderColor: '#91F232',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
     borderWidth: 1,
     borderRadius: 24,
     height: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: ACCENT,
+    shadowColor: '#FFFFFF',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 10,
@@ -1637,7 +1637,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   nativeSubmitText: {
-    color: '#061A02',
+    color: '#000000',
     fontSize: 14,
     fontWeight: '700',
   },

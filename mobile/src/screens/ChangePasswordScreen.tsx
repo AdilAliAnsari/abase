@@ -86,7 +86,7 @@ export const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navi
           >
             {/* Security Notice */}
             <View style={styles.securityNotice}>
-              <ShieldCheck size={20} color="#69D900" />
+              <ShieldCheck size={20} color="#FFFFFF" />
               <View style={{ flex: 1 }}>
                 <Text style={styles.noticeTitle}>End-to-End Encrypted</Text>
                 <Text style={styles.noticeText}>
@@ -100,7 +100,7 @@ export const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navi
               {/* Current Password */}
               <Text style={styles.inputLabel}>Current Password</Text>
               <View style={styles.inputWrap}>
-                <Lock size={16} color="#69D900" />
+                <Lock size={16} color="#FFFFFF" />
                 <TextInput
                   style={styles.input}
                   value={currentPassword}
@@ -121,7 +121,7 @@ export const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navi
               {/* New Password */}
               <Text style={styles.inputLabel}>New Password</Text>
               <View style={styles.inputWrap}>
-                <Key size={16} color="#69D900" />
+                <Key size={16} color="#FFFFFF" />
                 <TextInput
                   style={styles.input}
                   value={newPassword}
@@ -143,9 +143,9 @@ export const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navi
               {newPassword.length > 0 && (
                 <View style={styles.strengthMeterWrap}>
                   <View style={styles.strengthBars}>
-                    <View style={[styles.strengthBar, passwordStrength >= 1 && { backgroundColor: '#FF4545' }]} />
-                    <View style={[styles.strengthBar, passwordStrength >= 2 && { backgroundColor: '#FF9900' }]} />
-                    <View style={[styles.strengthBar, passwordStrength >= 3 && { backgroundColor: '#69D900' }]} />
+                    <View style={[styles.strengthBar, passwordStrength >= 1 && { backgroundColor: 'rgba(255, 255, 255, 0.4)' }]} />
+                    <View style={[styles.strengthBar, passwordStrength >= 2 && { backgroundColor: 'rgba(255, 255, 255, 0.7)' }]} />
+                    <View style={[styles.strengthBar, passwordStrength >= 3 && { backgroundColor: '#FFFFFF' }]} />
                   </View>
                   <Text style={styles.strengthText}>
                     {passwordStrength === 1 ? 'Weak' : passwordStrength === 2 ? 'Good' : 'Strong & Secure'}
@@ -156,7 +156,7 @@ export const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navi
               {/* Confirm Password */}
               <Text style={styles.inputLabel}>Confirm New Password</Text>
               <View style={styles.inputWrap}>
-                <Lock size={16} color="#69D900" />
+                <Lock size={16} color="#FFFFFF" />
                 <TextInput
                   style={styles.input}
                   value={confirmPassword}
@@ -191,7 +191,7 @@ export const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navi
 
             {/* Update Password Button */}
             <TouchableOpacity style={styles.saveBtn} onPress={handleUpdatePassword}>
-              <Save size={18} color="#0B2405" />
+              <Save size={18} color="#000000" />
               <Text style={styles.saveBtnText}>Update Password</Text>
             </TouchableOpacity>
 
@@ -201,7 +201,7 @@ export const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({ navi
           {/* Toast */}
           {toastMessage && (
             <View style={styles.toast}>
-              <CheckCircle2 size={16} color="#69D900" />
+              <CheckCircle2 size={16} color="#FFFFFF" />
               <Text style={styles.toastText}>{toastMessage}</Text>
             </View>
           )}
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(105, 217, 0, 0.15)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     backgroundColor: 'rgba(18, 18, 24, 0.85)',
     gap: 12,
   },
@@ -236,18 +236,18 @@ const styles = StyleSheet.create({
   },
   headerTitleWrap: { flex: 1 },
   headerTitle: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' },
-  headerSubtitle: { color: '#69D900', fontSize: 11, fontWeight: '600' },
+  headerSubtitle: { color: '#FFFFFF', fontSize: 11, fontWeight: '600' },
   scrollView: { flex: 1 },
   scrollContent: { padding: 16, gap: 14 },
   securityNotice: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: 'rgba(18, 22, 16, 0.8)',
+    backgroundColor: 'rgba(18, 18, 24, 0.8)',
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   noticeTitle: { color: '#FFFFFF', fontSize: 13, fontWeight: '700' },
   noticeText: { color: '#8D8D94', fontSize: 11, marginTop: 2, lineHeight: 16 },
@@ -295,20 +295,20 @@ const styles = StyleSheet.create({
     padding: 2,
     justifyContent: 'center',
   },
-  switchTrackActive: { backgroundColor: '#69D900' },
+  switchTrackActive: { backgroundColor: '#FFFFFF' },
   switchThumb: { width: 20, height: 20, borderRadius: 10, backgroundColor: '#FFFFFF' },
-  switchThumbActive: { alignSelf: 'flex-end' },
+  switchThumbActive: { alignSelf: 'flex-end', backgroundColor: '#000000' },
   saveBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingVertical: 14,
     borderRadius: 12,
     marginTop: 6,
   },
-  saveBtnText: { color: '#0B2405', fontSize: 14, fontWeight: '800' },
+  saveBtnText: { color: '#000000', fontSize: 14, fontWeight: '800' },
   toast: {
     position: 'absolute',
     bottom: 20,
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(18, 18, 24, 0.95)',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#69D900',
+    borderColor: '#FFFFFF',
     padding: 12,
     flexDirection: 'row',
     alignItems: 'center',

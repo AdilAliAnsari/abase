@@ -136,7 +136,7 @@ export const MyCardsScreen: React.FC<MyCardsScreenProps> = ({ navigation }) => {
               style={styles.addIconBtn}
               onPress={() => setIsAddModalOpen(true)}
             >
-              <Plus size={18} color="#0B2405" />
+              <Plus size={18} color="#000000" />
             </TouchableOpacity>
           </View>
 
@@ -149,11 +149,11 @@ export const MyCardsScreen: React.FC<MyCardsScreenProps> = ({ navigation }) => {
             <View style={styles.walletCard}>
               <View style={styles.walletTop}>
                 <View style={styles.walletTitleRow}>
-                  <Wallet size={18} color="#69D900" />
+                  <Wallet size={18} color="#FFFFFF" />
                   <Text style={styles.walletTitle}>EduStore Student Wallet</Text>
                 </View>
                 <View style={styles.verifiedTag}>
-                  <ShieldCheck size={12} color="#0B2405" />
+                  <ShieldCheck size={12} color="#000000" />
                   <Text style={styles.verifiedTagText}>Encrypted</Text>
                 </View>
               </View>
@@ -241,7 +241,7 @@ export const MyCardsScreen: React.FC<MyCardsScreenProps> = ({ navigation }) => {
 
             {/* Student Discount Subscription Pass */}
             <View style={styles.passCard}>
-              <Sparkles size={20} color="#69D900" />
+              <Sparkles size={20} color="#FFFFFF" />
               <View style={{ flex: 1 }}>
                 <Text style={styles.passTitle}>VTU Student VIP All-Access Pass</Text>
                 <Text style={styles.passSubtitle}>
@@ -334,7 +334,7 @@ export const MyCardsScreen: React.FC<MyCardsScreenProps> = ({ navigation }) => {
           {/* Toast */}
           {toastMessage && (
             <View style={styles.toast}>
-              <CheckCircle2 size={16} color="#69D900" />
+              <CheckCircle2 size={16} color="#FFFFFF" />
               <Text style={styles.toastText}>{toastMessage}</Text>
             </View>
           )}
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(105, 217, 0, 0.15)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     backgroundColor: 'rgba(18, 18, 24, 0.85)',
     gap: 12,
   },
@@ -369,23 +369,23 @@ const styles = StyleSheet.create({
   },
   headerTitleWrap: { flex: 1 },
   headerTitle: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' },
-  headerSubtitle: { color: '#69D900', fontSize: 11, fontWeight: '600' },
+  headerSubtitle: { color: '#8D8D94', fontSize: 11, fontWeight: '600' },
   addIconBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
   scrollView: { flex: 1 },
   scrollContent: { padding: 16, gap: 16 },
   walletCard: {
-    backgroundColor: 'rgba(18, 22, 16, 0.85)',
+    backgroundColor: '#121218',
     borderRadius: 16,
     padding: 18,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   walletTop: {
     flexDirection: 'row',
@@ -399,32 +399,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
   },
-  verifiedTagText: { color: '#0B2405', fontSize: 9, fontWeight: '800' },
+  verifiedTagText: { color: '#000000', fontSize: 9, fontWeight: '800' },
   balanceLabel: { color: '#8D8D94', fontSize: 11 },
-  balanceAmount: { color: '#69D900', fontSize: 26, fontWeight: '900', marginVertical: 4 },
+  balanceAmount: { color: '#FFFFFF', fontSize: 26, fontWeight: '900', marginVertical: 4 },
   walletActions: { flexDirection: 'row', gap: 10, marginTop: 10 },
   walletBtn: {
     flex: 1,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingVertical: 10,
     borderRadius: 8,
     alignItems: 'center',
   },
-  walletBtnText: { color: '#0B2405', fontSize: 13, fontWeight: '800' },
+  walletBtnText: { color: '#000000', fontSize: 13, fontWeight: '800' },
   walletBtnOutline: {
     backgroundColor: 'rgba(27, 27, 41, 0.8)',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.3)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   walletBtnOutlineText: { color: '#FFFFFF', fontSize: 13, fontWeight: '700' },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   sectionTitle: { color: '#FFFFFF', fontSize: 14, fontWeight: '700' },
-  addCardLink: { color: '#69D900', fontSize: 13, fontWeight: '700' },
+  addCardLink: { color: '#FFFFFF', fontSize: 13, fontWeight: '700' },
   cardsList: { gap: 14 },
   cardWrapper: {
     backgroundColor: 'rgba(18, 18, 24, 0.85)',
@@ -466,17 +466,17 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#8D8D94',
   },
-  checkboxActive: { backgroundColor: '#69D900', borderColor: '#69D900' },
+  checkboxActive: { backgroundColor: '#FFFFFF', borderColor: '#FFFFFF' },
   defaultText: { color: '#B8B8C2', fontSize: 12 },
   passCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: 'rgba(18, 22, 16, 0.8)',
+    backgroundColor: '#121218',
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   passTitle: { color: '#FFFFFF', fontSize: 13, fontWeight: '700' },
   passSubtitle: { color: '#8D8D94', fontSize: 11, marginTop: 2 },
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -520,12 +520,12 @@ const styles = StyleSheet.create({
   modalCancelBtn: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8 },
   modalCancelText: { color: '#B8B8C2', fontSize: 13 },
   modalSubmitBtn: {
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 8,
   },
-  modalSubmitText: { color: '#0B2405', fontSize: 13, fontWeight: '800' },
+  modalSubmitText: { color: '#000000', fontSize: 13, fontWeight: '800' },
   toast: {
     position: 'absolute',
     bottom: 20,
@@ -534,7 +534,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(18, 18, 24, 0.95)',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#69D900',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     padding: 12,
     flexDirection: 'row',
     alignItems: 'center',

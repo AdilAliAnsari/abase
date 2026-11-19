@@ -18,7 +18,7 @@ const CategoryPill: React.FC<CategoryPillProps> = ({ label, isActive, onPress })
 
 const styles = StyleSheet.create({
   pill: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: 30, backgroundColor: colors.glass, borderWidth: 1, borderColor: colors.glassBorder, marginRight: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 10, elevation: 5 },
-  pillActive: { backgroundColor: 'rgba(255, 107, 53, 0.2)', borderColor: 'rgba(255, 107, 53, 0.4)', shadowColor: colors.accent.orange, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 8 },
+  pillActive: { backgroundColor: 'rgba(255, 255, 255, 0.15)', borderColor: 'rgba(255, 255, 255, 0.4)', shadowColor: '#FFFFFF', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 8 },
   pillText: { color: colors.text.secondary, fontSize: 13, fontWeight: '600' },
   pillTextActive: { color: colors.text.primary, fontWeight: '700' },
 });

@@ -247,7 +247,7 @@ export default function DistributorScreen() {
       <DarkGradientBg>
         <View style={styles.accessContainer}>
           <View style={styles.accessCard}>
-            <ShieldAlert size={56} color="#FF9900" style={{ alignSelf: 'center', marginBottom: 16 }} />
+            <ShieldAlert size={56} color="#FFFFFF" style={{ alignSelf: 'center', marginBottom: 16 }} />
             <Text style={styles.accessTitle}>{t.distributorPortal || 'Distributor Portal'}</Text>
             <Text style={styles.accessSubtitle}>
               This portal is restricted to authorized distributors. It allows updating Prime tags,
@@ -272,7 +272,7 @@ export default function DistributorScreen() {
                 }
               }}
             >
-              <Zap size={20} color="#061A02" />
+              <Zap size={20} color="#000000" />
               <Text style={styles.activateDistributorBtnText}>
                 {t.actAsDistributor || 'Act as Distributor for this ID'}
               </Text>
@@ -336,7 +336,7 @@ export default function DistributorScreen() {
           style={[styles.tabButton, activeTab === 'books' && styles.tabButtonActive]}
           onPress={() => setActiveTab('books')}
         >
-          <Tag size={18} color={activeTab === 'books' ? '#7BEA12' : '#8D8D94'} />
+          <Tag size={18} color={activeTab === 'books' ? '#FFFFFF' : '#8D8D94'} />
           <Text style={[styles.tabButtonText, activeTab === 'books' && styles.tabButtonTextActive]}>
             {t.tagEditor || 'Tag & Price Manager'}
           </Text>
@@ -346,7 +346,7 @@ export default function DistributorScreen() {
           style={[styles.tabButton, activeTab === 'database' && styles.tabButtonActive]}
           onPress={() => setActiveTab('database')}
         >
-          <Users size={18} color={activeTab === 'database' ? '#7BEA12' : '#8D8D94'} />
+          <Users size={18} color={activeTab === 'database' ? '#FFFFFF' : '#8D8D94'} />
           <Text style={[styles.tabButtonText, activeTab === 'database' && styles.tabButtonTextActive]}>
             {t.database || 'User Database'} ({dbData.total || allUserList.length})
           </Text>
@@ -358,11 +358,11 @@ export default function DistributorScreen() {
         <ScrollView style={styles.tabContent} contentContainerStyle={{ paddingBottom: 60 }}>
           {/* RULE BANNER */}
           <View style={styles.ruleBanner}>
-            <BadgeIndianRupee size={22} color="#7BEA12" />
+            <BadgeIndianRupee size={22} color="#FFFFFF" />
             <View style={{ flex: 1, marginLeft: 10 }}>
               <Text style={styles.ruleBannerTitle}>Distributor Pricing & Tag Guidelines</Text>
               <Text style={styles.ruleBannerDesc}>
-                1. Maximum price per book is strictly <Text style={{ color: '#7BEA12', fontWeight: '800' }}>₹1000</Text>.
+                1. Maximum price per book is strictly <Text style={{ color: '#FFFFFF', fontWeight: '800' }}>₹1000</Text>.
                 {'\n'}2. Toggle Prime delivery tag and customize delivery promises live for all consumers.
               </Text>
             </View>
@@ -385,7 +385,7 @@ export default function DistributorScreen() {
               style={styles.addBookBtn}
               onPress={() => setShowAddForm(!showAddForm)}
             >
-              <PlusCircle size={18} color="#061A02" />
+              <PlusCircle size={18} color="#000000" />
               <Text style={styles.addBookBtnText}>Add Book</Text>
             </TouchableOpacity>
 
@@ -474,10 +474,10 @@ export default function DistributorScreen() {
                 onPress={() => setNewIsPrime(!newIsPrime)}
               >
                 <View style={[styles.checkbox, newIsPrime && styles.checkboxActive]}>
-                  {newIsPrime && <Check size={14} color="#061A02" />}
+                  {newIsPrime && <Check size={14} color="#000000" />}
                 </View>
                 <Text style={styles.toggleLabel}>
-                  Enable <Text style={{ color: '#00A8E1', fontWeight: '800' }}>prime</Text> Delivery Badge
+                  Enable <Text style={{ color: '#FFFFFF', fontWeight: '800' }}>prime</Text> Delivery Badge
                 </Text>
               </TouchableOpacity>
 
@@ -498,7 +498,7 @@ export default function DistributorScreen() {
 
           {/* BOOK LIST */}
           {loading ? (
-            <ActivityIndicator size="large" color="#7BEA12" style={{ marginVertical: 40 }} />
+            <ActivityIndicator size="large" color="#FFFFFF" style={{ marginVertical: 40 }} />
           ) : filteredBooks.length === 0 ? (
             <View style={styles.emptyWrap}>
               <Text style={styles.emptyText}>No books found matching "{bookSearch}"</Text>
@@ -567,11 +567,11 @@ export default function DistributorScreen() {
                         style={[styles.primeToggleBtn, currentIsPrime && styles.primeToggleActive]}
                         onPress={() => handleFieldChange(book.id, 'isPrime', !currentIsPrime)}
                       >
-                        <Zap size={16} color={currentIsPrime ? '#00A8E1' : '#666'} />
+                        <Zap size={16} color={currentIsPrime ? '#FFFFFF' : '#666'} />
                         <Text
                           style={[
                             styles.primeToggleText,
-                            currentIsPrime ? { color: '#00A8E1', fontWeight: '800' } : { color: '#888' },
+                            currentIsPrime ? { color: '#FFFFFF', fontWeight: '800' } : { color: '#888' },
                           ]}
                         >
                           {currentIsPrime ? 'Prime Enabled' : 'Prime Disabled'}
@@ -624,10 +624,10 @@ export default function DistributorScreen() {
                       onPress={() => handleSaveBook(book.id)}
                     >
                       {savingId === book.id ? (
-                        <ActivityIndicator size="small" color="#061A02" />
+                        <ActivityIndicator size="small" color="#000000" />
                       ) : (
                         <>
-                          <Check size={16} color="#061A02" />
+                          <Check size={16} color="#000000" />
                           <Text style={styles.saveBtnText}>Save & Publish Tag</Text>
                         </>
                       )}
@@ -649,14 +649,14 @@ export default function DistributorScreen() {
               <Text style={styles.statNum}>{dbData.total || allUserList.length}</Text>
               <Text style={styles.statLabel}>Total Registered</Text>
             </View>
-            <View style={[styles.statCard, { borderColor: 'rgba(0, 183, 255, 0.4)' }]}>
-              <Text style={[styles.statNum, { color: '#00B7FF' }]}>
+            <View style={[styles.statCard, { borderColor: 'rgba(255, 255, 255, 0.2)' }]}>
+              <Text style={[styles.statNum, { color: '#FFFFFF' }]}>
                 {dbData.consumersCount || dbData.consumers?.length || 0}
               </Text>
               <Text style={styles.statLabel}>Consumers</Text>
             </View>
-            <View style={[styles.statCard, { borderColor: 'rgba(123, 234, 18, 0.4)' }]}>
-              <Text style={[styles.statNum, { color: '#7BEA12' }]}>
+            <View style={[styles.statCard, { borderColor: 'rgba(255, 255, 255, 0.2)' }]}>
+              <Text style={[styles.statNum, { color: '#FFFFFF' }]}>
                 {dbData.distributorsCount || dbData.distributors?.length || 0}
               </Text>
               <Text style={styles.statLabel}>Distributors</Text>
@@ -735,7 +735,7 @@ export default function DistributorScreen() {
                             <Text
                               style={[
                                 styles.userRoleBadgeText,
-                                isItemDistributor ? { color: '#7BEA12' } : { color: '#00B7FF' },
+                                { color: '#FFFFFF' },
                               ]}
                             >
                               {item.role ? item.role.toUpperCase() : 'CONSUMER'}
@@ -772,15 +772,15 @@ export default function DistributorScreen() {
                       >
                         {isItemDistributor ? (
                           <>
-                            <UserX size={14} color="#FF9900" />
-                            <Text style={[styles.roleActionBtnText, { color: '#FF9900' }]}>
+                            <UserX size={14} color="#FFFFFF" />
+                            <Text style={[styles.roleActionBtnText, { color: '#FFFFFF' }]}>
                               Change to Consumer
                             </Text>
                           </>
                         ) : (
                           <>
-                            <UserCheck size={14} color="#7BEA12" />
-                            <Text style={[styles.roleActionBtnText, { color: '#7BEA12' }]}>
+                            <UserCheck size={14} color="#FFFFFF" />
+                            <Text style={[styles.roleActionBtnText, { color: '#FFFFFF' }]}>
                               Promote to Distributor
                             </Text>
                           </>
@@ -817,7 +817,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#121218',
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: 'rgba(255, 153, 0, 0.3)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     padding: 28,
   },
   accessTitle: {
@@ -852,7 +852,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   currentIdRole: {
-    color: '#00B7FF',
+    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '700',
     marginTop: 4,
@@ -862,13 +862,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
     height: 48,
     borderRadius: 24,
     marginBottom: 12,
   },
   activateDistributorBtnText: {
-    color: '#061A02',
+    color: '#000000',
     fontSize: 14,
     fontWeight: '800',
   },
@@ -923,10 +923,10 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
   },
   headerBadgeText: {
-    color: '#7BEA12',
+    color: '#FFFFFF',
     fontSize: 10,
     fontWeight: '800',
     letterSpacing: 0.5,
@@ -935,12 +935,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: 'rgba(0, 183, 255, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(0, 183, 255, 0.4)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   roleTogglePillText: {
-    color: '#00B7FF',
+    color: '#FFFFFF',
     fontSize: 11,
     fontWeight: '700',
   },
@@ -948,12 +948,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
     paddingVertical: 10,
     paddingHorizontal: 16,
   },
   toastText: {
-    color: '#061A02',
+    color: '#000000',
     fontSize: 13,
     fontWeight: '700',
   },
@@ -974,8 +974,8 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   tabButtonActive: {
-    borderBottomColor: '#7BEA12',
-    backgroundColor: 'rgba(123, 234, 18, 0.05)',
+    borderBottomColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
   },
   tabButtonText: {
     color: '#8D8D94',
@@ -983,7 +983,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   tabButtonTextActive: {
-    color: '#7BEA12',
+    color: '#FFFFFF',
   },
   tabContent: {
     flex: 1,
@@ -992,9 +992,9 @@ const styles = StyleSheet.create({
   ruleBanner: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: 'rgba(123, 234, 18, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(123, 234, 18, 0.3)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 16,
     padding: 14,
     marginBottom: 16,
@@ -1037,13 +1037,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
     height: 42,
     paddingHorizontal: 14,
     borderRadius: 12,
   },
   addBookBtnText: {
-    color: '#061A02',
+    color: '#000000',
     fontSize: 13,
     fontWeight: '800',
   },
@@ -1059,7 +1059,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#121218',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#7BEA12',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     padding: 16,
     marginBottom: 18,
   },
@@ -1104,12 +1104,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#1B1B29',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(123, 234, 18, 0.4)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     paddingHorizontal: 10,
     height: 40,
   },
   rupeePrefix: {
-    color: '#7BEA12',
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '800',
     marginRight: 6,
@@ -1136,8 +1136,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   checkboxActive: {
-    backgroundColor: '#7BEA12',
-    borderColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
   },
   toggleLabel: {
     color: '#FFFFFF',
@@ -1165,12 +1165,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     height: 38,
     borderRadius: 8,
-    backgroundColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
   },
   formSubmitText: {
-    color: '#061A02',
+    color: '#000000',
     fontSize: 13,
     fontWeight: '800',
   },
@@ -1260,12 +1260,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#121218',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(123, 234, 18, 0.4)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     paddingHorizontal: 8,
     height: 38,
   },
   fieldRupeePrefix: {
-    color: '#7BEA12',
+    color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '800',
     marginRight: 4,
@@ -1293,8 +1293,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   primeToggleActive: {
-    borderColor: 'rgba(0, 168, 225, 0.5)',
-    backgroundColor: 'rgba(0, 168, 225, 0.1)',
+    borderColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
   },
   primeToggleText: {
     fontSize: 12,
@@ -1342,13 +1342,13 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   previewPrimeBadge: {
-    backgroundColor: '#00A8E1',
+    backgroundColor: '#FFFFFF',
     borderRadius: 3,
     paddingHorizontal: 5,
     paddingVertical: 1,
   },
   previewPrimeText: {
-    color: '#FFFFFF',
+    color: '#000000',
     fontSize: 10,
     fontWeight: '900',
     fontStyle: 'italic',
@@ -1364,7 +1364,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   unsavedNotice: {
-    color: '#FF9900',
+    color: '#FFFFFF',
     fontSize: 11,
     fontWeight: '600',
   },
@@ -1372,7 +1372,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
     height: 38,
     paddingHorizontal: 16,
     borderRadius: 10,
@@ -1384,7 +1384,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   saveBtnText: {
-    color: '#061A02',
+    color: '#000000',
     fontSize: 13,
     fontWeight: '800',
   },
@@ -1437,8 +1437,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.06)',
   },
   filterPillActive: {
-    backgroundColor: 'rgba(123, 234, 18, 0.15)',
-    borderColor: '#7BEA12',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: '#FFFFFF',
   },
   filterPillText: {
     color: '#8D8D94',
@@ -1446,7 +1446,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   filterPillTextActive: {
-    color: '#7BEA12',
+    color: '#FFFFFF',
     fontWeight: '700',
   },
   dbSearchBox: {
@@ -1515,14 +1515,14 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   roleDistributorBadge: {
-    backgroundColor: 'rgba(123, 234, 18, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(123, 234, 18, 0.4)',
+    borderColor: 'rgba(255, 255, 255, 0.4)',
   },
   roleConsumerBadge: {
-    backgroundColor: 'rgba(0, 183, 255, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(0, 183, 255, 0.4)',
+    borderColor: 'rgba(255, 255, 255, 0.25)',
   },
   userRoleBadgeText: {
     fontSize: 10,
@@ -1562,12 +1562,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   promoteBtn: {
-    backgroundColor: 'rgba(123, 234, 18, 0.1)',
-    borderColor: 'rgba(123, 234, 18, 0.4)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.4)',
   },
   demoteBtn: {
-    backgroundColor: 'rgba(255, 153, 0, 0.1)',
-    borderColor: 'rgba(255, 153, 0, 0.4)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderColor: 'rgba(255, 255, 255, 0.25)',
   },
   roleActionBtnText: {
     fontSize: 11,

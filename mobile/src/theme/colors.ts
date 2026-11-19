@@ -22,26 +22,26 @@ export const colors = {
   icon: "#E8E8EE",
   iconMuted: "#9A9AA5",
 
-  // Main accent — use this for buttons + navigation animation
-  accentGreen: "#69D900",
-  accentGreenHover: "#7BEA12",
-  accentGreenDark: "#4FA800",
-  accentGreenGlow: "rgba(105, 217, 0, 0.25)",
+  // Main accent — sleek monochrome white
+  accentGreen: "#FFFFFF",
+  accentGreenHover: "#F0F0F0",
+  accentGreenDark: "#D8D8D8",
+  accentGreenGlow: "rgba(255, 255, 255, 0.25)",
 
-  // Buttons
-  buttonBackground: "#69D900",
+  // Buttons — white button with black text
+  buttonBackground: "#FFFFFF",
   buttonText: "#000000",
-  buttonHover: "#7BEA12",
+  buttonHover: "#EBEBEB",
 
   // Navigation bar
   navBackground: "#1B1B29",
-  navActive: "#69D900",
+  navActive: "#FFFFFF",
   navIcon: "#9A9AA5",
   navActiveIcon: "#000000",
 
   // Status / small accents
-  success: "#69D900",
-  warning: "#F5A900",
+  success: "#FFFFFF",
+  warning: "#FFFFFF",
   danger: "#FF4545",
 
   // Glass (original styles)
@@ -55,22 +55,22 @@ export const colors = {
     muted: "#8D8D94",
   },
   accent: {
-    orange: "#FF5A2B",
-    blue: "#69D900",
-    purple: "#8B5CF6",
-    teal: "#0D9488",
-    magenta: "#EC4899",
-    cyan: "#69D900",
+    orange: "#FFFFFF",
+    blue: "#FFFFFF",
+    purple: "#FFFFFF",
+    teal: "#FFFFFF",
+    magenta: "#FFFFFF",
+    cyan: "#FFFFFF",
   },
   amazon: {
     darkBlue: "#131921",
     lightBlue: "#232f3e",
-    orange: "#febd69",
-    yellow: "#FFD814",
-    orangeBtn: "#FFA41C",
+    orange: "#FFFFFF",
+    yellow: "#FFFFFF",
+    orangeBtn: "#FFFFFF",
     textDark: "#0F1111",
     textGrey: "#565959",
-    linkBlue: "#007185",
+    linkBlue: "#FFFFFF",
     bg: "#EAEDED",
     bgLight: "#FFFFFF",
     border: "#D5D9D9",

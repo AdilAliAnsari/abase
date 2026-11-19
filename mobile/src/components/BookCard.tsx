@@ -47,13 +47,13 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
       <View style={styles.starsRow}>
         {[1, 2, 3, 4, 5].map((star) => {
           const filled = star <= Math.floor(rating);
-          const color = filled ? '#FF9900' : '#E7E7E7';
+          const color = filled ? '#FFFFFF' : '#E7E7E7';
           return (
             <Star
               key={star}
               size={size}
               color={color}
-              fill={filled ? '#FF9900' : 'transparent'}
+              fill={filled ? '#FFFFFF' : 'transparent'}
             />
           );
         })}
@@ -144,7 +144,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
           </div>
         </a>        <style>{`
           .amazon-card {
-            background: rgba(18, 22, 16, 0.55);
+            background: rgba(18, 18, 24, 0.55);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             font-family: system-ui, -apple-system, sans-serif;
@@ -152,15 +152,15 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
             color: ${colors.primaryText};
             display: flex;
             box-sizing: border-box;
-            border: 1px solid rgba(105, 217, 0, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
           }
           .amazon-card:hover {
-            background-color: rgba(105, 217, 0, 0.08);
-            border-color: rgba(105, 217, 0, 0.35);
+            background-color: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.35);
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 16px rgba(105, 217, 0, 0.12);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 16px rgba(255, 255, 255, 0.12);
           }
           
           /* List layout specific styles */
@@ -204,7 +204,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
             width: calc(50% - 10px);
             max-width: 230px;
             flex-direction: column;
-            border: 1px solid rgba(105, 217, 0, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 14px;
             padding: 12px;
             gap: 12px;
@@ -285,7 +285,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
             margin-bottom: 6px;
           }
           .stars-wrap {
-            color: #FF9900;
+            color: #FFFFFF;
             display: flex;
           }
           .star-char {
@@ -294,18 +294,18 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
             color: #333344;
           }
           .star-char.filled {
-            color: #ff9900;
+            color: #FFFFFF;
           }
           .rating-val {
             font-weight: 600;
             color: #FFFFFF;
           }
           .review-count {
-            color: #69D900;
+            color: #FFFFFF;
             cursor: pointer;
           }
           .review-count:hover {
-            color: #7BEA12;
+            color: #FFFFFF;
             text-decoration: underline;
           }
 
@@ -340,16 +340,16 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
             margin-bottom: 10px;
           }
           .prime-text {
-            color: #69D900;
+            color: #FFFFFF;
             font-weight: 900;
             font-size: 14px;
           }
           
           .category-tag {
             font-size: 11px;
-            background: rgba(105, 217, 0, 0.12);
-            border: 1px solid rgba(105, 217, 0, 0.25);
-            color: #69D900;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #FFFFFF;
             padding: 2px 8px;
             border-radius: 12px;
             font-weight: 600;
@@ -357,31 +357,31 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
           }
 
           .cart-button {
-            background: #69D900;
-            border: 1px solid #7BEA12;
+            background: #FFFFFF;
+            border: 1px solid #FFFFFF;
             border-radius: 100px;
             padding: 7px 16px;
             font-size: 12px;
             font-weight: 700;
-            color: #0B2405;
+            color: #000000;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             outline: none;
             transition: all 0.2s ease;
-            box-shadow: 0 0 12px rgba(105, 217, 0, 0.2);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
           }
           .cart-button:hover {
-            background: #7BEA12;
-            box-shadow: 0 0 18px rgba(105, 217, 0, 0.45);
+            background: #E5E7EB;
+            box-shadow: 0 0 18px rgba(255, 255, 255, 0.4);
             transform: scale(1.02);
           }
           .cart-button.added {
-            background: #067d62;
-            border-color: #056b54;
-            color: white;
-            box-shadow: 0 0 12px rgba(6, 125, 98, 0.35);
+            background: #27272A;
+            border-color: #3F3F46;
+            color: #FFFFFF;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
           }
         `}</style>
       </>
@@ -474,18 +474,18 @@ const styles = StyleSheet.create({
   nativeCardList: {
     flexDirection: 'row',
     padding: 14,
-    backgroundColor: 'rgba(18, 22, 16, 0.55)',
+    backgroundColor: 'rgba(18, 18, 24, 0.55)',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.12)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     borderRadius: 14,
     gap: 14,
   },
   nativeCardGrid: {
     flexDirection: 'column',
     padding: 12,
-    backgroundColor: 'rgba(18, 22, 16, 0.55)',
+    backgroundColor: 'rgba(18, 18, 24, 0.55)',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.14)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     borderRadius: 14,
     gap: 10,
   },
@@ -567,7 +567,7 @@ const styles = StyleSheet.create({
   },
   nativeReviewCount: {
     fontSize: 11,
-    color: '#69D900',
+    color: '#FFFFFF',
   },
   nativePriceRow: {
     flexDirection: 'row',
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   nativePrime: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '900',
     fontStyle: 'italic',
@@ -608,22 +608,22 @@ const styles = StyleSheet.create({
   },
   nativeCategoryTag: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(105, 217, 0, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 10,
     paddingHorizontal: 8,
     paddingVertical: 1.5,
     marginBottom: 8,
   },
   nativeCategoryText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 10,
     fontWeight: '600',
   },
   nativeCartBtn: {
-    backgroundColor: '#69D900',
-    borderColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
     borderWidth: 1,
     borderRadius: 20,
     height: 32,
@@ -631,18 +631,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
     maxWidth: 140,
-    shadowColor: '#69D900',
+    shadowColor: '#FFFFFF',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 3,
   },
   nativeCartBtnAdded: {
-    backgroundColor: '#067D62',
-    borderColor: '#056B54',
+    backgroundColor: '#27272A',
+    borderColor: '#3F3F46',
   },
   nativeCartBtnText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 11,
     fontWeight: '700',
   },

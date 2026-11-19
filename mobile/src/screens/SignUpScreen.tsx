@@ -17,8 +17,8 @@ import { useAuth } from '../context/AuthContext';
 import { SavedAccount } from '../services/storageService';
 import Aurora from '../components/ui/aurora';
 
-const ACCENT = '#7BEA12';
-const ACCENT_GLOW = 'rgba(123, 234, 18, 0.35)';
+const ACCENT = '#FFFFFF';
+const ACCENT_GLOW = 'rgba(255, 255, 255, 0.35)';
 
 interface SignUpScreenProps {
   navigation: any;
@@ -227,7 +227,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             {/* Inner Grid Motif */}
             <div className="inner-grid" />
 
-            {/* Logo Section with Glowing Green Accent */}
+            {/* Logo Section with Glowing White Accent */}
             <div className="logo-badge-wrap">
               <div className="logo-badge">
                 <span className="logo-symbol">📚</span>
@@ -238,7 +238,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             <h1 className="card-title">Create Account</h1>
             <p className="card-subtitle">Join us today and discover endless stories</p>
             <div className="clerk-pill">
-              <ShieldCheck size={13} color="#7BEA12" />
+              <ShieldCheck size={13} color="#FFFFFF" />
               <span>Secured by Clerk Authentication</span>
             </div>
 
@@ -401,7 +401,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
                 ) : (
                   <>
                     <span>Create Account</span>
-                    <span className="arrow-icon"><ArrowRight size={16} color="#061A02" /></span>
+                    <span className="arrow-icon"><ArrowRight size={16} color="#000000" /></span>
                   </>
                 )}
                 <div className="button-sweep" />
@@ -447,7 +447,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             width: 100vw;
             max-width: 900px;
             height: 55vh;
-            background: radial-gradient(ellipse at center, rgba(123, 234, 18, 0.22) 0%, rgba(105, 217, 0, 0.08) 50%, transparent 75%);
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 50%, transparent 75%);
             filter: blur(70px);
             pointer-events: none;
             animation: pulseGlow 7s ease-in-out infinite alternate;
@@ -461,7 +461,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             width: 85vw;
             max-width: 800px;
             height: 45vh;
-            background: radial-gradient(ellipse at center, rgba(123, 234, 18, 0.18) 0%, transparent 70%);
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
             filter: blur(80px);
             pointer-events: none;
             animation: pulseGlow 9s ease-in-out infinite alternate-reverse;
@@ -473,7 +473,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             top: 30%;
             width: 320px;
             height: 320px;
-            background: rgba(123, 234, 18, 0.06);
+            background: rgba(255, 255, 255, 0.04);
             border-radius: 50%;
             filter: blur(90px);
             pointer-events: none;
@@ -485,7 +485,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             bottom: 25%;
             width: 340px;
             height: 340px;
-            background: rgba(123, 234, 18, 0.05);
+            background: rgba(255, 255, 255, 0.04);
             border-radius: 50%;
             filter: blur(90px);
             pointer-events: none;
@@ -521,7 +521,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             position: absolute;
             inset: -2px;
             border-radius: 24px;
-            background: linear-gradient(135deg, rgba(123, 234, 18, 0.25), rgba(123, 234, 18, 0.05), rgba(123, 234, 18, 0.2));
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.15));
             filter: blur(14px);
             opacity: 0.6;
             pointer-events: none;
@@ -547,8 +547,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             left: -50%;
             width: 50%;
             height: 2px;
-            background: linear-gradient(90deg, transparent, #7BEA12, #FFFFFF, #7BEA12, transparent);
-            box-shadow: 0 0 10px #7BEA12;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), #FFFFFF, rgba(255, 255, 255, 0.4), transparent);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             animation: beamTop 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
           }
 
@@ -558,8 +558,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             right: 0;
             width: 2px;
             height: 50%;
-            background: linear-gradient(180deg, transparent, #7BEA12, #FFFFFF, #7BEA12, transparent);
-            box-shadow: 0 0 10px #7BEA12;
+            background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.4), #FFFFFF, rgba(255, 255, 255, 0.4), transparent);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             animation: beamRight 3s cubic-bezier(0.4, 0, 0.2, 1) infinite 0.75s;
           }
 
@@ -569,8 +569,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             right: -50%;
             width: 50%;
             height: 2px;
-            background: linear-gradient(270deg, transparent, #7BEA12, #FFFFFF, #7BEA12, transparent);
-            box-shadow: 0 0 10px #7BEA12;
+            background: linear-gradient(270deg, transparent, rgba(255, 255, 255, 0.4), #FFFFFF, rgba(255, 255, 255, 0.4), transparent);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             animation: beamBottom 3s cubic-bezier(0.4, 0, 0.2, 1) infinite 1.5s;
           }
 
@@ -580,8 +580,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             left: 0;
             width: 2px;
             height: 50%;
-            background: linear-gradient(0deg, transparent, #7BEA12, #FFFFFF, #7BEA12, transparent);
-            box-shadow: 0 0 10px #7BEA12;
+            background: linear-gradient(0deg, transparent, rgba(255, 255, 255, 0.4), #FFFFFF, rgba(255, 255, 255, 0.4), transparent);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             animation: beamLeft 3s cubic-bezier(0.4, 0, 0.2, 1) infinite 2.25s;
           }
 
@@ -611,8 +611,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             width: 4px;
             height: 4px;
             border-radius: 50%;
-            background: #7BEA12;
-            box-shadow: 0 0 6px #7BEA12;
+            background: #FFFFFF;
+            box-shadow: 0 0 6px #FFFFFF;
             opacity: 0.6;
           }
           .corner-dot.tl { top: 2px; left: 2px; }
@@ -623,13 +623,13 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
           /* Glass Card */
           .glass-card {
             position: relative;
-            background: rgba(13, 17, 12, 0.72);
+            background: rgba(18, 18, 24, 0.72);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(123, 234, 18, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 20px;
             padding: 30px 32px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 20px rgba(123, 234, 18, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 20px rgba(255, 255, 255, 0.06);
             box-sizing: border-box;
             z-index: 2;
             overflow: hidden;
@@ -639,8 +639,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             position: absolute;
             inset: 0;
             background-image: 
-              linear-gradient(to right, rgba(123, 234, 18, 0.04) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(123, 234, 18, 0.04) 1px, transparent 1px);
+              linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
             background-size: 28px 28px;
             pointer-events: none;
             opacity: 0.6;
@@ -664,8 +664,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             z-index: 10;
           }
           .close-button:hover {
-            background: rgba(123, 234, 18, 0.2);
-            border-color: #7BEA12;
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #FFFFFF;
             transform: scale(1.05);
           }
 
@@ -678,13 +678,13 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             width: 44px;
             height: 44px;
             border-radius: 22px;
-            background: rgba(123, 234, 18, 0.1);
-            border: 1px solid rgba(123, 234, 18, 0.35);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            box-shadow: 0 0 16px rgba(123, 234, 18, 0.25);
+            box-shadow: 0 0 16px rgba(255, 255, 255, 0.25);
           }
           .logo-symbol {
             font-size: 22px;
@@ -693,7 +693,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             position: absolute;
             inset: 0;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(123, 234, 18, 0.3) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
             pointer-events: none;
           }
 
@@ -718,13 +718,13 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             align-items: center;
             justify-content: center;
             gap: 6px;
-            background: rgba(123, 234, 18, 0.08);
-            border: 1px solid rgba(123, 234, 18, 0.25);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 11px;
             font-weight: 600;
-            color: #7BEA12;
+            color: #FFFFFF;
             margin: 0 auto 16px auto;
             letter-spacing: 0.2px;
           }
@@ -742,9 +742,9 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             text-align: center;
           }
           .status-success {
-            background: rgba(123, 234, 18, 0.15);
-            border: 1px solid #7BEA12;
-            color: #7BEA12;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid #FFFFFF;
+            color: #FFFFFF;
             padding: 8px 12px;
             border-radius: 10px;
             font-size: 12px;
@@ -775,8 +775,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             transition: all 0.2s ease;
           }
           .social-button:hover {
-            background: rgba(123, 234, 18, 0.12);
-            border-color: rgba(123, 234, 18, 0.4);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.4);
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
           }
@@ -833,9 +833,9 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             box-sizing: border-box;
           }
           .field-box.focused {
-            background: rgba(123, 234, 18, 0.06);
-            border-color: #7BEA12;
-            box-shadow: 0 0 14px rgba(123, 234, 18, 0.25);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: #FFFFFF;
+            box-shadow: 0 0 14px rgba(255, 255, 255, 0.25);
           }
           .field-icon {
             color: #8D8D94;
@@ -843,7 +843,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             transition: color 0.2s;
           }
           .field-box.focused .field-icon {
-            color: #7BEA12;
+            color: #FFFFFF;
           }
           .native-input {
             flex: 1;
@@ -872,7 +872,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             transition: color 0.2s;
           }
           .toggle-eye:hover {
-            color: #7BEA12;
+            color: #FFFFFF;
           }
 
           /* Submit Button */
@@ -881,9 +881,9 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             width: 100%;
             height: 44px;
             border-radius: 22px;
-            background: #7BEA12;
-            border: 1px solid #91F232;
-            color: #061A02;
+            background: #FFFFFF;
+            border: 1px solid #FFFFFF;
+            color: #000000;
             font-size: 13px;
             font-weight: 700;
             cursor: pointer;
@@ -893,12 +893,12 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             gap: 6px;
             overflow: hidden;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 16px rgba(123, 234, 18, 0.35);
+            box-shadow: 0 0 16px rgba(255, 255, 255, 0.35);
           }
           .submit-button:hover {
-            background: #8BF227;
+            background: #E5E7EB;
             transform: translateY(-1px);
-            box-shadow: 0 0 24px rgba(123, 234, 18, 0.55);
+            box-shadow: 0 0 24px rgba(255, 255, 255, 0.55);
           }
           .submit-button:disabled {
             opacity: 0.65;
@@ -945,7 +945,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
           .switch-btn {
             background: transparent;
             border: none;
-            color: #7BEA12;
+            color: #FFFFFF;
             font-weight: 700;
             cursor: pointer;
             padding: 0;
@@ -1206,7 +1206,7 @@ const styles = StyleSheet.create({
     left: '10%',
     right: '10%',
     height: 220,
-    backgroundColor: 'rgba(123, 234, 18, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 110,
     transform: [{ scaleX: 1.5 }],
     opacity: 0.7,
@@ -1217,7 +1217,7 @@ const styles = StyleSheet.create({
     left: '15%',
     right: '15%',
     height: 180,
-    backgroundColor: 'rgba(123, 234, 18, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     borderRadius: 90,
     opacity: 0.6,
   },
@@ -1252,10 +1252,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   nativeCard: {
-    backgroundColor: 'rgba(13, 17, 12, 0.85)',
+    backgroundColor: 'rgba(18, 18, 24, 0.85)',
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(123, 234, 18, 0.22)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     padding: 22,
     shadowColor: ACCENT,
     shadowOffset: { width: 0, height: 6 },
@@ -1271,9 +1271,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(123, 234, 18, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(123, 234, 18, 0.4)',
+    borderColor: 'rgba(255, 255, 255, 0.25)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1297,8 +1297,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(123, 234, 18, 0.08)',
-    borderColor: 'rgba(123, 234, 18, 0.25)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     borderWidth: 1,
     paddingVertical: 4,
     paddingHorizontal: 12,
@@ -1326,7 +1326,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   nativeSuccessBanner: {
-    backgroundColor: 'rgba(123, 234, 18, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderColor: ACCENT,
     borderWidth: 1,
     borderRadius: 10,
@@ -1399,7 +1399,7 @@ const styles = StyleSheet.create({
   },
   nativeInputBoxFocused: {
     borderColor: ACCENT,
-    backgroundColor: 'rgba(123, 234, 18, 0.06)',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
   },
   nativeInput: {
     flex: 1,
@@ -1408,14 +1408,14 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   nativeSubmitBtn: {
-    backgroundColor: ACCENT,
-    borderColor: '#91F232',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
     borderWidth: 1,
     borderRadius: 22,
     height: 46,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: ACCENT,
+    shadowColor: '#FFFFFF',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 10,
@@ -1425,7 +1425,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   nativeSubmitText: {
-    color: '#061A02',
+    color: '#000000',
     fontSize: 14,
     fontWeight: '700',
   },

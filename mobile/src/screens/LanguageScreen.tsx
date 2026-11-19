@@ -62,7 +62,7 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) =>
             {/* Primary Language */}
             <View style={styles.sectionCard}>
               <View style={styles.sectionHeader}>
-                <Globe size={18} color="#69D900" />
+                <Globe size={18} color="#FFFFFF" />
                 <Text style={styles.sectionTitle}>{t.language}</Text>
               </View>
 
@@ -81,7 +81,7 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) =>
                         </Text>
                         <Text style={styles.langNative}>{l.native}</Text>
                       </View>
-                      {selected && <CheckCircle2 size={18} color="#69D900" />}
+                      {selected && <CheckCircle2 size={18} color="#FFFFFF" />}
                     </TouchableOpacity>
                   );
                 })}
@@ -91,7 +91,7 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) =>
             {/* Video Lecture Subtitles Preference */}
             <View style={styles.sectionCard}>
               <View style={styles.sectionHeader}>
-                <Tv size={18} color="#00D2FF" />
+                <Tv size={18} color="#FFFFFF" />
                 <Text style={styles.sectionTitle}>Video Subtitle Preference</Text>
               </View>
 
@@ -111,7 +111,7 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) =>
                       <Text style={[styles.langName, selected && styles.langNameSelected]}>
                         {sub}
                       </Text>
-                      {selected && <CheckCircle2 size={18} color="#69D900" />}
+                      {selected && <CheckCircle2 size={18} color="#FFFFFF" />}
                     </TouchableOpacity>
                   );
                 })}
@@ -124,7 +124,7 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) =>
           {/* Toast */}
           {toastMessage && (
             <View style={styles.toast}>
-              <CheckCircle2 size={16} color="#69D900" />
+              <CheckCircle2 size={16} color="#FFFFFF" />
               <Text style={styles.toastText}>{toastMessage}</Text>
             </View>
           )}
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(105, 217, 0, 0.15)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     backgroundColor: 'rgba(18, 18, 24, 0.85)',
     gap: 12,
   },
@@ -159,15 +159,15 @@ const styles = StyleSheet.create({
   },
   headerTitleWrap: { flex: 1 },
   headerTitle: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' },
-  headerSubtitle: { color: '#69D900', fontSize: 11, fontWeight: '600' },
+  headerSubtitle: { color: '#FFFFFF', fontSize: 11, fontWeight: '600' },
   scrollView: { flex: 1 },
   scrollContent: { padding: 16, gap: 14 },
   sectionCard: {
-    backgroundColor: 'rgba(18, 22, 16, 0.8)',
+    backgroundColor: 'rgba(18, 18, 24, 0.8)',
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.18)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
   sectionTitle: { color: '#FFFFFF', fontSize: 14, fontWeight: '700' },
@@ -182,12 +182,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(27, 27, 41, 0.6)',
   },
   langRowSelected: {
-    backgroundColor: 'rgba(105, 217, 0, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderWidth: 1,
-    borderColor: '#69D900',
+    borderColor: '#FFFFFF',
   },
   langName: { color: '#FFFFFF', fontSize: 13, fontWeight: '600' },
-  langNameSelected: { color: '#69D900', fontWeight: '800' },
+  langNameSelected: { color: '#FFFFFF', fontWeight: '800' },
   langNative: { color: '#8D8D94', fontSize: 11, marginTop: 2 },
   toast: {
     position: 'absolute',
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(18, 18, 24, 0.95)',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#69D900',
+    borderColor: '#FFFFFF',
     padding: 12,
     flexDirection: 'row',
     alignItems: 'center',

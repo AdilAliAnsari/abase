@@ -154,8 +154,8 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
               <RefreshControl
                 refreshing={isRefreshing}
                 onRefresh={() => fetchNotifications(true)}
-                tintColor="#69D900"
-                colors={['#69D900']}
+                tintColor="#FFFFFF"
+                colors={['#FFFFFF']}
               />
             }
           >
@@ -168,15 +168,15 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
               >
                 <View style={styles.iconWrap}>
                   {n.type === 'pdf' || n.type === 'pdf_added' ? (
-                    <FileText size={18} color="#69D900" />
+                    <FileText size={18} color="#FFFFFF" />
                   ) : n.type === 'order' ? (
-                    <ShoppingBag size={18} color="#FF9900" />
+                    <ShoppingBag size={18} color="#FFFFFF" />
                   ) : n.type === 'video' ? (
-                    <Tv size={18} color="#00D2FF" />
+                    <Tv size={18} color="#FFFFFF" />
                   ) : n.type === 'alert' ? (
-                    <AlertCircle size={18} color="#FF9900" />
+                    <AlertCircle size={18} color="#FFFFFF" />
                   ) : (
-                    <Zap size={18} color="#A855F7" />
+                    <Zap size={18} color="#FFFFFF" />
                   )}
                 </View>
 
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(105, 217, 0, 0.15)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     backgroundColor: 'rgba(18, 18, 24, 0.85)',
     gap: 12,
   },
@@ -224,23 +224,23 @@ const styles = StyleSheet.create({
   },
   headerTitleWrap: { flex: 1 },
   headerTitle: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' },
-  headerSubtitle: { color: '#69D900', fontSize: 11, fontWeight: '600' },
-  markReadText: { color: '#69D900', fontSize: 12, fontWeight: '700' },
+  headerSubtitle: { color: '#FFFFFF', fontSize: 11, fontWeight: '600' },
+  markReadText: { color: '#FFFFFF', fontSize: 12, fontWeight: '700' },
   scrollView: { flex: 1 },
   scrollContent: { padding: 16, gap: 12 },
   notifCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 12,
-    backgroundColor: 'rgba(18, 22, 16, 0.8)',
+    backgroundColor: 'rgba(18, 18, 24, 0.8)',
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.06)',
   },
   notifCardUnread: {
-    borderColor: 'rgba(105, 217, 0, 0.3)',
-    backgroundColor: 'rgba(18, 22, 16, 0.95)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: 'rgba(18, 18, 24, 0.95)',
   },
   iconWrap: {
     width: 38,
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   notifTextWrap: { flex: 1 },
   notifHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   notifTitle: { color: '#FFFFFF', fontSize: 13, fontWeight: '700', flex: 1 },
-  unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#69D900', marginLeft: 6 },
+  unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#FFFFFF', marginLeft: 6 },
   notifDesc: { color: '#B8B8C2', fontSize: 12, lineHeight: 17, marginTop: 4 },
   notifTime: { color: '#8D8D94', fontSize: 10, marginTop: 6 },
 });

@@ -28,7 +28,7 @@ export const AnimatedSearchBar: React.FC<AnimatedSearchBarProps> = ({ value, onC
                 max-width: 480px;
                 height: 48px;
                 background: #1A1A24;
-                border: 1px solid #1616a6ff;
+                border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 12px;
                 padding: 0 16px;
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -36,8 +36,8 @@ export const AnimatedSearchBar: React.FC<AnimatedSearchBarProps> = ({ value, onC
               }
               .search-box:focus-within {
                 background: #1F1F2C;
-                border-color: rgba(139, 92, 246, 0.6);
-                box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+                border-color: rgba(255, 255, 255, 0.4);
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
                 transform: translateY(-1px);
               }
               .search-icon {
@@ -52,7 +52,7 @@ export const AnimatedSearchBar: React.FC<AnimatedSearchBarProps> = ({ value, onC
                 transition: stroke 0.3s ease;
               }
               .search-box:focus-within .search-icon {
-                stroke: #8B5CF6;
+                stroke: #FFFFFF;
               }
               .search-input {
                 flex: 1;
@@ -121,7 +121,7 @@ export const AnimatedSearchBar: React.FC<AnimatedSearchBarProps> = ({ value, onC
   return (
     <View style={styles.container}>
       <View style={[styles.searchBox, isFocused && styles.searchBoxFocused]}>
-        <SearchIcon size={18} color={isFocused ? colors.accent.purple : 'rgba(255, 255, 255, 0.4)'} style={styles.searchIcon} />
+        <SearchIcon size={18} color={isFocused ? '#FFFFFF' : 'rgba(255, 255, 255, 0.4)'} style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
           value={value}
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   },
   searchBoxFocused: {
     backgroundColor: '#1F1F2C',
-    borderColor: 'rgba(139, 92, 246, 0.6)',
+    borderColor: 'rgba(255, 255, 255, 0.4)',
   },
   searchIcon: {
     marginRight: 12,

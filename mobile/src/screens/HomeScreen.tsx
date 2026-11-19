@@ -345,8 +345,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={() => loadBooks(true)}
-              tintColor="#7BEA12"
-              colors={['#7BEA12']}
+              tintColor="#FFFFFF"
+              colors={['#FFFFFF']}
             />
           }
         >
@@ -479,8 +479,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                             <Star
                               key={star}
                               size={15}
-                              color="#FF9900"
-                              fill={star <= minRating ? '#FF9900' : 'transparent'}
+                              color="#FFFFFF"
+                              fill={star <= minRating ? '#FFFFFF' : 'transparent'}
                               style={{ marginRight: 2 }}
                             />
                           ))}

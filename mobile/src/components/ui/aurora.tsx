@@ -48,9 +48,9 @@ export const Aurora = React.forwardRef<HTMLDivElement, AuroraProps>(
   function Aurora(
     {
       colors = [
-        "var(--primary, #38bdf8)",
-        "var(--muted-foreground, #a78bfa)",
-        "var(--accent-foreground, #f472b6)",
+        "var(--primary, #FFFFFF)",
+        "var(--muted-foreground, rgba(255, 255, 255, 0.75))",
+        "var(--accent-foreground, rgba(255, 255, 255, 0.45))",
       ],
       duration = 20,
       intensity = 0.35,
@@ -182,3 +182,4 @@ export const Aurora = React.forwardRef<HTMLDivElement, AuroraProps>(
 );
 
 export default Aurora;
+

@@ -134,16 +134,16 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({ navigation }) => {
                 <View style={styles.orderCardHeader}>
                   <View style={styles.orderIdBox}>
                     {order.itemType === 'pdf' ? (
-                      <FileText size={16} color="#69D900" />
+                      <FileText size={16} color="#FFFFFF" />
                     ) : order.itemType === 'video' ? (
-                      <Tv size={16} color="#00D2FF" />
+                      <Tv size={16} color="#FFFFFF" />
                     ) : (
-                      <BookOpen size={16} color="#FF9900" />
+                      <BookOpen size={16} color="#FFFFFF" />
                     )}
                     <Text style={styles.orderIdText}>{order.id}</Text>
                   </View>
                   <View style={styles.statusBadge}>
-                    <CheckCircle2 size={12} color="#0B2405" />
+                    <CheckCircle2 size={12} color="#000000" />
                     <Text style={styles.statusBadgeText}>{order.status}</Text>
                   </View>
                 </View>
@@ -191,7 +191,7 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({ navigation }) => {
           {/* Toast */}
           {toastMessage && (
             <View style={styles.toast}>
-              <CheckCircle2 size={16} color="#69D900" />
+              <CheckCircle2 size={16} color="#FFFFFF" />
               <Text style={styles.toastText}>{toastMessage}</Text>
             </View>
           )}
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(105, 217, 0, 0.15)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     backgroundColor: 'rgba(18, 18, 24, 0.85)',
     gap: 12,
   },
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   },
   headerTitleWrap: { flex: 1 },
   headerTitle: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' },
-  headerSubtitle: { color: '#69D900', fontSize: 11, fontWeight: '600' },
+  headerSubtitle: { color: '#8D8D94', fontSize: 11, fontWeight: '600' },
   filterBar: {
     flexDirection: 'row',
     paddingHorizontal: 16,
@@ -241,17 +241,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
   },
-  filterChipActive: { backgroundColor: '#69D900', borderColor: '#7BEA12' },
+  filterChipActive: { backgroundColor: '#FFFFFF', borderColor: '#FFFFFF' },
   filterChipText: { color: '#B8B8C2', fontSize: 11, fontWeight: '600' },
-  filterChipTextActive: { color: '#0B2405', fontWeight: '800' },
+  filterChipTextActive: { color: '#000000', fontWeight: '800' },
   scrollView: { flex: 1 },
   scrollContent: { padding: 16, gap: 12 },
   orderCard: {
-    backgroundColor: 'rgba(18, 22, 16, 0.8)',
+    backgroundColor: '#121218',
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.18)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     gap: 8,
   },
   orderCardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
@@ -261,14 +261,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
   },
-  statusBadgeText: { color: '#0B2405', fontSize: 10, fontWeight: '800' },
+  statusBadgeText: { color: '#000000', fontSize: 10, fontWeight: '800' },
   orderTitle: { color: '#FFFFFF', fontSize: 14, fontWeight: '700', lineHeight: 19 },
-  orderAuthor: { color: '#69D900', fontSize: 12, fontWeight: '600' },
+  orderAuthor: { color: '#FFFFFF', fontSize: 12, fontWeight: '600' },
   orderFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -292,12 +292,12 @@ const styles = StyleSheet.create({
   },
   receiptBtnText: { color: '#B8B8C2', fontSize: 11, fontWeight: '600' },
   reDownloadBtn: {
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 6,
   },
-  reDownloadBtnText: { color: '#0B2405', fontSize: 11, fontWeight: '800' },
+  reDownloadBtnText: { color: '#000000', fontSize: 11, fontWeight: '800' },
   toast: {
     position: 'absolute',
     bottom: 20,
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(18, 18, 24, 0.95)',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#69D900',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     padding: 12,
     flexDirection: 'row',
     alignItems: 'center',

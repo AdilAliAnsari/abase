@@ -305,12 +305,12 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
             >
               {doubleTapSide === 'left' ? (
                 <>
-                  <RotateCcw size={32} color="#69D900" />
+                  <RotateCcw size={32} color="#FFFFFF" />
                   <Text style={styles.rippleText}>-10s</Text>
                 </>
               ) : (
                 <>
-                  <RotateCw size={32} color="#69D900" />
+                  <RotateCw size={32} color="#FFFFFF" />
                   <Text style={styles.rippleText}>+10s</Text>
                 </>
               )}
@@ -320,7 +320,7 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
           {/* Buffering Indicator */}
           {isBuffering && (
             <View style={styles.bufferingOverlay}>
-              <ActivityIndicator size="large" color="#69D900" />
+              <ActivityIndicator size="large" color="#FFFFFF" />
               <Text style={styles.bufferingText}>Loading video...</Text>
             </View>
           )}
@@ -367,7 +367,7 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
                   </Text>
                 </View>
                 <View style={styles.facultySubRow}>
-                  <GraduationCap size={12} color="#69D900" />
+                  <GraduationCap size={12} color="#FFFFFF" />
                   <Text style={styles.facultySubText}>
                     {video.instructor.name} • {video.scheme}
                   </Text>
@@ -403,7 +403,7 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
                   {downloadSuccess ? (
                     <CheckCircle2 size={18} color="#FFFFFF" />
                   ) : (
-                    <Download size={18} color="#69D900" />
+                    <Download size={18} color="#FFFFFF" />
                   )}
                 </TouchableOpacity>
               </View>
@@ -471,9 +471,9 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
                 activeOpacity={0.8}
               >
                 {isPlaying ? (
-                  <Pause size={36} color="#0B2405" />
+                  <Pause size={36} color="#000000" />
                 ) : (
-                  <Play size={36} color="#0B2405" style={{ marginLeft: 4 }} />
+                  <Play size={36} color="#000000" style={{ marginLeft: 4 }} />
                 )}
               </TouchableOpacity>
 
@@ -535,7 +535,7 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
                     {isMuted ? (
                       <VolumeX size={18} color="#FF4545" />
                     ) : (
-                      <Volume2 size={18} color="#69D900" />
+                      <Volume2 size={18} color="#FFFFFF" />
                     )}
                   </TouchableOpacity>
 
@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   fallbackSub: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 13,
   },
   bufferingOverlay: {
@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   bufferingText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '700',
   },
@@ -638,11 +638,11 @@ const styles = StyleSheet.create({
     top: '40%',
     padding: 20,
     borderRadius: 50,
-    backgroundColor: 'rgba(11, 36, 5, 0.85)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
-    borderColor: '#69D900',
+    borderColor: '#FFFFFF',
     zIndex: 30,
   },
   rippleLeft: {
@@ -652,7 +652,7 @@ const styles = StyleSheet.create({
     right: '15%',
   },
   rippleText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '900',
     marginTop: 4,
@@ -713,15 +713,15 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   subjectBadge: {
-    backgroundColor: 'rgba(105, 217, 0, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     paddingHorizontal: 6,
     paddingVertical: 1.5,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: '#69D900',
+    borderColor: '#FFFFFF',
   },
   subjectBadgeText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 9,
     fontWeight: '900',
   },
@@ -752,16 +752,16 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: 'rgba(27, 27, 41, 0.85)',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.3)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   pillActionText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 11,
     fontWeight: '800',
   },
   downloadSuccessBtn: {
-    backgroundColor: '#067D62',
-    borderColor: '#056B54',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: '#FFFFFF',
   },
   dropdownCard: {
     position: 'absolute',
@@ -770,7 +770,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#121218',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.3)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     padding: 12,
     zIndex: 60,
     width: 170,
@@ -796,7 +796,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(255, 255, 255, 0.05)',
   },
   dropdownOptionSelected: {
-    backgroundColor: 'rgba(105, 217, 0, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     borderRadius: 6,
     paddingHorizontal: 6,
   },
@@ -805,11 +805,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   dropdownOptionTextActive: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontWeight: '700',
   },
   dropdownTick: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontWeight: '800',
   },
   centerControls: {
@@ -822,12 +822,12 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#69D900',
+    shadowColor: '#FFFFFF',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.3,
     shadowRadius: 12,
     elevation: 8,
   },
@@ -878,7 +878,7 @@ const styles = StyleSheet.create({
   },
   trackFill: {
     height: '100%',
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     borderRadius: 2,
   },
   trackThumb: {
@@ -890,7 +890,7 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
-    borderColor: '#69D900',
+    borderColor: '#FFFFFF',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.5,

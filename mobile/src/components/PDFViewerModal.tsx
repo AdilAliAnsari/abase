@@ -127,7 +127,7 @@ export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
               activeOpacity={0.7}
               accessibilityLabel="Open in Phone Drive Viewer"
             >
-              <ExternalLink size={16} color="#0B2405" />
+              <ExternalLink size={16} color="#000000" />
               <Text style={styles.driveLaunchBtnText}>Drive</Text>
             </TouchableOpacity>
 
@@ -140,7 +140,7 @@ export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
               {downloadSuccess ? (
                 <CheckCircle2 size={17} color="#FFFFFF" />
               ) : (
-                <Download size={17} color="#0B2405" />
+                <Download size={17} color="#000000" />
               )}
             </TouchableOpacity>
           </View>
@@ -152,7 +152,7 @@ export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
             <View style={styles.webViewerContainer}>
               {iframeLoading && (
                 <View style={styles.loadingOverlay}>
-                  <ActivityIndicator size="large" color="#69D900" />
+                  <ActivityIndicator size="large" color="#FFFFFF" />
                   <Text style={styles.loadingText}>Connecting to Google Drive Viewer...</Text>
                   <Text style={styles.loadingSubtext}>Rendering document in high-fidelity mode</Text>
                 </View>
@@ -181,7 +181,7 @@ export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
               {/* Document Overview Banner */}
               <View style={styles.previewCard}>
                 <View style={styles.docIconWrap}>
-                  <FileText size={48} color="#69D900" />
+                  <FileText size={48} color="#FFFFFF" />
                   <View style={styles.pdfFormatBadge}>
                     <Text style={styles.pdfFormatBadgeText}>PDF</Text>
                   </View>
@@ -192,19 +192,19 @@ export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
 
                 <View style={styles.pillRow}>
                   <View style={styles.pill}>
-                    <Layers size={13} color="#69D900" />
+                    <Layers size={13} color="#FFFFFF" />
                     <Text style={styles.pillText}>{pdf.pageCount} Pages</Text>
                   </View>
                   <View style={styles.pill}>
-                    <HardDrive size={13} color="#69D900" />
+                    <HardDrive size={13} color="#FFFFFF" />
                     <Text style={styles.pillText}>{pdf.fileSize}</Text>
                   </View>
                   <View style={styles.pill}>
-                    <Star size={13} color="#FF9900" fill="#FF9900" />
+                    <Star size={13} color="#FFFFFF" fill="#FFFFFF" />
                     <Text style={styles.pillText}>{pdf.rating.toFixed(1)}</Text>
                   </View>
                   <View style={styles.pill}>
-                    <Calendar size={13} color="#69D900" />
+                    <Calendar size={13} color="#FFFFFF" />
                     <Text style={styles.pillText}>{pdf.publishedYear}</Text>
                   </View>
                 </View>
@@ -215,9 +215,9 @@ export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
                   onPress={handleOpenDrive}
                   activeOpacity={0.8}
                 >
-                  <Eye size={20} color="#0B2405" />
+                  <Eye size={20} color="#000000" />
                   <Text style={styles.bigDriveBtnText}>Open in Google Drive Viewer</Text>
-                  <ExternalLink size={18} color="#0B2405" />
+                  <ExternalLink size={18} color="#000000" />
                 </TouchableOpacity>
 
                 <Text style={styles.driveNotice}>
@@ -239,7 +239,7 @@ export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
                     </>
                   ) : (
                     <>
-                      <Download size={18} color="#69D900" />
+                      <Download size={18} color="#FFFFFF" />
                       <Text style={styles.bigDownloadBtnText}>Download PDF to Device</Text>
                     </>
                   )}
@@ -272,7 +272,7 @@ export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
         {/* Bottom Floating Status Bar */}
         <View style={styles.bottomBar}>
           <View style={styles.bottomInfo}>
-            <Sparkles size={14} color="#69D900" />
+            <Sparkles size={14} color="#FFFFFF" />
             <Text style={styles.bottomInfoText}>
               Powered by Google Drive Document Rendering System
             </Text>
@@ -282,7 +282,7 @@ export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
             onPress={handleOpenDrive}
             activeOpacity={0.8}
           >
-            <ExternalLink size={14} color="#69D900" />
+            <ExternalLink size={14} color="#FFFFFF" />
             <Text style={styles.bottomOpenBtnText}>Open System Viewer</Text>
           </TouchableOpacity>
         </View>
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     backgroundColor: 'rgba(18, 18, 24, 0.96)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(105, 217, 0, 0.18)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     zIndex: 20,
     elevation: 6,
   },
@@ -335,15 +335,15 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   driveBadge: {
-    backgroundColor: 'rgba(105, 217, 0, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     paddingHorizontal: 6,
     paddingVertical: 1.5,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.3)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   driveBadgeText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 9,
     fontWeight: '700',
     letterSpacing: 0.3,
@@ -366,29 +366,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.15)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     flexDirection: 'row',
     gap: 4,
   },
   driveLaunchBtn: {
-    backgroundColor: '#69D900',
-    borderColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
     paddingHorizontal: 12,
   },
   driveLaunchBtnText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 12,
     fontWeight: '800',
   },
   downloadBtn: {
-    backgroundColor: '#69D900',
-    borderColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
     width: 36,
     paddingHorizontal: 0,
   },
   downloadBtnSuccess: {
-    backgroundColor: '#067D62',
-    borderColor: '#056B54',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: '#FFFFFF',
   },
   viewerBody: {
     flex: 1,
@@ -429,12 +429,12 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   previewCard: {
-    backgroundColor: 'rgba(18, 22, 16, 0.85)',
+    backgroundColor: '#121218',
     borderRadius: 18,
     padding: 22,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.22)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.4,
@@ -446,24 +446,24 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: 'rgba(105, 217, 0, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     position: 'relative',
   },
   pdfFormatBadge: {
     position: 'absolute',
     bottom: -4,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
   },
   pdfFormatBadgeText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 10,
     fontWeight: '900',
   },
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   previewAuthor: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.12)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
   },
   pillText: {
     color: '#FFFFFF',
@@ -511,18 +511,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingVertical: 14,
     borderRadius: 14,
-    shadowColor: '#69D900',
+    shadowColor: '#FFFFFF',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
+    shadowOpacity: 0.25,
     shadowRadius: 10,
     elevation: 6,
     marginBottom: 10,
   },
   bigDriveBtnText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 15,
     fontWeight: '800',
   },
@@ -542,16 +542,16 @@ const styles = StyleSheet.create({
     gap: 8,
     backgroundColor: 'rgba(27, 27, 41, 0.9)',
     borderWidth: 1.5,
-    borderColor: 'rgba(105, 217, 0, 0.4)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     paddingVertical: 12,
     borderRadius: 14,
   },
   bigDownloadBtnSuccess: {
-    backgroundColor: '#067D62',
-    borderColor: '#056B54',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: '#FFFFFF',
   },
   bigDownloadBtnText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '700',
   },
@@ -560,7 +560,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.12)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     marginBottom: 14,
   },
   sectionHeader: {
@@ -580,15 +580,15 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   tagPill: {
-    backgroundColor: 'rgba(105, 217, 0, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.2)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   tagText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 11,
     fontWeight: '600',
   },
@@ -600,7 +600,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     backgroundColor: 'rgba(18, 18, 24, 0.95)',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(105, 217, 0, 0.15)',
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
   },
   bottomInfo: {
     flexDirection: 'row',
@@ -619,10 +619,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 6,
-    backgroundColor: 'rgba(105, 217, 0, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
   },
   bottomOpenBtnText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 11,
     fontWeight: '700',
   },

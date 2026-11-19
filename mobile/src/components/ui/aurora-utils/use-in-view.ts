@@ -40,3 +40,4 @@ export function useInView<T extends HTMLElement = HTMLDivElement>({
 }
 
 export default useInView;
+

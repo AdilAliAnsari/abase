@@ -106,7 +106,7 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
               <Share2 size={18} color="#FFFFFF" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Cart')}>
-              <ShoppingBag size={18} color="#7BEA12" />
+              <ShoppingBag size={18} color="#FFFFFF" />
               {totalCount > 0 && (
                 <View style={styles.headerBadge}>
                   <Text style={styles.headerBadgeText}>{totalCount}</Text>
@@ -147,8 +147,8 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
                   <Star 
                     key={star} 
                     size={16} 
-                    color={star <= Math.floor(book?.rating || 0) ? '#FF9900' : '#333344'} 
-                    fill={star <= Math.floor(book?.rating || 0) ? '#FF9900' : 'transparent'} 
+                    color={star <= Math.floor(book?.rating || 0) ? '#FFFFFF' : '#333344'} 
+                    fill={star <= Math.floor(book?.rating || 0) ? '#FFFFFF' : 'transparent'} 
                   />
                 ))}
               </View>
@@ -180,7 +180,7 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
             {/* Amazon Shipping & Location Box */}
             <View style={styles.amazonDeliveryBox}>
               <View style={styles.deliverToRow}>
-                <MapPin size={14} color="#69D900" />
+                <MapPin size={14} color="#FFFFFF" />
                 <Text style={styles.deliverToText}>
                   Deliver to <Text style={styles.deliverToBold}>Adil - Bengaluru 560038</Text>
                 </Text>
@@ -190,7 +190,7 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
                 Ships from <Text style={styles.sellerBold}>Abase India</Text> • Sold by <Text style={styles.sellerBold}>{book?.author || 'Official Publisher'}</Text>
               </Text>
               <View style={styles.secureRow}>
-                <ShieldCheck size={14} color="#FF9900" />
+                <ShieldCheck size={14} color="#FFFFFF" />
                 <Text style={styles.secureText}>Amazon A-to-z Guarantee • Secure transaction</Text>
               </View>
             </View>
@@ -210,22 +210,22 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
               <Text style={styles.sectionTitle}>{t.productDetails || 'Product Details'}</Text>
               <View style={styles.infoGrid}>
                 <View style={styles.infoItem}>
-                  <FileText size={16} color="#69D900" />
+                  <FileText size={16} color="#FFFFFF" />
                   <Text style={styles.infoLabel}>{t.pages || 'Length'}</Text>
                   <Text style={styles.infoValue}>{book?.pages} pages</Text>
                 </View>
                 <View style={styles.infoItem}>
-                  <Globe size={16} color="#69D900" />
+                  <Globe size={16} color="#FFFFFF" />
                   <Text style={styles.infoLabel}>{t.language || 'Language'}</Text>
                   <Text style={styles.infoValue}>{book?.language}</Text>
                 </View>
                 <View style={styles.infoItem}>
-                  <Building2 size={16} color="#69D900" />
+                  <Building2 size={16} color="#FFFFFF" />
                   <Text style={styles.infoLabel}>{t.publisher || 'Publisher'}</Text>
                   <Text style={styles.infoValue} numberOfLines={1}>{book?.publisher}</Text>
                 </View>
                 <View style={styles.infoItem}>
-                  <BookOpen size={16} color="#69D900" />
+                  <BookOpen size={16} color="#FFFFFF" />
                   <Text style={styles.infoLabel}>{t.category || 'Category'}</Text>
                   <Text style={styles.infoValue}>{book?.category}</Text>
                 </View>
@@ -254,7 +254,7 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
             onPress={handleAddToCart} 
             activeOpacity={0.8}
           >
-            <ShoppingBag size={16} color={addedToCart ? '#FFF' : '#0B2405'} />
+            <ShoppingBag size={16} color={addedToCart ? '#FFF' : '#000000'} />
             <Text style={[styles.addToCartText, addedToCart && styles.addToCartTextAdded]}>
               {addedToCart ? (t.added || 'Added!') : (t.addToCart || 'Add to Cart')}
             </Text>
@@ -266,7 +266,7 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
             onPress={() => setIsBuyNowOpen(true)} 
             activeOpacity={0.85}
           >
-            <Zap size={16} color="#0F1111" />
+            <Zap size={16} color="#000000" />
             <Text style={styles.buyNowText}>
               Buy Now • ₹{totalPrice}
             </Text>
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? 50 : 16, 
     paddingBottom: 12, 
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(105, 217, 0, 0.12)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     backgroundColor: 'rgba(18, 18, 24, 0.75)',
     zIndex: 10,
   },
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     borderRadius: 19, 
     backgroundColor: 'rgba(27, 27, 41, 0.75)',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.15)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     justifyContent: 'center', 
     alignItems: 'center',
   },
@@ -340,12 +340,12 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: 200,
     height: 260,
-    backgroundColor: 'rgba(18, 22, 16, 0.55)',
+    backgroundColor: 'rgba(18, 18, 24, 0.55)',
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.18)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.35,
@@ -366,13 +366,13 @@ const styles = StyleSheet.create({
     zIndex: 3,
   },
   badgeBestseller: {
-    backgroundColor: '#C45500',
+    backgroundColor: '#FFFFFF',
   },
   badgeNew: {
-    backgroundColor: '#007600',
+    backgroundColor: '#FFFFFF',
   },
   badgeText: { 
-    color: '#FFF', 
+    color: '#000000', 
     fontSize: 8, 
     fontWeight: '800', 
     letterSpacing: 0.5,
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
     borderRadius: 18, 
     backgroundColor: 'rgba(27, 27, 41, 0.85)', 
     borderWidth: 1, 
-    borderColor: 'rgba(105, 217, 0, 0.2)', 
+    borderColor: 'rgba(255, 255, 255, 0.15)', 
     justifyContent: 'center', 
     alignItems: 'center', 
     elevation: 4,
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   authorNameLink: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontWeight: '600',
   },
   ratingRow: { 
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   reviews: { 
-    color: '#69D900', 
+    color: '#FFFFFF', 
     fontSize: 13,
   },
   priceRow: { 
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   primeLabel: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontWeight: '900',
     fontSize: 14,
     fontStyle: 'italic',
@@ -485,7 +485,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.15)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     marginBottom: 16,
     gap: 6,
   },
@@ -503,7 +503,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   inStockText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '800',
   },
@@ -522,13 +522,13 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   secureText: {
-    color: '#FF9900',
+    color: '#FFFFFF',
     fontSize: 11,
     fontWeight: '600',
   },
   sectionDivider: {
     height: 1,
-    backgroundColor: 'rgba(105, 217, 0, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     marginVertical: 14,
   },
   section: { 
@@ -552,11 +552,11 @@ const styles = StyleSheet.create({
   },
   infoItem: { 
     width: '48%', 
-    backgroundColor: 'rgba(18, 22, 16, 0.55)', 
+    backgroundColor: 'rgba(18, 18, 24, 0.55)', 
     borderRadius: 10, 
     padding: 12, 
     borderWidth: 1, 
-    borderColor: 'rgba(105, 217, 0, 0.12)', 
+    borderColor: 'rgba(255, 255, 255, 0.12)', 
     gap: 4,
   },
   infoLabel: { 
@@ -582,7 +582,7 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 26 : 10, 
     backgroundColor: 'rgba(18, 18, 24, 0.95)', 
     borderTopWidth: 1, 
-    borderTopColor: 'rgba(255, 153, 0, 0.25)', 
+    borderTopColor: 'rgba(255, 255, 255, 0.15)', 
     gap: 8, 
     shadowColor: '#000', 
     shadowOffset: { width: 0, height: -2 }, 
@@ -598,7 +598,7 @@ const styles = StyleSheet.create({
     borderRadius: 18, 
     padding: 2, 
     borderWidth: 1, 
-    borderColor: 'rgba(105, 217, 0, 0.2)', 
+    borderColor: 'rgba(255, 255, 255, 0.2)', 
   },
   quantityBtn: { 
     width: 26, 
@@ -623,16 +623,16 @@ const styles = StyleSheet.create({
     gap: 6, 
     height: 40, 
     borderRadius: 20, 
-    backgroundColor: '#69D900', 
-    borderColor: '#7BEA12', 
+    backgroundColor: '#FFFFFF', 
+    borderColor: '#FFFFFF', 
     borderWidth: 1, 
   },
   addToCartBtnAdded: { 
-    backgroundColor: '#067D62', 
-    borderColor: '#056B54', 
+    backgroundColor: '#27272A', 
+    borderColor: '#3F3F46', 
   },
   addToCartText: { 
-    color: '#0B2405', 
+    color: '#000000', 
     fontSize: 12, 
     fontWeight: '800', 
   },
@@ -647,17 +647,17 @@ const styles = StyleSheet.create({
     gap: 6,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FFA41C',
-    borderColor: '#FF9900',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
     borderWidth: 1,
-    shadowColor: '#FFA41C',
+    shadowColor: '#FFFFFF',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 4,
   },
   buyNowText: {
-    color: '#0F1111',
+    color: '#000000',
     fontSize: 12,
     fontWeight: '900',
   },
@@ -665,7 +665,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -4,
     right: -4,
-    backgroundColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
     minWidth: 16,
     height: 16,
     borderRadius: 8,

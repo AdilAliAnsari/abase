@@ -128,7 +128,7 @@ export const VerifyEmailScreen: React.FC<VerifyEmailScreenProps> = ({ navigation
             <View style={styles.verifyCard}>
               <View style={styles.envelopeIconWrap}>
                 <View style={styles.orangeDot} />
-                <Mail size={36} color="#69D900" />
+                <Mail size={36} color="#FFFFFF" />
               </View>
 
               <Text style={styles.cardTitle}>
@@ -142,7 +142,7 @@ export const VerifyEmailScreen: React.FC<VerifyEmailScreenProps> = ({ navigation
 
               {isVerified ? (
                 <View style={styles.verifiedSuccessBox}>
-                  <CheckCircle2 size={24} color="#69D900" />
+                  <CheckCircle2 size={24} color="#FFFFFF" />
                   <View>
                     <Text style={styles.verifiedText}>{email}</Text>
                     <Text style={styles.verifiedStatus}>Verified Student Status • Safe Purchases Active</Text>
@@ -164,7 +164,7 @@ export const VerifyEmailScreen: React.FC<VerifyEmailScreenProps> = ({ navigation
 
                   {!isSent ? (
                     <TouchableOpacity style={styles.sendOtpBtn} onPress={handleSendOtp}>
-                      <Send size={16} color="#0B2405" />
+                      <Send size={16} color="#000000" />
                       <Text style={styles.sendOtpBtnText}>Send Verification Code</Text>
                     </TouchableOpacity>
                   ) : (
@@ -184,7 +184,7 @@ export const VerifyEmailScreen: React.FC<VerifyEmailScreenProps> = ({ navigation
                       </View>
 
                       <TouchableOpacity style={styles.verifyBtn} onPress={handleVerify}>
-                        <ShieldCheck size={18} color="#0B2405" />
+                        <ShieldCheck size={18} color="#000000" />
                         <Text style={styles.verifyBtnText}>Confirm & Verify</Text>
                       </TouchableOpacity>
 
@@ -202,7 +202,7 @@ export const VerifyEmailScreen: React.FC<VerifyEmailScreenProps> = ({ navigation
 
             {/* Benefits Banner */}
             <View style={styles.benefitsCard}>
-              <Sparkles size={18} color="#69D900" />
+              <Sparkles size={18} color="#FFFFFF" />
               <View style={{ flex: 1 }}>
                 <Text style={styles.benefitTitle}>Why verify your email?</Text>
                 <Text style={styles.benefitItem}>• Instant access to verified VTU lecturer notes</Text>
@@ -217,7 +217,7 @@ export const VerifyEmailScreen: React.FC<VerifyEmailScreenProps> = ({ navigation
           {/* Toast */}
           {toastMessage && (
             <View style={styles.toast}>
-              <CheckCircle2 size={16} color="#69D900" />
+              <CheckCircle2 size={16} color="#FFFFFF" />
               <Text style={styles.toastText}>{toastMessage}</Text>
             </View>
           )}
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(105, 217, 0, 0.15)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     backgroundColor: 'rgba(18, 18, 24, 0.85)',
     gap: 12,
   },
@@ -252,24 +252,24 @@ const styles = StyleSheet.create({
   },
   headerTitleWrap: { flex: 1 },
   headerTitle: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' },
-  headerSubtitle: { color: '#69D900', fontSize: 11, fontWeight: '600' },
+  headerSubtitle: { color: '#8D8D94', fontSize: 11, fontWeight: '600' },
   scrollView: { flex: 1 },
   scrollContent: { padding: 16, gap: 14 },
   verifyCard: {
-    backgroundColor: 'rgba(18, 22, 16, 0.85)',
+    backgroundColor: '#121218',
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   envelopeIconWrap: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: 'rgba(105, 217, 0, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.3)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#FF5A2B',
+    backgroundColor: '#FFFFFF',
   },
   cardTitle: { color: '#FFFFFF', fontSize: 16, fontWeight: '800', textAlign: 'center', marginBottom: 6 },
   cardSubtitle: { color: '#8D8D94', fontSize: 12, textAlign: 'center', lineHeight: 18, marginBottom: 16 },
@@ -304,11 +304,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingVertical: 12,
     borderRadius: 10,
   },
-  sendOtpBtnText: { color: '#0B2405', fontSize: 13, fontWeight: '800' },
+  sendOtpBtnText: { color: '#000000', fontSize: 13, fontWeight: '800' },
   otpLabel: { color: '#B8B8C2', fontSize: 12, fontWeight: '600', marginBottom: 10 },
   otpRow: { flexDirection: 'row', gap: 8, marginBottom: 18 },
   otpBox: {
@@ -323,33 +323,33 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
   },
-  otpBoxFilled: { borderColor: '#69D900', backgroundColor: 'rgba(105, 217, 0, 0.1)' },
+  otpBoxFilled: { borderColor: '#FFFFFF', backgroundColor: 'rgba(255, 255, 255, 0.1)' },
   verifyBtn: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingVertical: 12,
     borderRadius: 10,
   },
-  verifyBtnText: { color: '#0B2405', fontSize: 13, fontWeight: '800' },
+  verifyBtnText: { color: '#000000', fontSize: 13, fontWeight: '800' },
   resendBtn: { marginTop: 14 },
-  resendText: { color: '#69D900', fontSize: 12, fontWeight: '600' },
+  resendText: { color: '#FFFFFF', fontSize: 12, fontWeight: '600' },
   verifiedSuccessBox: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: 'rgba(105, 217, 0, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     padding: 14,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#69D900',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     width: '100%',
   },
   verifiedText: { color: '#FFFFFF', fontSize: 13, fontWeight: '700' },
-  verifiedStatus: { color: '#69D900', fontSize: 11, marginTop: 2 },
+  verifiedStatus: { color: '#FFFFFF', fontSize: 11, marginTop: 2 },
   benefitsCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(18, 18, 24, 0.95)',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#69D900',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     padding: 12,
     flexDirection: 'row',
     alignItems: 'center',

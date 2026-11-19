@@ -495,7 +495,7 @@ export const PDFLibraryScreen: React.FC<PDFLibraryScreenProps> = ({ navigation }
               accessibilityLabel="Rescan PDFs Folder"
               disabled={isScanning}
             >
-              <RefreshCw size={15} color="#69D900" />
+              <RefreshCw size={15} color="#FFFFFF" />
             </TouchableOpacity>
 
             {/* Quick URL / Drive Paste Trigger */}
@@ -504,7 +504,7 @@ export const PDFLibraryScreen: React.FC<PDFLibraryScreenProps> = ({ navigation }
               onPress={() => setIsCustomUrlModalOpen(true)}
               accessibilityLabel="Paste Custom URL"
             >
-              <Link size={15} color="#69D900" />
+              <Link size={15} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
 
@@ -579,8 +579,8 @@ export const PDFLibraryScreen: React.FC<PDFLibraryScreenProps> = ({ navigation }
               <RefreshControl
                 refreshing={isRefreshing}
                 onRefresh={() => loadPDFs(true)}
-                tintColor="#69D900"
-                colors={['#69D900']}
+                tintColor="#FFFFFF"
+                colors={['#FFFFFF']}
               />
             }
           >
@@ -621,7 +621,7 @@ export const PDFLibraryScreen: React.FC<PDFLibraryScreenProps> = ({ navigation }
             <View style={styles.filterModalContainer}>
               <View style={styles.filterDrawerHeader}>
                 <View style={styles.filterTitleRow}>
-                  <GraduationCap size={22} color="#69D900" />
+                  <GraduationCap size={22} color="#FFFFFF" />
                   <Text style={styles.filterDrawerTitle}>VTU Academic Filters</Text>
                 </View>
                 <TouchableOpacity
@@ -732,7 +732,7 @@ export const PDFLibraryScreen: React.FC<PDFLibraryScreenProps> = ({ navigation }
                           <Text style={styles.radioLabel}>{lec}</Text>
                           {lec !== 'All Lecturers' && (
                             <View style={styles.verifiedTag}>
-                              <BadgeCheck size={12} color="#0B2405" />
+                              <BadgeCheck size={12} color="#000000" />
                               <Text style={styles.verifiedTagText}>Verified Faculty</Text>
                             </View>
                           )}
@@ -795,8 +795,8 @@ export const PDFLibraryScreen: React.FC<PDFLibraryScreenProps> = ({ navigation }
                               <Star
                                 key={star}
                                 size={15}
-                                color="#FF9900"
-                                fill={star <= Math.floor(minRating) ? '#FF9900' : 'transparent'}
+                                color="#FFFFFF"
+                                fill={star <= Math.floor(minRating) ? '#FFFFFF' : 'transparent'}
                                 style={{ marginRight: 2 }}
                               />
                             ))}
@@ -891,7 +891,7 @@ export const PDFLibraryScreen: React.FC<PDFLibraryScreenProps> = ({ navigation }
               <View style={styles.customModalContent}>
                 <View style={styles.customModalHeader}>
                   <View style={styles.modalHeaderTitleRow}>
-                    <Link size={18} color="#69D900" />
+                    <Link size={18} color="#FFFFFF" />
                     <Text style={styles.customModalTitle}>Open Google Drive / PDF Notes</Text>
                   </View>
                   <TouchableOpacity
@@ -948,7 +948,7 @@ export const PDFLibraryScreen: React.FC<PDFLibraryScreenProps> = ({ navigation }
                     onPress={handleOpenCustomUrl}
                     activeOpacity={0.8}
                   >
-                    <Eye size={16} color="#0B2405" />
+                    <Eye size={16} color="#000000" />
                     <Text style={styles.modalSubmitText}>View in Drive</Text>
                   </TouchableOpacity>
                 </View>
@@ -959,7 +959,7 @@ export const PDFLibraryScreen: React.FC<PDFLibraryScreenProps> = ({ navigation }
           {/* Toast Notification */}
           {toastMessage && (
             <View style={styles.toast}>
-              <CheckCircle2 size={16} color="#69D900" />
+              <CheckCircle2 size={16} color="#FFFFFF" />
               <Text style={styles.toastText} numberOfLines={2}>
                 {toastMessage}
               </Text>
@@ -1007,7 +1007,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   badgeCount: {
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     borderRadius: 8,
     minWidth: 16,
     height: 16,
@@ -1016,7 +1016,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   badgeCountText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 9,
     fontWeight: '800',
   },
@@ -1031,9 +1031,9 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
     padding: 6,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.3)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 8,
-    backgroundColor: 'rgba(105, 217, 0, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
   },
   quickPillsWrap: {
     backgroundColor: 'rgba(18, 18, 24, 0.65)',
@@ -1054,8 +1054,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   quickChipActive: {
-    backgroundColor: '#69D900',
-    borderColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
   },
   quickChipText: {
     color: '#B8B8C2',
@@ -1063,7 +1063,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   quickChipTextActive: {
-    color: '#0B2405',
+    color: '#000000',
     fontWeight: '800',
   },
   driveBanner: {
@@ -1073,21 +1073,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(18, 22, 16, 0.75)',
+    backgroundColor: '#121218',
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.18)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
   vtuBoardTag: {
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 6,
     paddingVertical: 1,
     borderRadius: 4,
   },
   vtuBoardTagText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 9,
     fontWeight: '900',
   },
@@ -1275,13 +1275,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 5,
     paddingVertical: 1,
     borderRadius: 4,
   },
   verifiedTagText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 9,
     fontWeight: '800',
   },
@@ -1402,7 +1402,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#121218',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     padding: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
@@ -1485,10 +1485,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 8,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
   },
   modalSubmitText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 13,
     fontWeight: '800',
   },
@@ -1500,7 +1500,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(18, 18, 24, 0.95)',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#69D900',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     paddingHorizontal: 16,
     paddingVertical: 12,
     flexDirection: 'row',

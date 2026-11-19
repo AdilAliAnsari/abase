@@ -508,7 +508,7 @@ export const VideoScreen: React.FC<VideoScreenProps> = ({ navigation }) => {
             <View style={styles.filterModalContainer}>
               <View style={styles.filterDrawerHeader}>
                 <View style={styles.filterTitleRow}>
-                  <GraduationCap size={22} color="#69D900" />
+                  <GraduationCap size={22} color="#FFFFFF" />
                   <Text style={styles.filterDrawerTitle}>Video Lecture Filters</Text>
                 </View>
                 <TouchableOpacity
@@ -619,7 +619,7 @@ export const VideoScreen: React.FC<VideoScreenProps> = ({ navigation }) => {
                           <Text style={styles.radioLabel}>{lec}</Text>
                           {lec !== 'All Lecturers' && (
                             <View style={styles.verifiedTag}>
-                              <BadgeCheck size={12} color="#0B2405" />
+                              <BadgeCheck size={12} color="#000000" />
                               <Text style={styles.verifiedTagText}>Verified Faculty</Text>
                             </View>
                           )}
@@ -762,7 +762,7 @@ export const VideoScreen: React.FC<VideoScreenProps> = ({ navigation }) => {
           {/* Toast Notification */}
           {toastMessage && (
             <View style={styles.toast}>
-              <CheckCircle2 size={16} color="#69D900" />
+              <CheckCircle2 size={16} color="#FFFFFF" />
               <Text style={styles.toastText} numberOfLines={2}>
                 {toastMessage}
               </Text>
@@ -810,7 +810,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   badgeCount: {
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     borderRadius: 8,
     minWidth: 16,
     height: 16,
@@ -819,7 +819,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   badgeCountText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 9,
     fontWeight: '800',
   },
@@ -850,8 +850,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   quickChipActive: {
-    backgroundColor: '#69D900',
-    borderColor: '#7BEA12',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
   },
   quickChipText: {
     color: '#B8B8C2',
@@ -859,7 +859,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   quickChipTextActive: {
-    color: '#0B2405',
+    color: '#000000',
     fontWeight: '800',
   },
   playerNoticeBanner: {
@@ -869,21 +869,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(18, 22, 16, 0.75)',
+    backgroundColor: '#121218',
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.18)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
   playerBadge: {
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 6,
     paddingVertical: 1,
     borderRadius: 4,
   },
   playerBadgeText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 9,
     fontWeight: '900',
   },
@@ -1071,13 +1071,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 5,
     paddingVertical: 1,
     borderRadius: 4,
   },
   verifiedTagText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 9,
     fontWeight: '800',
   },
@@ -1181,7 +1181,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(18, 18, 24, 0.95)',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#69D900',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     paddingHorizontal: 16,
     paddingVertical: 12,
     flexDirection: 'row',

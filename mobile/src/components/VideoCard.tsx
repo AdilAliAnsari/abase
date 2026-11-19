@@ -74,7 +74,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
           {/* Big Play Overlay */}
           <View style={styles.playOverlay}>
             <View style={styles.playIconCircle}>
-              <Play size={18} color="#0B2405" style={{ marginLeft: 2 }} />
+              <Play size={18} color="#000000" style={{ marginLeft: 2 }} />
             </View>
           </View>
 
@@ -91,7 +91,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
               <Text style={styles.subjectCodeText}>{video.subjectCode}</Text>
             </View>
             <View style={styles.ratingBox}>
-              <Star size={11} color="#FF9900" fill="#FF9900" />
+              <Star size={11} color="#FFFFFF" fill="#FFFFFF" />
               <Text style={styles.ratingText}>{video.rating.toFixed(1)}</Text>
             </View>
           </View>
@@ -102,22 +102,22 @@ export const VideoCard: React.FC<VideoCardProps> = ({
 
           {/* Lecturer / Faculty */}
           <View style={styles.lecturerRow}>
-            <GraduationCap size={12} color="#69D900" />
+            <GraduationCap size={12} color="#FFFFFF" />
             <Text style={styles.gridAuthor} numberOfLines={1}>
               {video.instructor.name}
             </Text>
             {video.instructor.verified && (
-              <BadgeCheck size={12} color="#69D900" />
+              <BadgeCheck size={12} color="#FFFFFF" />
             )}
           </View>
 
           <View style={styles.metaRow}>
             <View style={styles.metaItem}>
-              <Eye size={11} color="#69D900" />
+              <Eye size={11} color="#FFFFFF" />
               <Text style={styles.metaText}>{(video.viewsCount / 1000).toFixed(1)}k views</Text>
             </View>
             <View style={styles.metaItem}>
-              <HardDrive size={11} color="#69D900" />
+              <HardDrive size={11} color="#FFFFFF" />
               <Text style={styles.metaText}>{video.fileSize}</Text>
             </View>
           </View>
@@ -129,7 +129,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
               onPress={() => onPlay(video)}
               activeOpacity={0.8}
             >
-              <Play size={13} color="#0B2405" />
+              <Play size={13} color="#000000" />
               <Text style={styles.playBtnText}>Play Video</Text>
             </TouchableOpacity>
 
@@ -141,7 +141,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
               {downloading ? (
                 <CheckCircle2 size={15} color="#FFFFFF" />
               ) : (
-                <Download size={15} color="#69D900" />
+                <Download size={15} color="#FFFFFF" />
               )}
             </TouchableOpacity>
           </View>
@@ -173,7 +173,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
         </View>
         <View style={styles.playOverlaySmall}>
           <View style={styles.playIconCircleSmall}>
-            <Play size={14} color="#0B2405" style={{ marginLeft: 2 }} />
+            <Play size={14} color="#000000" style={{ marginLeft: 2 }} />
           </View>
         </View>
       </TouchableOpacity>
@@ -191,7 +191,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
             </View>
           </View>
           <View style={styles.ratingBox}>
-            <Star size={12} color="#FF9900" fill="#FF9900" />
+            <Star size={12} color="#FFFFFF" fill="#FFFFFF" />
             <Text style={styles.ratingText}>{video.rating.toFixed(1)}</Text>
           </View>
         </View>
@@ -204,13 +204,13 @@ export const VideoCard: React.FC<VideoCardProps> = ({
         {/* Lecturer details */}
         <View style={styles.lecturerDetailsBox}>
           <View style={styles.lecturerNameRow}>
-            <GraduationCap size={13} color="#69D900" />
+            <GraduationCap size={13} color="#FFFFFF" />
             <Text style={styles.lecturerNameText}>
               By <Text style={styles.lecturerHighlight}>{video.instructor.name}</Text>
             </Text>
             {video.instructor.verified && (
               <View style={styles.verifiedBadge}>
-                <BadgeCheck size={12} color="#0B2405" />
+                <BadgeCheck size={12} color="#000000" />
                 <Text style={styles.verifiedBadgeText}>Faculty</Text>
               </View>
             )}
@@ -224,11 +224,11 @@ export const VideoCard: React.FC<VideoCardProps> = ({
         <View style={styles.listFooter}>
           <View style={styles.metaRow}>
             <View style={styles.metaItem}>
-              <Eye size={12} color="#69D900" />
+              <Eye size={12} color="#FFFFFF" />
               <Text style={styles.metaText}>{(video.viewsCount / 1000).toFixed(1)}k views</Text>
             </View>
             <View style={styles.metaItem}>
-              <HardDrive size={12} color="#69D900" />
+              <HardDrive size={12} color="#FFFFFF" />
               <Text style={styles.metaText}>{video.fileSize}</Text>
             </View>
           </View>
@@ -239,7 +239,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
               onPress={() => onPlay(video)}
               activeOpacity={0.8}
             >
-              <Play size={13} color="#0B2405" />
+              <Play size={13} color="#000000" />
               <Text style={styles.playBtnListText}>Watch Video</Text>
             </TouchableOpacity>
 
@@ -257,7 +257,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
                 </>
               ) : (
                 <>
-                  <Download size={13} color="#69D900" />
+                  <Download size={13} color="#FFFFFF" />
                   <Text style={styles.downloadBtnListText}>Download</Text>
                 </>
               )}
@@ -273,10 +273,10 @@ const styles = StyleSheet.create({
   // Grid Styles
   gridCard: {
     width: '48%',
-    backgroundColor: 'rgba(18, 22, 16, 0.75)',
+    backgroundColor: '#121218',
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.18)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     overflow: 'hidden',
     marginBottom: 14,
     shadowColor: '#000',
@@ -318,15 +318,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 6,
     left: 6,
-    backgroundColor: 'rgba(11, 36, 5, 0.92)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderWidth: 1,
-    borderColor: '#69D900',
+    borderColor: 'rgba(255, 255, 255, 0.4)',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
   },
   schemePillText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 9,
     fontWeight: '800',
   },
@@ -334,13 +334,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 6,
     right: 6,
-    backgroundColor: '#007600',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 5,
     paddingVertical: 1.5,
     borderRadius: 3,
   },
   qualityPillText: {
-    color: '#FFFFFF',
+    color: '#000000',
     fontSize: 8,
     fontWeight: '900',
   },
@@ -358,12 +358,12 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#69D900',
+    shadowColor: '#FFFFFF',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
+    shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 6,
   },
@@ -377,15 +377,15 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   subjectCodeBox: {
-    backgroundColor: 'rgba(105, 217, 0, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     paddingHorizontal: 6,
     paddingVertical: 1.5,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.25)',
   },
   subjectCodeText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 9,
     fontWeight: '800',
   },
@@ -440,14 +440,14 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 34,
     borderRadius: 8,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
   },
   playBtnText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 11,
     fontWeight: '800',
   },
@@ -457,22 +457,22 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: 'rgba(27, 27, 41, 0.85)',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   downloadBtnActive: {
-    backgroundColor: '#067D62',
-    borderColor: '#056B54',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: '#FFFFFF',
   },
 
   // List Styles
   listCard: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(18, 22, 16, 0.75)',
+    backgroundColor: '#121218',
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.18)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     overflow: 'hidden',
     marginBottom: 12,
     padding: 10,
@@ -513,9 +513,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 4,
     left: 4,
-    backgroundColor: 'rgba(11, 36, 5, 0.92)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderWidth: 1,
-    borderColor: '#69D900',
+    borderColor: 'rgba(255, 255, 255, 0.4)',
     paddingHorizontal: 5,
     paddingVertical: 1.5,
     borderRadius: 4,
@@ -534,12 +534,12 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#69D900',
+    shadowColor: '#FFFFFF',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 4,
   },
@@ -590,21 +590,21 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   lecturerHighlight: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontWeight: '700',
   },
   verifiedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 5,
     paddingVertical: 1,
     borderRadius: 4,
     marginLeft: 4,
   },
   verifiedBadgeText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 9,
     fontWeight: '800',
   },
@@ -626,14 +626,14 @@ const styles = StyleSheet.create({
     height: 30,
     paddingHorizontal: 10,
     borderRadius: 6,
-    backgroundColor: '#69D900',
+    backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
   },
   playBtnListText: {
-    color: '#0B2405',
+    color: '#000000',
     fontSize: 11,
     fontWeight: '800',
   },
@@ -643,14 +643,14 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: 'rgba(27, 27, 41, 0.85)',
     borderWidth: 1,
-    borderColor: 'rgba(105, 217, 0, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
   },
   downloadBtnListText: {
-    color: '#69D900',
+    color: '#FFFFFF',
     fontSize: 11,
     fontWeight: '700',
   },

@@ -88,7 +88,7 @@ export async function openInDriveViewer(pdfUrl: string, title?: string): Promise
     // This allows phone users to view the PDF smoothly with Google Drive's native rendering engine!
     await WebBrowser.openBrowserAsync(driveUrl, {
       toolbarColor: '#121218',
-      controlsColor: '#69D900',
+      controlsColor: '#FFFFFF',
       secondaryToolbarColor: '#000000',
       enableBarCollapsing: true,
       showTitle: true,
