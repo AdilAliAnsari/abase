@@ -33,6 +33,7 @@ import { useTranslation } from '../i18n/LanguageContext';
 import bookService from '../services/bookService';
 import authService, { UserProfile } from '../services/authService';
 import { Book } from '../data/books';
+import DarkGradientBg from '../components/DarkGradientBg';
 
 export default function DistributorScreen() {
   const navigation = useNavigation<any>();
@@ -243,54 +244,57 @@ export default function DistributorScreen() {
   // If user is not yet marked as distributor, show clear activation access
   if (!isDistributor) {
     return (
-      <View style={styles.accessContainer}>
-        <View style={styles.accessCard}>
-          <ShieldAlert size={56} color="#FF9900" style={{ alignSelf: 'center', marginBottom: 16 }} />
-          <Text style={styles.accessTitle}>{t.distributorPortal || 'Distributor Portal'}</Text>
-          <Text style={styles.accessSubtitle}>
-            This portal is restricted to authorized distributors. It allows updating Prime tags,
-            delivery promises, prices (up to ₹1000), and viewing the customer & distributor database.
-          </Text>
-
-          <View style={styles.currentIdBox}>
-            <Text style={styles.currentIdLabel}>Currently Logged In ID:</Text>
-            <Text style={styles.currentIdValue}>{user?.email || user?.username || 'Guest / Not Logged In'}</Text>
-            <Text style={styles.currentIdRole}>Active Role: {user?.role || 'consumer'}</Text>
-          </View>
-
-          <TouchableOpacity
-            style={styles.activateDistributorBtn}
-            onPress={async () => {
-              try {
-                await setRole('distributor');
-                showToast('Authorized! You are now acting as Distributor.');
-                fetchData();
-              } catch (e: any) {
-                Alert.alert('Error', e.message || 'Could not switch role.');
-              }
-            }}
-          >
-            <Zap size={20} color="#061A02" />
-            <Text style={styles.activateDistributorBtnText}>
-              {t.actAsDistributor || 'Act as Distributor for this ID'}
+      <DarkGradientBg>
+        <View style={styles.accessContainer}>
+          <View style={styles.accessCard}>
+            <ShieldAlert size={56} color="#FF9900" style={{ alignSelf: 'center', marginBottom: 16 }} />
+            <Text style={styles.accessTitle}>{t.distributorPortal || 'Distributor Portal'}</Text>
+            <Text style={styles.accessSubtitle}>
+              This portal is restricted to authorized distributors. It allows updating Prime tags,
+              delivery promises, prices (up to ₹1000), and viewing the customer & distributor database.
             </Text>
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.backHomeBtn}
-            onPress={() => navigation.navigate('MainTabs', { screen: 'HomeTab' })}
-          >
-            <ArrowLeft size={18} color="#FFFFFF" />
-            <Text style={styles.backHomeBtnText}>Back to Consumer Store</Text>
-          </TouchableOpacity>
+            <View style={styles.currentIdBox}>
+              <Text style={styles.currentIdLabel}>Currently Logged In ID:</Text>
+              <Text style={styles.currentIdValue}>{user?.email || user?.username || 'Guest / Not Logged In'}</Text>
+              <Text style={styles.currentIdRole}>Active Role: {user?.role || 'consumer'}</Text>
+            </View>
+
+            <TouchableOpacity
+              style={styles.activateDistributorBtn}
+              onPress={async () => {
+                try {
+                  await setRole('distributor');
+                  showToast('Authorized! You are now acting as Distributor.');
+                  fetchData();
+                } catch (e: any) {
+                  Alert.alert('Error', e.message || 'Could not switch role.');
+                }
+              }}
+            >
+              <Zap size={20} color="#061A02" />
+              <Text style={styles.activateDistributorBtnText}>
+                {t.actAsDistributor || 'Act as Distributor for this ID'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.backHomeBtn}
+              onPress={() => navigation.navigate('MainTabs', { screen: 'HomeTab' })}
+            >
+              <ArrowLeft size={18} color="#FFFFFF" />
+              <Text style={styles.backHomeBtnText}>Back to Consumer Store</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </DarkGradientBg>
     );
   }
 
   return (
-    <View style={styles.container}>
-      {/* HEADER BAR */}
+    <DarkGradientBg>
+      <View style={styles.container}>
+        {/* HEADER BAR */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.headerBackBtn}
@@ -791,17 +795,18 @@ export default function DistributorScreen() {
         </ScrollView>
       )}
     </View>
+  </DarkGradientBg>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: 'transparent',
   },
   accessContainer: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,

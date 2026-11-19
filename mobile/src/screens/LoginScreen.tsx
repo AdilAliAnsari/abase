@@ -17,6 +17,7 @@ import { X, Mail, Lock, Eye, EyeOff, ArrowLeft, ArrowRight, Check, ShieldCheck, 
 import { colors } from '../theme/colors';
 import { useAuth } from '../context/AuthContext';
 import { SavedAccount } from '../services/storageService';
+import VelvetHaze from '../components/ui/velvet-haze';
 
 const ACCENT = '#7BEA12';
 const ACCENT_GLOW = 'rgba(123, 234, 18, 0.35)';
@@ -165,7 +166,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   if (Platform.OS === 'web') {
     return (
       <div className="login-screen-root">
-        {/* Background Ambient Glows (#7BEA12) */}
+        {/* Velvet Haze Shader Canvas */}
+        <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'auto' }}>
+          <VelvetHaze height="100%" />
+        </div>
+
+        {/* Ambient Glows */}
         <div className="bg-glow-top" />
         <div className="bg-glow-bottom" />
         <div className="bg-spot-left" />
@@ -1093,10 +1099,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
   // Native UI (iOS / Android)
   return (
-    <SafeAreaView style={styles.nativeRoot}>
-      {/* Background Glows for Native */}
-      <View style={styles.nativeTopGlow} pointerEvents="none" />
-      <View style={styles.nativeBottomGlow} pointerEvents="none" />
+    <View style={{ flex: 1, backgroundColor: '#111112' }}>
+      <VelvetHaze style={StyleSheet.absoluteFill} />
+      <SafeAreaView style={[styles.nativeRoot, { backgroundColor: 'transparent' }]}>
+        {/* Background Glows for Native */}
+        <View style={styles.nativeTopGlow} pointerEvents="none" />
+        <View style={styles.nativeBottomGlow} pointerEvents="none" />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -1297,9 +1305,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-
     </SafeAreaView>
-  );
+  </View>
+);
 };
 
 const styles = StyleSheet.create({
