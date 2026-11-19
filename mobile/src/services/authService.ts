@@ -12,6 +12,7 @@ export interface UserProfile {
   lastName?: string;
   name?: string;
   profileImage?: string;
+  avatar?: string;
   role?: string;
   provider?: 'google' | 'github' | 'local' | 'clerk';
   socialId?: string;

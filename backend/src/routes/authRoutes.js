@@ -1096,9 +1096,12 @@ router.post("/clerk-session", async (req, res) => {
         const hasGithub = clerkUser.externalAccounts?.some(acc => acc.provider?.includes("github"));
         const provider = hasGoogle ? "google" : hasGithub ? "github" : "clerk";
 
-        let user = await User.findOneAndUpdate(
-            { $or: [{ clerkId: clerkUser.id }, { email: primaryEmail }] },
-            {
+        let user;
+        if (mongoose.connection.readyState !== 1) {
+            const userId = `dev_clerk_${clerkUser.id}`;
+            user = {
+                _id: userId,
+                id: userId,
                 clerkId: clerkUser.id,
                 email: primaryEmail,
                 username,
@@ -1107,10 +1110,27 @@ router.post("/clerk-session", async (req, res) => {
                 phoneNumber: phone,
                 provider,
                 isEmailVerified: true,
+                role: "user",
                 lastLoginAt: new Date()
-            },
-            { upsert: true, new: true }
-        );
+            };
+            devUsers.set(userId, user);
+        } else {
+            user = await User.findOneAndUpdate(
+                { $or: [{ clerkId: clerkUser.id }, { email: primaryEmail }] },
+                {
+                    clerkId: clerkUser.id,
+                    email: primaryEmail,
+                    username,
+                    firstName: displayName,
+                    profileImage: avatar,
+                    phoneNumber: phone,
+                    provider,
+                    isEmailVerified: true,
+                    lastLoginAt: new Date()
+                },
+                { upsert: true, new: true }
+            );
+        }
 
         if (!token) {
             token = `token_${user._id}_${Date.now()}`;

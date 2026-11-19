@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView, Platform, Modal, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView, Platform, Modal, Animated, Image } from 'react-native';
 import { Menu, X, Home, PieChart, CreditCard, Clock, Mail, Bell, User, Globe, Key, ChevronLeft, ChevronRight, Search, ShoppingCart, ShieldCheck, Database, Tag } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -37,6 +37,19 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
     }
     return 'AA';
   };
+
+  const userAvatar =
+    user?.profileImage ||
+    (user as any)?.avatar ||
+    (user as any)?.avatarUrl ||
+    (user as any)?.imageUrl ||
+    (user as any)?.photoURL;
+
+  const [avatarError, setAvatarError] = useState(false);
+
+  useEffect(() => {
+    setAvatarError(false);
+  }, [userAvatar]);
 
   const rotateAnim = useRef(new Animated.Value(0)).current;
 
@@ -154,7 +167,16 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
               onClick={() => navigation.navigate(isAuthenticated ? 'AccountData' : 'Login')}
               title={user ? `${user.name || user.username} (${user.email})` : 'Sign In'}
             >
-              {getInitials()}
+              {userAvatar && !avatarError ? (
+                <img
+                  src={userAvatar}
+                  alt={user?.name || user?.username || 'Profile'}
+                  className="profile-img"
+                  onError={() => setAvatarError(true)}
+                />
+              ) : (
+                getInitials()
+              )}
             </button>
           </div>
         </header>
@@ -180,7 +202,16 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
 
           {/* Active Account Identity Card */}
           <div className="active-user-card">
-            <div className="active-user-avatar">{getInitials()}</div>
+            {userAvatar && !avatarError ? (
+              <img
+                src={userAvatar}
+                alt={user ? (user.name || user.username) : 'User'}
+                className="active-user-avatar-img"
+                onError={() => setAvatarError(true)}
+              />
+            ) : (
+              <div className="active-user-avatar">{getInitials()}</div>
+            )}
             <div className="active-user-info">
               <div className="active-user-name">
                 {user ? (user.name || user.username) : 'Guest User'}
@@ -657,10 +688,21 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             font-weight: 700;
             cursor: pointer;
             transition: 0.3s ease;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
           }
           .profile:hover {
             transform: scale(1.08);
             box-shadow: 0 0 20px rgba(0, 183, 255, 0.6);
+          }
+          .profile-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
           }
           .menu-overlay {
             position: fixed;
@@ -748,6 +790,14 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             justify-content: center;
             font-size: 15px;
             font-weight: 800;
+            flex-shrink: 0;
+          }
+          .active-user-avatar-img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #7BEA12;
             flex-shrink: 0;
           }
           .active-user-info {
@@ -1065,14 +1115,23 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             activeOpacity={0.8}
             onPress={() => navigation.navigate(isAuthenticated ? 'AccountData' : 'Login')}
           >
-            <LinearGradient
-              colors={['#7BEA12', '#215305']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.nativeProfileGradient}
-            >
-              <Text style={styles.nativeProfileText}>{getInitials()}</Text>
-            </LinearGradient>
+            {userAvatar && !avatarError ? (
+              <Image
+                source={{ uri: userAvatar }}
+                style={styles.nativeProfileImg}
+                resizeMode="cover"
+                onError={() => setAvatarError(true)}
+              />
+            ) : (
+              <LinearGradient
+                colors={['#7BEA12', '#215305']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.nativeProfileGradient}
+              >
+                <Text style={styles.nativeProfileText}>{getInitials()}</Text>
+              </LinearGradient>
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -1136,9 +1195,18 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
 
             {/* Native Active User Card */}
             <View style={styles.nativeUserCard}>
-              <View style={styles.nativeUserAvatar}>
-                <Text style={styles.nativeUserAvatarText}>{getInitials()}</Text>
-              </View>
+              {userAvatar && !avatarError ? (
+                <Image
+                  source={{ uri: userAvatar }}
+                  style={styles.nativeUserAvatarImg}
+                  resizeMode="cover"
+                  onError={() => setAvatarError(true)}
+                />
+              ) : (
+                <View style={styles.nativeUserAvatar}>
+                  <Text style={styles.nativeUserAvatarText}>{getInitials()}</Text>
+                </View>
+              )}
               <View style={styles.nativeUserInfo}>
                 <Text style={styles.nativeUserName} numberOfLines={1}>
                   {user ? (user.name || user.username) : 'Guest User'}
@@ -1491,6 +1559,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  nativeProfileImg: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 2,
+    borderColor: 'rgb(0, 183, 255)',
+    backgroundColor: '#1E1E2E',
+  },
   nativeProfileText: {
     color: '#fff',
     fontWeight: '700',
@@ -1715,6 +1791,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
+  },
+  nativeUserAvatarImg: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: '#7BEA12',
+    marginRight: 10,
+    backgroundColor: '#161922',
   },
   nativeUserAvatarText: {
     color: '#061A02',

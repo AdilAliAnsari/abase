@@ -9,7 +9,8 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   ActivityIndicator,
-  Animated
+  Animated,
+  Image
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { X, Mail, Lock, Eye, EyeOff, ArrowLeft, ArrowRight, Check, ShieldCheck, User } from 'lucide-react-native';
@@ -247,7 +248,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                       disabled={isLoading || success}
                     >
                       <div className="chip-avatar">
-                        {(acc.name || acc.username || 'U')[0].toUpperCase()}
+                        {acc.avatar ? (
+                          <img src={acc.avatar} alt={acc.name || acc.username} className="chip-avatar-img" />
+                        ) : (
+                          (acc.name || acc.username || 'U')[0].toUpperCase()
+                        )}
                       </div>
                       <div className="chip-info">
                         <div className="chip-name">{acc.name || acc.username}</div>
@@ -467,6 +472,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             font-weight: 700;
             border: 1px solid rgba(123, 234, 18, 0.4);
             flex-shrink: 0;
+            overflow: hidden;
+          }
+          .chip-avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
           }
           .chip-info {
             flex: 1;
@@ -1157,9 +1169,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                     activeOpacity={0.8}
                   >
                     <View style={styles.nativeSavedAvatar}>
-                      <Text style={styles.nativeSavedAvatarText}>
-                        {(acc.name || acc.username || 'U')[0].toUpperCase()}
-                      </Text>
+                      {acc.avatar ? (
+                        <Image source={{ uri: acc.avatar }} style={styles.nativeSavedAvatarImg} />
+                      ) : (
+                        <Text style={styles.nativeSavedAvatarText}>
+                          {(acc.name || acc.username || 'U')[0].toUpperCase()}
+                        </Text>
+                      )}
                     </View>
                     <View style={styles.nativeSavedCardInfo}>
                       <Text style={styles.nativeSavedName}>{acc.name || acc.username}</Text>
@@ -1348,6 +1364,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(123, 234, 18, 0.4)',
+    overflow: 'hidden',
+  },
+  nativeSavedAvatarImg: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
   },
   nativeSavedAvatarText: {
     color: ACCENT,

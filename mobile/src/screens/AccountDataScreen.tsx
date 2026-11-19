@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   TextInput,
   Dimensions,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -40,6 +41,18 @@ export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation
   const [email, setEmail] = useState(user?.email || 'adilaliansari@example.com');
   const [phone, setPhone] = useState('+91 98765 43210');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [avatarError, setAvatarError] = useState(false);
+
+  const userAvatar =
+    user?.profileImage ||
+    user?.avatar ||
+    (user as any)?.avatarUrl ||
+    (user as any)?.imageUrl ||
+    (user as any)?.photoURL;
+
+  React.useEffect(() => {
+    setAvatarError(false);
+  }, [userAvatar]);
 
   React.useEffect(() => {
     if (user) {
@@ -90,9 +103,18 @@ export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation
           >
             {/* Student ID Card Banner */}
             <View style={styles.profileBadgeCard}>
-              <View style={styles.avatarLarge}>
-                <Text style={styles.avatarLargeText}>{getInitials()}</Text>
-              </View>
+              {userAvatar && !avatarError ? (
+                <Image
+                  source={{ uri: userAvatar }}
+                  style={styles.avatarLargeImg}
+                  resizeMode="cover"
+                  onError={() => setAvatarError(true)}
+                />
+              ) : (
+                <View style={styles.avatarLarge}>
+                  <Text style={styles.avatarLargeText}>{getInitials()}</Text>
+                </View>
+              )}
               <View style={styles.profileBadgeText}>
                 <Text style={styles.profileName}>{fullName}</Text>
                 <Text style={styles.profileUsn}>{user?.email || `USN: ${usn}`}</Text>
@@ -315,6 +337,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#69D900',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  avatarLargeImg: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 2,
+    borderColor: '#69D900',
+    backgroundColor: '#0B2405',
   },
   avatarLargeText: { color: '#0B2405', fontSize: 20, fontWeight: '900' },
   profileBadgeText: { flex: 1 },
