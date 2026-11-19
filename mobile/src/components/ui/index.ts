@@ -4,5 +4,7 @@ export * from "./background-pixel-stars";
 export { default as BackgroundPixelStars } from "./background-pixel-stars";
 export * from "./velvet-haze";
 export { default as VelvetHaze } from "./velvet-haze";
+export * from "./aurora";
+export { default as Aurora } from "./aurora";
 export * from "../DarkGradientBg";
 export { default as DarkGradientBg } from "../DarkGradientBg";

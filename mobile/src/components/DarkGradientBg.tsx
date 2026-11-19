@@ -1,23 +1,23 @@
 import React from "react";
 import { View, StyleSheet, Platform } from "react-native";
-import VelvetHaze, { HazeParams, HAZE_PRESETS } from "./ui/velvet-haze";
+import Aurora from "./ui/aurora";
 
 export interface DarkGradientBgProps {
   children?: React.ReactNode;
   style?: any;
   className?: string;
-  preset?: keyof typeof HAZE_PRESETS;
-  params?: Partial<HazeParams>;
-  interactive?: boolean;
+  colors?: [string, string, string];
+  duration?: number;
+  intensity?: number;
 }
 
 export const DarkGradientBg: React.FC<DarkGradientBgProps> = ({
   children,
   style,
   className = "",
-  preset = "velvet",
-  params,
-  interactive = true,
+  colors = ["#38bdf8", "#a78bfa", "#f472b6"],
+  duration = 20,
+  intensity = 0.35,
 }) => {
   if (Platform.OS === "web") {
     return (
@@ -27,11 +27,11 @@ export const DarkGradientBg: React.FC<DarkGradientBgProps> = ({
           position: "relative",
           width: "100%",
           minHeight: "100vh",
-          backgroundColor: "#111112",
+          backgroundColor: "#06080C",
           overflow: "hidden",
         }}
       >
-        {/* Velvet Haze Raw WebGL2 Canvas Pass */}
+        {/* Fixed Background Aurora Layer */}
         <div
           style={{
             position: "fixed",
@@ -42,14 +42,15 @@ export const DarkGradientBg: React.FC<DarkGradientBgProps> = ({
             width: "100%",
             height: "100%",
             zIndex: 0,
-            pointerEvents: "auto",
+            pointerEvents: "none",
           }}
         >
-          <VelvetHaze
-            height="100%"
-            preset={preset}
-            params={params}
-            interactive={interactive}
+          <Aurora
+            className="w-full h-full"
+            colors={colors}
+            duration={duration}
+            intensity={intensity}
+            style={{ width: "100%", height: "100%" }}
           />
         </div>
 
@@ -76,9 +77,9 @@ export const DarkGradientBg: React.FC<DarkGradientBgProps> = ({
   // Native (iOS/Android)
   return (
     <View style={[styles.nativeContainer, style]}>
-      <VelvetHaze preset={preset} params={params} interactive={interactive}>
+      <Aurora colors={colors} duration={duration} intensity={intensity}>
         <View style={styles.contentLayer}>{children}</View>
-      </VelvetHaze>
+      </Aurora>
     </View>
   );
 };
@@ -86,7 +87,7 @@ export const DarkGradientBg: React.FC<DarkGradientBgProps> = ({
 const styles = StyleSheet.create({
   nativeContainer: {
     flex: 1,
-    backgroundColor: "#111112",
+    backgroundColor: "#06080C",
     position: "relative",
     overflow: "hidden",
   },
