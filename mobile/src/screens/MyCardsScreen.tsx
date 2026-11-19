@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -26,6 +26,7 @@ import {
 import { colors } from '../theme/colors';
 import DarkGradientBg from '../components/DarkGradientBg';
 import { LinearGradient } from 'expo-linear-gradient';
+import cardService, { SavedCard } from '../services/cardService';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -44,26 +45,23 @@ interface CardItem {
 }
 
 export const MyCardsScreen: React.FC<MyCardsScreenProps> = ({ navigation }) => {
-  const [cards, setCards] = useState<CardItem[]>([
-    {
-      id: 'card-1',
-      type: 'visa',
-      cardNumber: '•••• •••• •••• 4289',
-      cardHolder: 'ADIL ALI ANSARI',
-      expiry: '08/28',
-      isDefault: true,
-      bgGradient: ['#0A4D68', '#088395'],
-    },
-    {
-      id: 'card-2',
-      type: 'mastercard',
-      cardNumber: '•••• •••• •••• 9812',
-      cardHolder: 'ADIL ALI ANSARI',
-      expiry: '11/27',
-      isDefault: false,
-      bgGradient: ['#3A1078', '#4E31AA'],
-    },
-  ]);
+  const [cards, setCards] = useState<CardItem[]>([]);
+
+  useEffect(() => {
+    cardService.getSavedCards().then((stored) => {
+      if (stored && stored.length > 0) {
+        setCards(stored.map((c) => ({
+          id: c.id,
+          type: c.type,
+          cardNumber: c.cardNumber,
+          cardHolder: c.cardHolder,
+          expiry: c.expiry,
+          isDefault: !!c.isDefault,
+          bgGradient: c.bgGradient || ['#0A4D68', '#088395'],
+        })));
+      }
+    });
+  }, []);
 
   const [walletBalance, setWalletBalance] = useState('₹1,450.00');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -78,21 +76,27 @@ export const MyCardsScreen: React.FC<MyCardsScreenProps> = ({ navigation }) => {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleAddCard = () => {
+  const handleAddCard = async () => {
     if (!newCardNumber || !newCardHolder) {
       showToast('Please enter card details');
       return;
     }
-    const newCard: CardItem = {
-      id: `card-${Date.now()}`,
-      type: 'visa',
-      cardNumber: `•••• •••• •••• ${newCardNumber.slice(-4) || '1234'}`,
-      cardHolder: newCardHolder.toUpperCase(),
+    const saved = await cardService.saveCard({
+      cardNumber: newCardNumber,
+      cardHolder: newCardHolder,
       expiry: newExpiry || '12/29',
-      isDefault: false,
-      bgGradient: ['#1B4D3E', '#2E8B57'],
+    });
+
+    const newCard: CardItem = {
+      id: saved.id,
+      type: saved.type,
+      cardNumber: saved.cardNumber,
+      cardHolder: saved.cardHolder,
+      expiry: saved.expiry,
+      isDefault: true,
+      bgGradient: saved.bgGradient || ['#1B4D3E', '#2E8B57'],
     };
-    setCards([...cards, newCard]);
+    setCards([newCard, ...cards.map(c => ({ ...c, isDefault: false }))]);
     setIsAddModalOpen(false);
     setNewCardNumber('');
     setNewCardHolder('');

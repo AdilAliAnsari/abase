@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -25,9 +25,12 @@ import {
   Building,
   Lock,
   Zap,
+  Smartphone,
+  Check,
 } from 'lucide-react-native';
 import { Book } from '../data/books';
 import { CartItem } from '../services/cartService';
+import cardService, { SavedCard } from '../services/cardService';
 import api from '../services/api';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -101,6 +104,74 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
 
   // Payment Option: Razorpay vs COD
   const [paymentMethod, setPaymentMethod] = useState<'razorpay' | 'cod'>('razorpay');
+  const [onlineType, setOnlineType] = useState<'upi' | 'card'>('upi');
+
+  // UPI State
+  const [upiApp, setUpiApp] = useState<'phonepe' | 'gpay' | 'paytm' | 'other'>('phonepe');
+  const [customUpiId, setCustomUpiId] = useState('');
+  const [upiError, setUpiError] = useState('');
+
+  // Card State & Saved Cards
+  const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [isAddingNewCard, setIsAddingNewCard] = useState<boolean>(false);
+  const [saveCardForFuture, setSaveCardForFuture] = useState<boolean>(true);
+
+  // New Card Form Inputs
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardHolder, setCardHolder] = useState(defaultStoredAddress.fullName);
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCvv, setCardCvv] = useState('');
+  const [cardError, setCardError] = useState('');
+  const [savedCardCvv, setSavedCardCvv] = useState('');
+
+  // Load saved cards on modal mount/open
+  useEffect(() => {
+    if (visible) {
+      cardService.getSavedCards().then((cards) => {
+        setSavedCards(cards);
+        if (cards && cards.length > 0) {
+          const def = cards.find((c) => c.isDefault) || cards[0];
+          setSelectedCardId(def.id);
+          setIsAddingNewCard(false); // Returning user: skip card filling by default!
+        } else {
+          setIsAddingNewCard(true); // First-time customer: show card filling option!
+        }
+      });
+    }
+  }, [visible]);
+
+  // Card brand detector
+  const getCardBrand = (num: string): 'visa' | 'mastercard' | 'rupay' | 'card' => {
+    const clean = num.replace(/\s+/g, '');
+    if (clean.startsWith('4')) return 'visa';
+    if (clean.startsWith('5') || clean.startsWith('2')) return 'mastercard';
+    if (clean.startsWith('6') || clean.startsWith('508')) return 'rupay';
+    return 'card';
+  };
+
+  const handleCardNumberChange = (text: string) => {
+    const cleaned = text.replace(/\D/g, '').slice(0, 16);
+    const parts = cleaned.match(/.{1,4}/g);
+    setCardNumber(parts ? parts.join(' ') : cleaned);
+    setCardError('');
+  };
+
+  const handleExpiryChange = (text: string) => {
+    const cleaned = text.replace(/\D/g, '').slice(0, 4);
+    if (cleaned.length >= 3) {
+      setCardExpiry(`${cleaned.slice(0, 2)}/${cleaned.slice(2)}`);
+    } else {
+      setCardExpiry(cleaned);
+    }
+    setCardError('');
+  };
+
+  const handleCvvChange = (text: string) => {
+    const cleaned = text.replace(/\D/g, '').slice(0, 4);
+    setCardCvv(cleaned);
+    setCardError('');
+  };
 
   // Checkout Status
   const [isProcessing, setIsProcessing] = useState(false);
@@ -143,15 +214,78 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
 
   const handlePlaceOrder = async () => {
     if (!book && (!items || items.length === 0)) return;
-    setIsProcessing(true);
     setErrorMessage('');
+    setCardError('');
+    setUpiError('');
+
+    // Pre-flight Validations
+    if (paymentMethod === 'razorpay') {
+      if (onlineType === 'upi' && upiApp === 'other') {
+        if (!customUpiId.trim() || !customUpiId.includes('@')) {
+          setUpiError('Please enter a valid UPI ID (e.g. mobile@upi or name@okaxis)');
+          return;
+        }
+      }
+
+      if (onlineType === 'card') {
+        if (savedCards.length === 0 || isAddingNewCard) {
+          const rawNum = cardNumber.replace(/\s+/g, '');
+          if (rawNum.length < 15) {
+            setCardError('Please enter a valid 16-digit card number.');
+            return;
+          }
+          if (!cardHolder.trim()) {
+            setCardError('Please enter the cardholder name.');
+            return;
+          }
+          if (!cardExpiry.includes('/') || cardExpiry.length < 5) {
+            setCardError('Please enter card expiry as MM/YY.');
+            return;
+          }
+          if (cardCvv.length < 3) {
+            setCardError('Please enter a 3 or 4-digit CVV.');
+            return;
+          }
+        } else {
+          if (!selectedCardId) {
+            setCardError('Please select a saved card to pay with.');
+            return;
+          }
+        }
+      }
+    }
+
+    setIsProcessing(true);
 
     try {
       let razorpayOrderId = '';
       let paymentId = '';
+      let paymentSubMethod = 'Cash on Delivery (Pay on Delivery)';
 
       // Step 1: If Razorpay selected, initialize Razorpay payment order
       if (paymentMethod === 'razorpay') {
+        if (onlineType === 'upi') {
+          paymentSubMethod = `UPI - ${upiApp === 'other' ? customUpiId.trim() : upiApp === 'gpay' ? 'Google Pay' : upiApp === 'phonepe' ? 'PhonePe' : 'Paytm'}`;
+        } else {
+          if (savedCards.length === 0 || isAddingNewCard) {
+            paymentSubMethod = `Card - ${getCardBrand(cardNumber).toUpperCase()} •••• ${cardNumber.replace(/\s+/g, '').slice(-4)}`;
+            if (saveCardForFuture) {
+              try {
+                await cardService.saveCard({
+                  cardNumber,
+                  cardHolder,
+                  expiry: cardExpiry,
+                });
+              } catch (saveErr) {
+                console.warn('Could not save card:', saveErr);
+              }
+            }
+          } else {
+            const sc = savedCards.find((c) => c.id === selectedCardId);
+            paymentSubMethod = `Card - ${sc?.type.toUpperCase() || 'CARD'} ${sc?.cardNumber || ''}`;
+          }
+        }
+
         try {
           const rzpRes = await api.post<any>('/api/payments/create-order', {
             amount: totalPrice,
@@ -165,11 +299,12 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
               orderType: items && items.length > 0 ? 'cart_order' : 'single_book',
               itemsCount: computedItemsCount,
               deliveryAddress: `${address.flat}, ${address.area}, ${address.city} - ${address.pincode}`,
+              paymentSubMethod,
             },
           });
 
           if (rzpRes && rzpRes.data) {
-            razorpayOrderId = rzpRes.data.orderId || rzpRes.data.razorpayOrderId;
+            razorpayOrderId = rzpRes.data.orderId || rzpRes.data.razorpayOrderId || '';
           }
 
           // Verify payment server-side
@@ -215,6 +350,7 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
         deliverySpeed: deliverySpeed === 'prime' ? 'FREE Prime Delivery' : 'Standard Delivery',
         estimatedDelivery: deliverySpeed === 'prime' ? 'Tomorrow by 9 PM' : 'In 2-3 Days',
         paymentMethod: paymentMethod === 'razorpay' ? 'Razorpay' : 'COD',
+        paymentSubMethod,
         paymentStatus: paymentMethod === 'razorpay' ? 'PAID' : 'COD',
         paymentId: paymentId || `pay_cod_${Date.now()}`,
         razorpayOrderId: razorpayOrderId || '',
@@ -312,7 +448,9 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
                 <View style={styles.successRow}>
                   <Text style={styles.successLabel}>Payment Method:</Text>
                   <Text style={styles.successValue}>
-                    {paymentMethod === 'razorpay' ? 'Razorpay (Online Paid)' : 'Cash on Delivery (Pay on Delivery)'}
+                    {paymentMethod === 'razorpay'
+                      ? `Razorpay • ${completedOrder?.paymentSubMethod || 'Online Paid'}`
+                      : 'Cash on Delivery (Pay on Delivery)'}
                   </Text>
                 </View>
                 <View style={[styles.successRow, { borderBottomWidth: 0 }]}>
@@ -594,6 +732,287 @@ export const AmazonBuyNowModal: React.FC<AmazonBuyNowModalProps> = ({
                     </Text>
                   </View>
                 </TouchableOpacity>
+
+                {/* Razorpay Sub-Methods (UPI vs Card) */}
+                {paymentMethod === 'razorpay' && (
+                  <View style={styles.razorpaySubContainer}>
+                    {/* Method Selector: UPI vs Card */}
+                    <View style={styles.subToggleWrap}>
+                      <TouchableOpacity
+                        style={[styles.subToggleBtn, onlineType === 'upi' && styles.subToggleBtnActive]}
+                        onPress={() => setOnlineType('upi')}
+                        activeOpacity={0.8}
+                      >
+                        <Smartphone size={15} color={onlineType === 'upi' ? '#0F1111' : '#FFFFFF'} />
+                        <Text style={[styles.subToggleText, onlineType === 'upi' && styles.subToggleTextActive]}>
+                          UPI (GPay / PhonePe / Paytm)
+                        </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[styles.subToggleBtn, onlineType === 'card' && styles.subToggleBtnActive]}
+                        onPress={() => setOnlineType('card')}
+                        activeOpacity={0.8}
+                      >
+                        <CreditCard size={15} color={onlineType === 'card' ? '#0F1111' : '#FFFFFF'} />
+                        <Text style={[styles.subToggleText, onlineType === 'card' && styles.subToggleTextActive]}>
+                          Debit / Credit Card
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    {/* 1. UPI Payment Section */}
+                    {onlineType === 'upi' && (
+                      <View style={styles.upiMethodWrap}>
+                        <Text style={styles.subSectionTitle}>Select UPI Application</Text>
+
+                        <View style={styles.upiGrid}>
+                          {/* PhonePe */}
+                          <TouchableOpacity
+                            style={[styles.upiTile, upiApp === 'phonepe' && styles.upiTileActive]}
+                            onPress={() => setUpiApp('phonepe')}
+                            activeOpacity={0.8}
+                          >
+                            <View style={styles.upiIconPhonePe}>
+                              <Text style={styles.upiIconText}>पे</Text>
+                            </View>
+                            <Text style={styles.upiTileTitle}>PhonePe</Text>
+                            <View style={[styles.smallRadio, upiApp === 'phonepe' && styles.smallRadioActive]} />
+                          </TouchableOpacity>
+
+                          {/* Google Pay */}
+                          <TouchableOpacity
+                            style={[styles.upiTile, upiApp === 'gpay' && styles.upiTileActive]}
+                            onPress={() => setUpiApp('gpay')}
+                            activeOpacity={0.8}
+                          >
+                            <View style={styles.upiIconGPay}>
+                              <Text style={styles.upiIconTextG}>G</Text>
+                            </View>
+                            <Text style={styles.upiTileTitle}>Google Pay</Text>
+                            <View style={[styles.smallRadio, upiApp === 'gpay' && styles.smallRadioActive]} />
+                          </TouchableOpacity>
+
+                          {/* Paytm */}
+                          <TouchableOpacity
+                            style={[styles.upiTile, upiApp === 'paytm' && styles.upiTileActive]}
+                            onPress={() => setUpiApp('paytm')}
+                            activeOpacity={0.8}
+                          >
+                            <View style={styles.upiIconPaytm}>
+                              <Text style={styles.upiIconTextPaytm}>Pay</Text>
+                            </View>
+                            <Text style={styles.upiTileTitle}>Paytm</Text>
+                            <View style={[styles.smallRadio, upiApp === 'paytm' && styles.smallRadioActive]} />
+                          </TouchableOpacity>
+
+                          {/* Other UPI ID */}
+                          <TouchableOpacity
+                            style={[styles.upiTile, upiApp === 'other' && styles.upiTileActive]}
+                            onPress={() => setUpiApp('other')}
+                            activeOpacity={0.8}
+                          >
+                            <View style={styles.upiIconOther}>
+                              <Text style={styles.upiIconTextOther}>@</Text>
+                            </View>
+                            <Text style={styles.upiTileTitle}>Other UPI ID</Text>
+                            <View style={[styles.smallRadio, upiApp === 'other' && styles.smallRadioActive]} />
+                          </TouchableOpacity>
+                        </View>
+
+                        {upiApp === 'other' && (
+                          <View style={styles.customUpiBox}>
+                            <Text style={styles.inputMiniLabel}>Enter Virtual Payment Address (UPI ID)</Text>
+                            <View style={styles.customUpiRow}>
+                              <TextInput
+                                style={styles.customUpiInput}
+                                placeholder="e.g. mobile@upi or name@okaxis"
+                                placeholderTextColor="#777"
+                                value={customUpiId}
+                                onChangeText={(t) => {
+                                  setCustomUpiId(t);
+                                  setUpiError('');
+                                }}
+                                autoCapitalize="none"
+                              />
+                            </View>
+                            {upiError !== '' && <Text style={styles.formErrorText}>{upiError}</Text>}
+                            <Text style={styles.upiHintText}>
+                              A collect request will be sent to your UPI app when placing order.
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                    )}
+
+                    {/* 2. Credit / Debit Card Section */}
+                    {onlineType === 'card' && (
+                      <View style={styles.cardMethodWrap}>
+                        {/* CASE A: Older/Returning User with Saved Cards (and not currently adding a new one) */}
+                        {savedCards.length > 0 && !isAddingNewCard ? (
+                          <View>
+                            <View style={styles.savedCardsHeaderRow}>
+                              <Text style={styles.subSectionTitle}>
+                                {savedCards.length > 1 ? 'Choose Saved Card' : 'Saved Card'}
+                              </Text>
+                              <Text style={styles.savedCardCountText}>
+                                {savedCards.length} {savedCards.length === 1 ? 'card' : 'cards'} available
+                              </Text>
+                            </View>
+
+                            {/* Saved Cards List / Chooser */}
+                            {savedCards.map((c) => {
+                              const isSelected = c.id === selectedCardId;
+                              return (
+                                <TouchableOpacity
+                                  key={c.id}
+                                  style={[styles.savedCardItem, isSelected && styles.savedCardItemSelected]}
+                                  onPress={() => setSelectedCardId(c.id)}
+                                  activeOpacity={0.85}
+                                >
+                                  {savedCards.length > 1 && (
+                                    <View style={[styles.smallRadio, isSelected && styles.smallRadioActive]} />
+                                  )}
+
+                                  <View style={styles.cardTypeBadge}>
+                                    <Text style={styles.cardTypeBadgeText}>{c.type.toUpperCase()}</Text>
+                                  </View>
+
+                                  <View style={{ flex: 1 }}>
+                                    <Text style={styles.savedCardNumberText}>{c.cardNumber}</Text>
+                                    <Text style={styles.savedCardMetaText}>
+                                      {c.cardHolder} • Exp {c.expiry}
+                                    </Text>
+                                  </View>
+
+                                  {isSelected && (
+                                    <View style={styles.cvvEntryWrap}>
+                                      <Text style={styles.cvvLabel}>CVV</Text>
+                                      <TextInput
+                                        style={styles.cvvInput}
+                                        placeholder="•••"
+                                        placeholderTextColor="#777"
+                                        keyboardType="numeric"
+                                        maxLength={4}
+                                        secureTextEntry
+                                        value={savedCardCvv}
+                                        onChangeText={setSavedCardCvv}
+                                      />
+                                    </View>
+                                  )}
+                                </TouchableOpacity>
+                              );
+                            })}
+
+                            {cardError !== '' && <Text style={styles.formErrorText}>{cardError}</Text>}
+
+                            {/* Button to Add Another Card */}
+                            <TouchableOpacity
+                              style={styles.addCardToggleBtn}
+                              onPress={() => {
+                                setIsAddingNewCard(true);
+                                setCardError('');
+                              }}
+                              activeOpacity={0.8}
+                            >
+                              <Plus size={15} color="#7BEA12" />
+                              <Text style={styles.addCardToggleText}>+ Add another card</Text>
+                            </TouchableOpacity>
+                          </View>
+                        ) : (
+                          /* CASE B: First-time customer OR Older user adding another card */
+                          <View style={styles.newCardForm}>
+                            <View style={styles.newCardHeaderRow}>
+                              <Text style={styles.subSectionTitle}>
+                                {savedCards.length === 0 ? 'Enter Card Details (First-time Customer)' : 'Add Another Card'}
+                              </Text>
+                              {savedCards.length > 0 && (
+                                <TouchableOpacity onPress={() => setIsAddingNewCard(false)}>
+                                  <Text style={styles.cancelAddCardText}>Cancel</Text>
+                                </TouchableOpacity>
+                              )}
+                            </View>
+
+                            {cardError !== '' && <Text style={styles.formErrorText}>{cardError}</Text>}
+
+                            {/* Card Number */}
+                            <Text style={styles.inputMiniLabel}>Card Number</Text>
+                            <View style={styles.cardNumberInputRow}>
+                              <TextInput
+                                style={styles.cardNumberInput}
+                                placeholder="1234 5678 9012 3456"
+                                placeholderTextColor="#777"
+                                keyboardType="numeric"
+                                value={cardNumber}
+                                onChangeText={handleCardNumberChange}
+                                maxLength={19}
+                              />
+                              <View style={styles.cardBrandPill}>
+                                <Text style={styles.cardBrandPillText}>
+                                  {getCardBrand(cardNumber).toUpperCase()}
+                                </Text>
+                              </View>
+                            </View>
+
+                            {/* Cardholder Name */}
+                            <Text style={styles.inputMiniLabel}>Name on Card</Text>
+                            <TextInput
+                              style={styles.cardTextInput}
+                              placeholder="e.g. ADIL ALI ANSARI"
+                              placeholderTextColor="#777"
+                              value={cardHolder}
+                              onChangeText={setCardHolder}
+                              autoCapitalize="characters"
+                            />
+
+                            {/* Expiry and CVV Row */}
+                            <View style={styles.expiryCvvRow}>
+                              <View style={{ flex: 1, marginRight: 8 }}>
+                                <Text style={styles.inputMiniLabel}>Expiry Date</Text>
+                                <TextInput
+                                  style={styles.cardTextInput}
+                                  placeholder="MM/YY"
+                                  placeholderTextColor="#777"
+                                  keyboardType="numeric"
+                                  value={cardExpiry}
+                                  onChangeText={handleExpiryChange}
+                                  maxLength={5}
+                                />
+                              </View>
+                              <View style={{ flex: 1 }}>
+                                <Text style={styles.inputMiniLabel}>CVV / CVC</Text>
+                                <TextInput
+                                  style={styles.cardTextInput}
+                                  placeholder="123"
+                                  placeholderTextColor="#777"
+                                  keyboardType="numeric"
+                                  maxLength={4}
+                                  secureTextEntry
+                                  value={cardCvv}
+                                  onChangeText={handleCvvChange}
+                                />
+                              </View>
+                            </View>
+
+                            {/* Save Card Checkbox */}
+                            <TouchableOpacity
+                              style={styles.saveCardCheckboxRow}
+                              onPress={() => setSaveCardForFuture(!saveCardForFuture)}
+                              activeOpacity={0.8}
+                            >
+                              <View style={[styles.checkboxSquare, saveCardForFuture && styles.checkboxSquareActive]}>
+                                {saveCardForFuture && <CheckCircle2 size={13} color="#0F1111" />}
+                              </View>
+                              <Text style={styles.saveCardCheckboxText}>
+                                Save this card securely for future fast payments
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
+                        )}
+                      </View>
+                    )}
+                  </View>
+                )}
 
                 {/* Cash on Delivery */}
                 <TouchableOpacity
@@ -1231,6 +1650,350 @@ const styles = StyleSheet.create({
     color: '#0F1111',
     fontSize: 14,
     fontWeight: '800',
+  },
+
+  // Razorpay Sub-containers & Tabs
+  razorpaySubContainer: {
+    backgroundColor: '#14181B',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 153, 0, 0.3)',
+    padding: 12,
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  subToggleWrap: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderRadius: 10,
+    padding: 3,
+    marginBottom: 14,
+  },
+  subToggleBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 9,
+    borderRadius: 8,
+    gap: 6,
+  },
+  subToggleBtnActive: {
+    backgroundColor: '#FF9900',
+  },
+  subToggleText: {
+    color: 'rgba(255, 255, 255, 0.75)',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  subToggleTextActive: {
+    color: '#0F1111',
+    fontWeight: '800',
+  },
+  subSectionTitle: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  inputMiniLabel: {
+    color: 'rgba(255, 255, 255, 0.65)',
+    fontSize: 11,
+    fontWeight: '600',
+    marginBottom: 5,
+    marginTop: 8,
+  },
+
+  // UPI Selection Grid & Icons
+  upiMethodWrap: {
+    marginTop: 2,
+  },
+  upiGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  upiTile: {
+    width: '48%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 10,
+    padding: 10,
+    gap: 8,
+  },
+  upiTileActive: {
+    borderColor: '#FF9900',
+    backgroundColor: 'rgba(255, 153, 0, 0.12)',
+  },
+  upiTileTitle: {
+    flex: 1,
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  smallRadio: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  smallRadioActive: {
+    borderColor: '#FF9900',
+    backgroundColor: '#FF9900',
+  },
+  upiIconPhonePe: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#5F259F',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  upiIconText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  upiIconGPay: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#1A73E8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  upiIconTextG: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '900',
+  },
+  upiIconPaytm: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#00BAF2',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  upiIconTextPaytm: {
+    color: '#FFFFFF',
+    fontSize: 8,
+    fontWeight: '900',
+  },
+  upiIconOther: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#333333',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  upiIconTextOther: {
+    color: '#7BEA12',
+    fontSize: 13,
+    fontWeight: '900',
+  },
+  customUpiBox: {
+    marginTop: 10,
+  },
+  customUpiRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  customUpiInput: {
+    flex: 1,
+    backgroundColor: '#0C0F11',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    color: '#FFFFFF',
+    fontSize: 13,
+  },
+  upiHintText: {
+    color: 'rgba(255, 255, 255, 0.45)',
+    fontSize: 10,
+    marginTop: 4,
+  },
+
+  // Saved Cards & Chooser
+  cardMethodWrap: {
+    marginTop: 2,
+  },
+  savedCardsHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  savedCardCountText: {
+    color: '#7BEA12',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  savedCardItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 8,
+    gap: 10,
+  },
+  savedCardItemSelected: {
+    borderColor: '#FF9900',
+    backgroundColor: 'rgba(255, 153, 0, 0.1)',
+  },
+  cardTypeBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  cardTypeBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontWeight: '800',
+  },
+  savedCardNumberText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  savedCardMetaText: {
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontSize: 11,
+    marginTop: 1,
+  },
+  cvvEntryWrap: {
+    alignItems: 'center',
+    width: 52,
+  },
+  cvvLabel: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 9,
+    fontWeight: '700',
+  },
+  cvvInput: {
+    backgroundColor: '#0C0F11',
+    borderWidth: 1,
+    borderColor: '#FF9900',
+    borderRadius: 6,
+    width: 48,
+    height: 28,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontSize: 12,
+    fontWeight: '700',
+    marginTop: 2,
+  },
+  addCardToggleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 8,
+    backgroundColor: 'rgba(123, 234, 18, 0.08)',
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: 'rgba(123, 234, 18, 0.35)',
+    marginTop: 4,
+    gap: 6,
+  },
+  addCardToggleText: {
+    color: '#7BEA12',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+
+  // New Card Form
+  newCardForm: {
+    marginTop: 2,
+  },
+  newCardHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  cancelAddCardText: {
+    color: '#FF6B6B',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  cardNumberInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  cardNumberInput: {
+    flex: 1,
+    backgroundColor: '#0C0F11',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    color: '#FFFFFF',
+    fontSize: 13,
+  },
+  cardBrandPill: {
+    position: 'absolute',
+    right: 8,
+    backgroundColor: '#FF9900',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  cardBrandPillText: {
+    color: '#0F1111',
+    fontSize: 9,
+    fontWeight: '900',
+  },
+  cardTextInput: {
+    backgroundColor: '#0C0F11',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    color: '#FFFFFF',
+    fontSize: 13,
+  },
+  expiryCvvRow: {
+    flexDirection: 'row',
+    marginTop: 2,
+  },
+  saveCardCheckboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    gap: 8,
+  },
+  checkboxSquare: {
+    width: 18,
+    height: 18,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxSquareActive: {
+    backgroundColor: '#7BEA12',
+    borderColor: '#7BEA12',
+  },
+  saveCardCheckboxText: {
+    color: 'rgba(255, 255, 255, 0.75)',
+    fontSize: 11,
+    flex: 1,
   },
 });
 
