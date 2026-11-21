@@ -1,6 +1,6 @@
 # Abase — Universal AI-Powered Multi-Platform Ecosystem
 
-Abase is a modern, modular ecosystem combining a high-performance **React Native / Expo Mobile App**, an **Express.js Backend**, a custom **PyTorch LLM Server & AI Pipeline**, and structured **GSD (Get Shit Done)** agent workflows.
+Abase is a modern, modular ecosystem combining a high-performance **React Native / Expo Mobile Application**, a scalable **Express.js Backend**, a custom **PyTorch LLM Server & AI Pipeline**, and structured **GSD (Get Shit Done)** engineering workflows.
 
 ---
 
@@ -8,19 +8,24 @@ Abase is a modern, modular ecosystem combining a high-performance **React Native
 
 ```
 abase/
-├── mobile/                   # React Native & Expo Mobile Application
+├── mobile/                   # React Native & Expo Mobile Application (iOS, Android, Web)
 │   ├── src/
-│   │   ├── components/       # UI Components (Header, PDFCard, VideoCard, MXPlayerModal, PDFViewerModal, etc.)
-│   │   ├── screens/          # App Screens (Home, PDFLibrary, Video, AIChat, Account, History, etc.)
+│   │   ├── components/       # Reusable UI (Header, BookCard, PDFCard, VideoCard, AmazonBuyNowModal, MXPlayerModal, etc.)
+│   │   ├── screens/          # App Screens (Home, PDFLibrary, Video, Cart, Distributor, AiChat, Account, etc.)
 │   │   ├── navigation/       # React Navigation (RootStack, TabNavigator)
-│   │   ├── data/             # Static & Mock datasets (PDFs, Videos, Products)
-│   │   ├── theme/            # Design system, colors, glassmorphism tokens
-│   │   └── utils/            # Utilities (PDF viewing, caching, formatting)
+│   │   ├── context/          # Context Providers (AuthContext, CartContext)
+│   │   ├── services/         # API clients (api.ts, clerkService.ts)
+│   │   ├── i18n/             # Multilingual localization (English, Hindi, Kannada)
+│   │   ├── theme/            # Monochrome white design system, tokens, layout constants
+│   │   └── utils/            # Utilities (pdfViewerUtils, formatters)
 │   └── package.json
 │
-├── backend/                  # Core REST API Services (Express.js + SQLite)
-│   ├── src/                  # Controllers, models, routes, middleware
-│   ├── Dockerfile            # Container configuration
+├── backend/                  # Core REST API Services (Express.js 5 + MongoDB / Mongoose)
+│   ├── src/
+│   │   ├── models/           # Mongoose schemas (User, PDF, Order, Notification)
+│   │   ├── routes/           # REST endpoints (auth, pdfs, orders, razorpay, notifications)
+│   │   ├── lib/              # Cloudinary, database, and payment configurations
+│   │   └── index.js          # API server entrypoint
 │   └── package.json
 │
 ├── LLM backend/              # Custom Deep Learning & LLM Inference Service
@@ -29,33 +34,57 @@ abase/
 │       ├── model.py          # PyTorch Transformer architecture
 │       ├── server.py         # FastAPI/HTTP inference server
 │       ├── train.py          # Distributed training pipeline
-│       ├── tokenize_data.py  # Data preprocessing & BPE tokenization
 │       └── config_2b.json    # 2-billion parameter model configuration
 │
-├── adapters/                 # AI Assistant Adapter Configurations (Gemini, Claude, GPT)
-├── deployment/               # Build, deployment, environments, and rollback specs
-└── .gsd/ / .agents/          # GSD Autonomous Agent workflows & skills
+├── DESIGN_SYSTEM.md          # Specification for Aurora Monochrome design system & button contrast
+├── CHECKOUT_PAYMENTS.md      # Amazon 1-Click Buy Now, Cart, & Razorpay payment flow docs
+├── AUTH_CLERK.md             # Clerk authentication, Google OAuth, & user profile docs
+├── PDF_LIBRARY_NOTIFICATIONS.md # VTU PDF library uploads & real-time notification specs
+├── PROJECT_RULES.md          # GSD development protocols and verification standards
+└── deployment/               # Build, deployment, environment, and rollback specs
 ```
 
 ---
 
-## 📱 Mobile App Features (`mobile/`)
+## 📱 Mobile App Key Features (`mobile/`)
 
-- **Modern Glassmorphism UI**: Native-feeling dark mode design system with cyan/teal accent gradients.
-- **Interactive Header & Side Drawer**: Complete drawer navigation supporting:
-  - **Statistics**: Interactive metrics and charts.
-  - **My Cards**: Payment card management and balance tracker.
-  - **Purchase History**: Order tracking and receipt viewing.
-  - **Messages & Inbox**: Real-time message list and notification center.
-  - **Account & Security**: Account details, language localization selector, password reset, and email verification.
-- **PDF Library & Reader**:
-  - Grid & List view with category filtering, search, and sorting.
-  - In-app PDF reader modal featuring **current page tracking**, **fullscreen mode**, **page jumping**, and **bookmarking**.
-  - Fallback integration to open documents directly in device browser/external viewer.
-- **Video Library & MX Player**:
-  - Custom video player modal with **gesture-based brightness & volume controls**.
-  - Playback speed selection (0.5x – 2.0x), quality selector, aspect ratio toggle, double-tap seek (10s), and lock screen mode.
-- **Integrated AI Assistant Chat**: Real-time AI chat interface with streaming responses and rich formatting.
+### 1. Aurora Monochrome Design System
+- **Unified Deep Midnight Canvas (`#06080C`)**: Consistent background across both Web and native Mobile (iOS/Android).
+- **Soft Ambient Light Transforms**: Subtle monochrome white radial aurora glows drifting behind content (`components/ui/aurora.tsx` and `components/DarkGradientBg.tsx`).
+- **Strict Inverted Button Contrast**:
+  - **White Buttons** (`#FFFFFF`): Always use deep black text and icons (`#000000`).
+  - **Dark / Charcoal Buttons**: Always use pure white text and icons (`#FFFFFF`).
+- **Retro Starry Chat Exception**: The AI Chatbot screen ([AiChat.tsx](file:///c:/Users/adilaliansari/OneDrive/Desktop/abase/mobile/src/screens/AiChat.tsx)) preserves its iconic retro pixel starry canvas.
+
+### 2. Clerk Authentication & Google OAuth
+- **Google Sign-In**: 1-click Google OAuth authentication via Clerk with real user avatar photo fetching and display in the Header.
+- **Account Quick-Switching**: Auto-saves previously signed-in accounts for instant switching.
+- **2FA & Password Management**: End-to-end encrypted password updates and two-factor verification toggles.
+
+### 3. Amazon 1-Click Buy Now & Cart Checkout
+- **Amazon 1-Click Modal**: Bottom-sheet purchase flow with delivery address picker, Prime free delivery badge, and payment method selection.
+- **Payment Methods & Card Choosing**:
+  - Integrated with **Razorpay UPI & Cards** and **Cash on Delivery (COD)**.
+  - Smart Card Flow: First-time customers are shown the card entry form; returning customers with saved cards skip card entry and select their saved card directly.
+- **Cart Screen**: Dynamic subtotal calculation, quantity stepper, promo code vouchers, and multi-item checkout.
+
+### 4. VTU Engineering PDF Library
+- Complete repository for VTU schemes (2022 / 2018), syllabus, solved model question papers, and lecture notes.
+- **In-App PDF Viewer Modal**: Current page tracking, page jumping, bookmarking, and fullscreen toggle.
+- **Google Drive Integration**: Direct Drive preview support with fallback to device in-app browser.
+
+### 5. Video Lecture Streaming & MX Player
+- Custom MX Player video modal with vertical touch gesture sliders for brightness (left) and volume (right).
+- Variable playback speeds (0.5x – 2.0x), 10s double-tap skip seek, resolution selection (1080p to 360p), orientation toggle, and UI screen lock.
+
+### 6. Interactive Header & Drawer Navigation
+- Dynamic search bar with live filtering.
+- Side drawer navigation for:
+  - **Statistics**: Student performance metrics, study time tracking, and analytics.
+  - **My Cards**: Digital wallet and saved payment method management.
+  - **Order History**: Real-time order status tracking with re-download capabilities.
+  - **Faculty Inbox & Notifications**: Direct messaging with college professors and VTU academic circulars.
+  - **Language Localization**: Switch between English, Hindi, and Kannada on the fly.
 
 ---
 
@@ -63,7 +92,7 @@ abase/
 
 - **PyTorch 2B Parameter Model**: Custom causal transformer built with multi-head attention, rotary position embeddings (RoPE), RMSNorm, and SwiGLU activations.
 - **Inference Server (`server.py`)**: High-throughput text generation API supporting temperature, top-k, and top-p nucleus sampling.
-- **Express Bridge (`aiRoutes.js`)**: Seamlessly connects the mobile client to the LLM backend with support for streaming conversations and query routing.
+- **Express Bridge (`aiRoutes.js`)**: Connects the mobile client to the LLM backend with support for streaming conversations and query routing.
 
 ---
 
@@ -73,6 +102,7 @@ abase/
 - **Node.js**: v18+
 - **Python**: v3.10+ with PyTorch & CUDA support (for LLM backend)
 - **Expo Go** or **Android/iOS Simulator**
+- **MongoDB**: Local or MongoDB Atlas instance
 
 ### 2. Running the Mobile App
 ```bash
@@ -80,14 +110,18 @@ cd mobile
 npm install
 npx expo start
 ```
-Scan the QR code with the **Expo Go** app (Android/iOS) or press `a` for Android Emulator / `i` for iOS Simulator.
+- Press `a` for **Android Emulator**.
+- Press `i` for **iOS Simulator**.
+- Press `w` for **Web**.
+- Scan the terminal QR code using **Expo Go** on your physical device.
 
-### 3. Running the Backend Service
+### 3. Running the Backend API
 ```bash
 cd backend
 npm install
 npm run dev
 ```
+The server will start on `http://localhost:5000`.
 
 ### 4. Running the LLM Server
 ```bash
@@ -98,11 +132,10 @@ python server.py
 
 ---
 
-## 🛠️ Development & Workflows
+## 📚 Documentation Index
 
-This repository follows the **GSD (Get Shit Done)** development methodology:
-- Run `/map` to synchronize codebase architecture documentation.
-- Run `/plan` before starting new feature phases.
-- Run `/verify` to perform empirical validation before releases.
-
-See [PROJECT_RULES.md](file:///c:/Users/adilaliansari/OneDrive/Desktop/abase/PROJECT_RULES.md) for full engineering guidelines.
+- [DESIGN_SYSTEM.md](file:///c:/Users/adilaliansari/OneDrive/Desktop/abase/DESIGN_SYSTEM.md) — Aurora Monochrome theme tokens, color palette, and button contrast rules.
+- [CHECKOUT_PAYMENTS.md](file:///c:/Users/adilaliansari/OneDrive/Desktop/abase/CHECKOUT_PAYMENTS.md) — 1-Click Buy Now modal, Razorpay, card choosing, and cart architecture.
+- [AUTH_CLERK.md](file:///c:/Users/adilaliansari/OneDrive/Desktop/abase/AUTH_CLERK.md) — Clerk authentication, Google sign-in, and avatar profile handling.
+- [PDF_LIBRARY_NOTIFICATIONS.md](file:///c:/Users/adilaliansari/OneDrive/Desktop/abase/PDF_LIBRARY_NOTIFICATIONS.md) — PDF uploads, Cloudinary pipeline, and notification dispatching.
+- [PROJECT_RULES.md](file:///c:/Users/adilaliansari/OneDrive/Desktop/abase/PROJECT_RULES.md) — GSD engineering protocol and verification requirements.
