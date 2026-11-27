@@ -601,16 +601,12 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
             left: -50%;
             width: 200%;
             height: 200%;
-            background-image: radial-gradient(at 49% 30%, hsla(240, 15%, 9%, 1) 0px, transparent 85%),
-                              radial-gradient(at 14% 26%, hsla(240, 15%, 9%, 1) 0px, transparent 85%),
-                              radial-gradient(at 0% 64%, hsl(189, 99%, 26%) 0px, transparent 85%),
-                              radial-gradient(at 41% 94%, hsl(189, 97%, 36%) 0px, transparent 85%),
-                              radial-gradient(at 100% 99%, hsl(188, 94%, 13%) 0px, transparent 85%);
+            background: conic-gradient(from 0deg, #FFFFFF, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.75), #FFFFFF);
             animation: rotate-border 6s linear infinite;
             z-index: 1;
           }
           .search-box-wrap:focus-within {
-            box-shadow: 0 0 25px rgba(255, 48, 255, 0.75), 0 0 45px rgba(0, 183, 255, 0.5);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.75), 0 0 45px rgba(255, 255, 255, 0.4);
           }
           .search-box {
             position: relative;
@@ -1181,13 +1177,14 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
       {/* Search Input Bar */}
       <View style={styles.nativeSearchContainer}>
         <View style={styles.nativeSearchBoxWrapper}>
-          {/* Rotating gradient background */}
+          {/* Rotating white gradient background */}
           <Animated.View style={[styles.nativeRotatingGradient, { transform: [{ rotate: spin }] }]}>
             <Svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
               <Defs>
                 <SvgLinearGradient id="searchNeonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <Stop offset="0%" stopColor="rgb(0, 183, 255)" stopOpacity="1" />
-                  <Stop offset="100%" stopColor="rgb(0, 72, 102)" stopOpacity="1" />
+                  <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
+                  <Stop offset="50%" stopColor="rgba(255, 255, 255, 0.45)" stopOpacity="0.45" />
+                  <Stop offset="100%" stopColor="rgba(255, 255, 255, 0.1)" stopOpacity="0.1" />
                 </SvgLinearGradient>
               </Defs>
               <Rect x="0" y="0" width="100" height="100" fill="url(#searchNeonGrad)" />

@@ -1,98 +1,66 @@
 import React from "react";
 import { View, StyleSheet, Platform } from "react-native";
-import VelvetHaze, { HazeParams, HAZE_PRESETS } from "./ui/velvet-haze";
+import Aurora, { AuroraProps } from "./ui/aurora";
 
 export interface DarkGradientBgProps {
   children?: React.ReactNode;
   style?: any;
   className?: string;
-  preset?: keyof typeof HAZE_PRESETS;
-  params?: Partial<HazeParams>;
-  interactive?: boolean;
+  colors?: [string, string, string];
+  duration?: number;
+  intensity?: number;
 }
 
 export const DarkGradientBg: React.FC<DarkGradientBgProps> = ({
   children,
   style,
   className = "",
-  preset = "velvet",
-  params,
-  interactive = true,
+  colors = ["#38bdf8", "#a78bfa", "#f472b6"],
+  duration = 20,
+  intensity = 0.45,
 }) => {
   if (Platform.OS === "web") {
     return (
-      <div
-        className={`relative min-h-screen w-full overflow-hidden ${className}`}
+      <Aurora
+        colors={colors}
+        duration={duration}
+        intensity={intensity}
         style={{
-          position: "relative",
-          width: "100%",
           minHeight: "100vh",
-          backgroundColor: "#111112",
-          overflow: "hidden",
+          width: "100%",
+          backgroundColor: "#07090E",
+          display: "flex",
+          flexDirection: "column",
         }}
+        className={className}
       >
-        {/* Velvet Haze Raw WebGL2 Canvas Pass */}
         <div
           style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: 0,
-            pointerEvents: "auto",
-          }}
-        >
-          <VelvetHaze
-            height="100%"
-            preset={preset}
-            params={params}
-            interactive={interactive}
-          />
-        </div>
-
-        {/* Content Layer */}
-        <div
-          className="relative z-10"
-          style={{
-            position: "relative",
-            zIndex: 10,
-            width: "100%",
             minHeight: "100vh",
+            width: "100%",
             display: "flex",
             flexDirection: "column",
-            flex: 1,
-            pointerEvents: "auto",
+            position: "relative",
+            zIndex: 5,
           }}
         >
           {children}
         </div>
-      </div>
+      </Aurora>
     );
   }
 
   // Native (iOS/Android)
   return (
-    <View style={[styles.nativeContainer, style]}>
-      <VelvetHaze preset={preset} params={params} interactive={interactive}>
-        <View style={styles.contentLayer}>{children}</View>
-      </VelvetHaze>
-    </View>
+    <Aurora colors={colors} duration={duration} intensity={intensity} style={style}>
+      <View style={styles.nativeContent}>{children}</View>
+    </Aurora>
   );
 };
 
 const styles = StyleSheet.create({
-  nativeContainer: {
+  nativeContent: {
     flex: 1,
-    backgroundColor: "#111112",
-    position: "relative",
-    overflow: "hidden",
-  },
-  contentLayer: {
-    flex: 1,
-    zIndex: 10,
     backgroundColor: "transparent",
   },
 });
