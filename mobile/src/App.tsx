@@ -9,6 +9,8 @@ import AppNavigator from './navigation/AppNavigator';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { LanguageProvider } from './i18n/LanguageContext';
+import { AccessibilityProvider } from './context/AccessibilityContext';
+import { AccessibilityFloatingBar } from './components/AccessibilityFloatingBar';
 
 const TransparentTheme = {
   ...DefaultTheme,
@@ -24,10 +26,13 @@ export default function App() {
       <LanguageProvider>
         <AuthProvider>
           <CartProvider>
-            <NavigationContainer theme={TransparentTheme}>
-              <StatusBar style="light" />
-              <AppNavigator />
-            </NavigationContainer>
+            <AccessibilityProvider>
+              <NavigationContainer theme={TransparentTheme}>
+                <StatusBar style="light" />
+                <AppNavigator />
+                <AccessibilityFloatingBar />
+              </NavigationContainer>
+            </AccessibilityProvider>
           </CartProvider>
         </AuthProvider>
       </LanguageProvider>

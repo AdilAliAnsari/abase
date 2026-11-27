@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView, Platform, Modal, Animated, Image } from 'react-native';
-import { Menu, X, Home, PieChart, CreditCard, Clock, Mail, Bell, User, Globe, Key, ChevronLeft, ChevronRight, Search, ShoppingCart, ShieldCheck, Database, Tag } from 'lucide-react-native';
+import { Menu, X, Home, PieChart, CreditCard, Clock, Mail, Bell, User, Globe, Key, ChevronLeft, ChevronRight, Search, ShoppingCart, ShieldCheck, Database, Tag, Volume2 } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import { useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../i18n/LanguageContext';
+import { useAccessibility } from '../context/AccessibilityContext';
 
 interface HeaderProps {
   searchQuery?: string;
@@ -21,6 +22,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
   const [isFocused, setIsFocused] = useState(false);
   const navigation = useNavigation<any>();
   const { totalCount } = useCart();
+  const { isBlindModeEnabled, toggleBlindMode } = useAccessibility();
 
   const getInitials = () => {
     if (user?.name) {
@@ -467,6 +469,37 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 <path d="M16 8.5H19V5.5" />
               </svg>
               <span>{t.changePassword || 'Change Password'}</span>
+            </button>
+          </div>
+
+          {/* Accessibility & Voice Assistance Section */}
+          <div className="menu-section-header">Accessibility & Voice Assist</div>
+          <div className="list-items">
+            <button
+              className="list-item"
+              onClick={() => { toggleBlindMode(); }}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <svg className="list-icon" viewBox="0 0 24 24" style={{ fill: 'none', stroke: isBlindModeEnabled ? '#FFFFFF' : 'rgba(255, 255, 255, 0.5)', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', width: 20, height: 20 }}>
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                </svg>
+                <span>Text-to-Speech (Blind Mode)</span>
+              </div>
+              <span
+                style={{
+                  padding: '2px 8px',
+                  borderRadius: 10,
+                  fontSize: 11,
+                  fontWeight: 800,
+                  backgroundColor: isBlindModeEnabled ? '#FFFFFF' : 'rgba(255, 255, 255, 0.1)',
+                  color: isBlindModeEnabled ? '#000000' : '#8D8D94',
+                }}
+              >
+                {isBlindModeEnabled ? 'ON' : 'OFF'}
+              </span>
             </button>
           </div>
         </aside>
@@ -1486,6 +1519,43 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
               >
                 <Key size={20} color="rgba(255, 255, 255, 0.5)" style={styles.nativeListIcon} />
                 <Text style={styles.nativeListItemText}>{t.changePassword || 'Change Password'}</Text>
+              </TouchableOpacity>
+
+              {/* Accessibility & Voice Assistance Section */}
+              <Text style={styles.nativeSectionHeader}>Accessibility & Voice Assist</Text>
+              <TouchableOpacity
+                style={[styles.nativeListItem, { justifyContent: 'space-between' }]}
+                activeOpacity={0.8}
+                onPress={() => {
+                  toggleBlindMode();
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 }}>
+                  <Volume2
+                    size={20}
+                    color={isBlindModeEnabled ? '#FFFFFF' : 'rgba(255, 255, 255, 0.5)'}
+                    style={styles.nativeListIcon}
+                  />
+                  <Text style={styles.nativeListItemText}>Text-to-Speech (Blind Mode)</Text>
+                </View>
+                <View
+                  style={{
+                    backgroundColor: isBlindModeEnabled ? '#FFFFFF' : 'rgba(255, 255, 255, 0.1)',
+                    paddingHorizontal: 8,
+                    paddingVertical: 3,
+                    borderRadius: 10,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: isBlindModeEnabled ? '#000000' : '#8D8D94',
+                      fontSize: 11,
+                      fontWeight: '800',
+                    }}
+                  >
+                    {isBlindModeEnabled ? 'ON' : 'OFF'}
+                  </Text>
+                </View>
               </TouchableOpacity>
               <View style={{ height: 40 }} />
             </ScrollView>

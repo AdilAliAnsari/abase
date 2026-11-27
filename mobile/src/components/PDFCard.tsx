@@ -21,6 +21,7 @@ import {
 } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import { PDFItem } from '../data/pdfs';
+import { useAccessibility } from '../context/AccessibilityContext';
 
 interface PDFCardProps {
   pdf: PDFItem;
@@ -36,7 +37,11 @@ export const PDFCard: React.FC<PDFCardProps> = ({
   onView,
   onDownload,
 }) => {
+  const { handleAccessiblePress, selectedItemId } = useAccessibility();
   const [downloading, setDownloading] = useState(false);
+  const isSelected = selectedItemId === pdf.id;
+
+  const reciteText = `PDF Study Document: ${pdf.title}. Course code: ${pdf.subjectCode}, Scheme: ${pdf.scheme}, Branch: ${pdf.branch}, Semester: ${pdf.semester}. Author: ${pdf.author || pdf.lecturer?.name}. File size: ${pdf.fileSize}, Page count: ${pdf.pageCount} pages. Rating: ${pdf.rating} stars. ${pdf.description || ''}`;
 
   const handleDownloadPress = async () => {
     setDownloading(true);
@@ -48,7 +53,11 @@ export const PDFCard: React.FC<PDFCardProps> = ({
 
   if (isGrid) {
     return (
-      <View style={styles.gridCard}>
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={() => handleAccessiblePress(pdf.id, reciteText, () => onView(pdf))}
+        style={[styles.gridCard, isSelected && styles.cardSelected]}
+      >
         {/* Cover & Badges */}
         <View style={styles.gridCoverWrap}>
           <Image
@@ -124,16 +133,16 @@ export const PDFCard: React.FC<PDFCardProps> = ({
           <View style={styles.gridActions}>
             <TouchableOpacity
               style={styles.viewBtn}
-              onPress={() => onView(pdf)}
+              onPress={() => handleAccessiblePress(pdf.id, reciteText, () => onView(pdf))}
               activeOpacity={0.8}
             >
               <Eye size={13} color="#000000" />
-              <Text style={styles.viewBtnText}>View Drive</Text>
+              <Text style={styles.viewBtnText}>View PDF</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[styles.downloadBtn, downloading && styles.downloadBtnActive]}
-              onPress={handleDownloadPress}
+              onPress={() => handleAccessiblePress(`download-${pdf.id}`, `Download ${pdf.title} button`, handleDownloadPress)}
               activeOpacity={0.8}
             >
               {downloading ? (
@@ -144,13 +153,17 @@ export const PDFCard: React.FC<PDFCardProps> = ({
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   }
 
   // Horizontal List Layout
   return (
-    <View style={styles.listCard}>
+    <TouchableOpacity
+      activeOpacity={0.9}
+      onPress={() => handleAccessiblePress(pdf.id, reciteText, () => onView(pdf))}
+      style={[styles.listCard, isSelected && styles.cardSelected]}
+    >
       {/* Cover Image with Scheme & Branch tags */}
       <View style={styles.listCoverWrap}>
         <Image
@@ -237,16 +250,16 @@ export const PDFCard: React.FC<PDFCardProps> = ({
           <View style={styles.actionBtnGroup}>
             <TouchableOpacity
               style={styles.viewBtnList}
-              onPress={() => onView(pdf)}
+              onPress={() => handleAccessiblePress(pdf.id, reciteText, () => onView(pdf))}
               activeOpacity={0.8}
             >
               <Eye size={14} color="#000000" />
-              <Text style={styles.viewBtnListText}>View in Drive</Text>
+              <Text style={styles.viewBtnListText}>View PDF</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[styles.downloadBtnList, downloading && styles.downloadBtnActive]}
-              onPress={handleDownloadPress}
+              onPress={() => handleAccessiblePress(`download-${pdf.id}`, `Download ${pdf.title} button`, handleDownloadPress)}
               activeOpacity={0.8}
             >
               {downloading ? (
@@ -266,11 +279,19 @@ export const PDFCard: React.FC<PDFCardProps> = ({
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
+  cardSelected: {
+    borderColor: '#FFFFFF',
+    borderWidth: 2,
+    shadowColor: '#FFFFFF',
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 6,
+  },
   // Grid Styles
   gridCard: {
     width: '48%',

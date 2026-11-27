@@ -24,6 +24,7 @@ import DarkGradientBg from '../components/DarkGradientBg';
 import { useCart } from '../context/CartContext';
 import { useTranslation } from '../i18n/LanguageContext';
 import AmazonBuyNowModal from '../components/AmazonBuyNowModal';
+import { useAccessibility } from '../context/AccessibilityContext';
 
 interface ProductDetailScreenProps {
   route: any;
@@ -33,6 +34,7 @@ interface ProductDetailScreenProps {
 const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, navigation }) => {
   const { addToCart, totalCount } = useCart();
   const { t } = useTranslation();
+  const { isBlindModeEnabled, speak } = useAccessibility();
   const initialBook = (route.params?.book || {}) as Book;
   const bookId = initialBook?.id || route.params?.id || route.params?.bookId;
   const [book, setBook] = useState<Book>(initialBook);
@@ -44,6 +46,12 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
       });
     }
   }, [bookId]);
+
+  useEffect(() => {
+    if (isBlindModeEnabled && book?.title) {
+      speak(`Viewing product details for ${book.title}. Author: ${book.author}. Price: ₹${book.price}. Rating: ${book.rating} stars. Description: ${book.description || 'Verified VTU academic material'}. Double tap any action button to proceed.`);
+    }
+  }, [isBlindModeEnabled, book?.title]);
 
   const [quantity, setQuantity] = useState(1);
   const [liked, setLiked] = useState(false);

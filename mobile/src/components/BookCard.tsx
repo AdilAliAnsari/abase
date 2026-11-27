@@ -13,6 +13,7 @@ import { colors } from '../theme/colors';
 import { Book } from '../data/books';
 import { useCart } from '../context/CartContext';
 import { useTranslation } from '../i18n/LanguageContext';
+import { useAccessibility } from '../context/AccessibilityContext';
 
 const { width } = Dimensions.get('window');
 
@@ -25,10 +26,19 @@ interface BookCardProps {
 const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) => {
   const { addToCart, isItemInCart } = useCart();
   const { t } = useTranslation();
+  const { handleAccessiblePress, selectedItemId } = useAccessibility();
   const [isAdded, setIsAdded] = useState(false);
   const inCart = isItemInCart(book.id);
 
-  const handleAddToCart = async (e: any) => {
+  const hasDiscount = !!book.originalPrice && book.originalPrice > book.price;
+  const discountPercent = hasDiscount
+    ? Math.round(((book.originalPrice! - book.price) / book.originalPrice!) * 100)
+    : 0;
+
+  const isSelected = selectedItemId === book.id;
+  const reciteText = `Book title: ${book.title}. By author: ${book.author}. Price: ₹${book.price}${hasDiscount ? `, original price ₹${book.originalPrice}, discount ${discountPercent} percent off` : ''}. Rating: ${book.rating} stars with ${book.reviews} reviews. Category: ${book.category || 'General'}.${book.badge ? ` Badge: ${book.badge}.` : ''} Prime fast delivery available.`;
+
+  const handleAddToCart = async (e?: any) => {
     // Prevent propagating event to parent card (which triggers navigation)
     if (Platform.OS === 'web') {
       e?.stopPropagation?.();
@@ -61,11 +71,6 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
     );
   };
 
-  const hasDiscount = !!book.originalPrice && book.originalPrice > book.price;
-  const discountPercent = hasDiscount
-    ? Math.round(((book.originalPrice! - book.price) / book.originalPrice!) * 100)
-    : 0;
-
   if (Platform.OS === 'web') {
     const isList = layout === 'list';
     return (
@@ -74,9 +79,9 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
           href="#"
           onClick={(e) => {
             e.preventDefault();
-            onPress?.(book);
+            handleAccessiblePress(book.id, reciteText, () => onPress?.(book));
           }}
-          className={`amazon-card ${isList ? 'amazon-card-list' : 'amazon-card-grid'}`}
+          className={`amazon-card ${isList ? 'amazon-card-list' : 'amazon-card-grid'} ${isSelected ? 'selected-accessible' : ''}`}
         >
           {/* Cover Image Wrapper */}
           <div className="img-wrap">
@@ -136,7 +141,11 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
             {/* Add to Cart Button */}
             <button
               className={`cart-button ${isAdded || inCart ? 'added' : ''}`}
-              onClick={handleAddToCart}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                handleAccessiblePress(`cart-${book.id}`, `Add ${book.title} to cart button`, () => handleAddToCart(e));
+              }}
             >
               <ShoppingCart size={14} style={{ marginRight: 6 }} />
               {isAdded ? (t.added || '✓ Added') : inCart ? (t.inCart || '✓ In Cart') : (t.addToCart || 'Add to Cart')}
@@ -395,11 +404,12 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
   return (
     <TouchableOpacity
       activeOpacity={0.9}
-      onPress={() => onPress?.(book)}
+      onPress={() => handleAccessiblePress(book.id, reciteText, () => onPress?.(book))}
       style={[
         styles.nativeCard,
         isList ? styles.nativeCardList : styles.nativeCardGrid,
         { width: cardWidth },
+        isSelected && styles.nativeCardSelected,
       ]}
     >
       {/* Image Panel */}
@@ -455,7 +465,9 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
         <TouchableOpacity
           activeOpacity={0.8}
           style={[styles.nativeCartBtn, (isAdded || inCart) && styles.nativeCartBtnAdded]}
-          onPress={handleAddToCart}
+          onPress={(e) => {
+            handleAccessiblePress(`cart-${book.id}`, `Add ${book.title} to cart button`, () => handleAddToCart(e));
+          }}
         >
           <Text style={[styles.nativeCartBtnText, (isAdded || inCart) && styles.nativeCartBtnTextAdded]}>
             {isAdded ? (t.added || '✓ Added') : inCart ? (t.inCart || '✓ In Cart') : (t.addToCart || 'Add to Cart')}
@@ -467,6 +479,14 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
 };
 
 const styles = StyleSheet.create({
+  nativeCardSelected: {
+    borderColor: '#FFFFFF',
+    borderWidth: 2,
+    shadowColor: '#FFFFFF',
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 6,
+  },
   nativeCard: {
     backgroundColor: 'transparent',
     marginBottom: 12,

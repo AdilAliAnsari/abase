@@ -41,6 +41,7 @@ import {
 import { VideoCard } from '../components/VideoCard';
 import { MXPlayerModal } from '../components/MXPlayerModal';
 import { downloadPdfFile } from '../utils/pdfViewerUtils';
+import { useAccessibility } from '../context/AccessibilityContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -49,6 +50,7 @@ interface VideoScreenProps {
 }
 
 export const VideoScreen: React.FC<VideoScreenProps> = ({ navigation }) => {
+  const { isBlindModeEnabled, speak } = useAccessibility();
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -331,6 +333,9 @@ export const VideoScreen: React.FC<VideoScreenProps> = ({ navigation }) => {
 
   // Handlers
   const handlePlayVideo = (video: VideoItem) => {
+    if (isBlindModeEnabled) {
+      speak(`Now playing video lecture: ${video.title}. By ${video.instructor.name}. Duration: ${video.duration}.`);
+    }
     setSelectedVideoForPlayer(video);
     setIsPlayerOpen(true);
   };

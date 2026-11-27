@@ -31,6 +31,7 @@ import {
 } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import { PDFItem } from '../data/pdfs';
+import { useAccessibility } from '../context/AccessibilityContext';
 import {
   getPdfDirectUrl,
   openWithSystemPdfChooser,
@@ -56,11 +57,18 @@ export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
   onClose,
   onDownloadFeedback,
 }) => {
+  const { isBlindModeEnabled, speak } = useAccessibility();
   const [isOpeningApp, setIsOpeningApp] = useState(false);
   const [openingAppName, setOpeningAppName] = useState('');
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [activeAppId, setActiveAppId] = useState<string>('system');
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (visible && pdf && isBlindModeEnabled) {
+      speak(`Opened PDF reader for ${pdf.title}. Double tap Open with Device PDF Reader or download to view offline.`);
+    }
+  }, [visible, pdf?.id, isBlindModeEnabled]);
 
   if (!pdf) return null;
 

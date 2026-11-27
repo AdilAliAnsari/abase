@@ -21,6 +21,7 @@ import {
 } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import { VideoItem } from '../data/videos';
+import { useAccessibility } from '../context/AccessibilityContext';
 
 interface VideoCardProps {
   video: VideoItem;
@@ -35,7 +36,11 @@ export const VideoCard: React.FC<VideoCardProps> = ({
   onPlay,
   onDownload,
 }) => {
+  const { handleAccessiblePress, selectedItemId } = useAccessibility();
   const [downloading, setDownloading] = useState(false);
+  const isSelected = selectedItemId === video.id;
+
+  const reciteText = `Video Lecture: ${video.title}. Course code: ${video.subjectCode}, Scheme: ${video.scheme}, Branch: ${video.branch}, Semester: ${video.semester}. Instructor: ${video.instructor.name}. Duration: ${video.duration}, Quality: ${video.quality}. File size: ${video.fileSize}. Rating: ${video.rating} stars. ${video.description || ''}`;
 
   const handleDownloadPress = async () => {
     setDownloading(true);
@@ -47,13 +52,13 @@ export const VideoCard: React.FC<VideoCardProps> = ({
 
   if (isGrid) {
     return (
-      <View style={styles.gridCard}>
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={() => handleAccessiblePress(video.id, reciteText, () => onPlay(video))}
+        style={[styles.gridCard, isSelected && styles.cardSelected]}
+      >
         {/* Thumbnail & Badges */}
-        <TouchableOpacity
-          style={styles.gridThumbnailWrap}
-          activeOpacity={0.85}
-          onPress={() => onPlay(video)}
-        >
+        <View style={styles.gridThumbnailWrap}>
           <Image
             source={{ uri: video.thumbnail }}
             style={styles.gridThumbnail}
@@ -82,7 +87,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
           <View style={styles.qualityPill}>
             <Text style={styles.qualityPillText}>{video.quality.split(' ')[0]}</Text>
           </View>
-        </TouchableOpacity>
+        </View>
 
         {/* Card Body */}
         <View style={styles.gridBody}>
@@ -126,7 +131,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
           <View style={styles.gridActions}>
             <TouchableOpacity
               style={styles.playBtn}
-              onPress={() => onPlay(video)}
+              onPress={() => handleAccessiblePress(video.id, reciteText, () => onPlay(video))}
               activeOpacity={0.8}
             >
               <Play size={13} color="#000000" />
@@ -135,7 +140,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
 
             <TouchableOpacity
               style={[styles.downloadBtn, downloading && styles.downloadBtnActive]}
-              onPress={handleDownloadPress}
+              onPress={() => handleAccessiblePress(`download-${video.id}`, `Download ${video.title} button`, handleDownloadPress)}
               activeOpacity={0.8}
             >
               {downloading ? (
@@ -146,18 +151,20 @@ export const VideoCard: React.FC<VideoCardProps> = ({
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   }
 
   // Horizontal List Layout
   return (
-    <View style={styles.listCard}>
+    <TouchableOpacity
+      activeOpacity={0.9}
+      onPress={() => handleAccessiblePress(video.id, reciteText, () => onPlay(video))}
+      style={[styles.listCard, isSelected && styles.cardSelected]}
+    >
       {/* Thumbnail with Play Icon & Badges */}
-      <TouchableOpacity
+      <View
         style={styles.listThumbnailWrap}
-        activeOpacity={0.85}
-        onPress={() => onPlay(video)}
       >
         <Image
           source={{ uri: video.thumbnail }}
@@ -176,7 +183,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
             <Play size={14} color="#000000" style={{ marginLeft: 2 }} />
           </View>
         </View>
-      </TouchableOpacity>
+      </View>
 
       {/* Info Body */}
       <View style={styles.listBody}>
@@ -236,7 +243,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
           <View style={styles.actionBtnGroup}>
             <TouchableOpacity
               style={styles.playBtnList}
-              onPress={() => onPlay(video)}
+              onPress={() => handleAccessiblePress(video.id, reciteText, () => onPlay(video))}
               activeOpacity={0.8}
             >
               <Play size={13} color="#000000" />
@@ -245,7 +252,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
 
             <TouchableOpacity
               style={[styles.downloadBtnList, downloading && styles.downloadBtnActive]}
-              onPress={handleDownloadPress}
+              onPress={() => handleAccessiblePress(`download-${video.id}`, `Download ${video.title} button`, handleDownloadPress)}
               activeOpacity={0.8}
             >
               {downloading ? (
@@ -265,11 +272,19 @@ export const VideoCard: React.FC<VideoCardProps> = ({
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
+  cardSelected: {
+    borderColor: '#FFFFFF',
+    borderWidth: 2,
+    shadowColor: '#FFFFFF',
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 6,
+  },
   // Grid Styles
   gridCard: {
     width: '48%',
