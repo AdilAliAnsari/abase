@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Platform,
   ActivityIndicator,
-  Share,
   Dimensions,
   ScrollView,
 } from 'react-native';
@@ -25,15 +24,21 @@ import {
   Calendar,
   Star,
   BookOpen,
+  Smartphone,
+  ChevronRight,
+  ShieldCheck,
+  Check,
 } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import { PDFItem } from '../data/pdfs';
 import {
-  getDriveViewerEmbedUrl,
-  openInDriveViewer,
+  getPdfDirectUrl,
+  openWithSystemPdfChooser,
+  openInSpecificPdfApp,
   downloadPdfFile,
   sharePdf,
-  isGoogleDriveUrl,
+  POPULAR_PDF_APPS,
+  PDFAppInfo,
 } from '../utils/pdfViewerUtils';
 
 interface PDFViewerModalProps {
@@ -43,7 +48,7 @@ interface PDFViewerModalProps {
   onDownloadFeedback?: (title: string) => void;
 }
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
   visible,
@@ -51,15 +56,44 @@ export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
   onClose,
   onDownloadFeedback,
 }) => {
-  const [iframeLoading, setIframeLoading] = useState(true);
+  const [isOpeningApp, setIsOpeningApp] = useState(false);
+  const [openingAppName, setOpeningAppName] = useState('');
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [activeAppId, setActiveAppId] = useState<string>('system');
+  const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
   if (!pdf) return null;
 
-  const embedUrl = getDriveViewerEmbedUrl(pdf.pdfUrl);
+  const directPdfUrl = getPdfDirectUrl(pdf.pdfUrl);
 
-  const handleOpenDrive = async () => {
-    await openInDriveViewer(pdf.pdfUrl, pdf.title);
+  const handleOpenSystemChooser = async () => {
+    setIsOpeningApp(true);
+    setOpeningAppName('Device PDF Readers');
+    try {
+      await openWithSystemPdfChooser(pdf.pdfUrl, pdf.title);
+    } finally {
+      setIsOpeningApp(false);
+    }
+  };
+
+  const handleLaunchApp = async (app: PDFAppInfo) => {
+    setActiveAppId(app.id);
+    setIsOpeningApp(true);
+    setOpeningAppName(app.name);
+
+    try {
+      if (!app.packageName) {
+        await openWithSystemPdfChooser(pdf.pdfUrl, pdf.title);
+      } else {
+        const result = await openInSpecificPdfApp(pdf.pdfUrl, app.packageName, pdf.title);
+        if (result.needsInstall) {
+          setNoticeMessage(`${app.name} is not installed. Opened system app chooser instead!`);
+          setTimeout(() => setNoticeMessage(null), 4000);
+        }
+      }
+    } finally {
+      setIsOpeningApp(false);
+    }
   };
 
   const handleDownload = async () => {
@@ -101,8 +135,8 @@ export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
               {pdf.title}
             </Text>
             <View style={styles.headerSubRow}>
-              <View style={styles.driveBadge}>
-                <Text style={styles.driveBadgeText}>Google Drive Viewer</Text>
+              <View style={styles.formatBadge}>
+                <Text style={styles.formatBadgeText}>PDF Document</Text>
               </View>
               <Text style={styles.headerSubtitle} numberOfLines={1}>
                 {pdf.author} • {pdf.fileSize}
@@ -122,13 +156,13 @@ export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.iconBtn, styles.driveLaunchBtn]}
-              onPress={handleOpenDrive}
+              style={[styles.iconBtn, styles.launchBtn]}
+              onPress={handleOpenSystemChooser}
               activeOpacity={0.7}
-              accessibilityLabel="Open in Phone Drive Viewer"
+              accessibilityLabel="Open with PDF Reader"
             >
               <ExternalLink size={16} color="#000000" />
-              <Text style={styles.driveLaunchBtnText}>Drive</Text>
+              <Text style={styles.launchBtnText}>Open</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -146,42 +180,49 @@ export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
           </View>
         </View>
 
+        {/* Notice Toast */}
+        {noticeMessage && (
+          <View style={styles.noticeToast}>
+            <Text style={styles.noticeToastText}>{noticeMessage}</Text>
+          </View>
+        )}
+
+        {/* Loading Overlay when preparing PDF for reader */}
+        {isOpeningApp && (
+          <View style={styles.preparingOverlay}>
+            <ActivityIndicator size="large" color="#FFFFFF" />
+            <Text style={styles.preparingText}>Opening in {openingAppName}...</Text>
+            <Text style={styles.preparingSub}>Preparing document and launching external reader</Text>
+          </View>
+        )}
+
         {/* Main Content Area */}
         <View style={styles.viewerBody}>
           {Platform.OS === 'web' ? (
             <View style={styles.webViewerContainer}>
-              {iframeLoading && (
-                <View style={styles.loadingOverlay}>
-                  <ActivityIndicator size="large" color="#FFFFFF" />
-                  <Text style={styles.loadingText}>Connecting to Google Drive Viewer...</Text>
-                  <Text style={styles.loadingSubtext}>Rendering document in high-fidelity mode</Text>
-                </View>
-              )}
-              {/* Google Drive / Docs Embedded Viewer */}
+              {/* Direct Web PDF Native Renderer */}
               <iframe
-                src={embedUrl}
+                src={directPdfUrl}
                 style={{
                   width: '100%',
                   height: '100%',
                   border: 'none',
-                  backgroundColor: '#1B1B29',
+                  backgroundColor: '#0D0E12',
                 }}
                 title={pdf.title}
-                onLoad={() => setIframeLoading(false)}
-                allow="fullscreen"
               />
             </View>
           ) : (
-            /* Mobile Native In-App Experience */
+            /* Mobile Native PDF Reader Hub */
             <ScrollView
               style={styles.mobileScroll}
               contentContainerStyle={styles.mobileContent}
               showsVerticalScrollIndicator={false}
             >
-              {/* Document Overview Banner */}
+              {/* Document Overview Card */}
               <View style={styles.previewCard}>
                 <View style={styles.docIconWrap}>
-                  <FileText size={48} color="#FFFFFF" />
+                  <FileText size={42} color="#000000" />
                   <View style={styles.pdfFormatBadge}>
                     <Text style={styles.pdfFormatBadgeText}>PDF</Text>
                   </View>
@@ -209,46 +250,89 @@ export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
                   </View>
                 </View>
 
-                {/* Main Launch Button for Mobile Drive Viewer */}
+                {/* Primary Button: Open with System PDF Reader Chooser */}
                 <TouchableOpacity
-                  style={styles.bigDriveBtn}
-                  onPress={handleOpenDrive}
+                  style={styles.bigOpenBtn}
+                  onPress={handleOpenSystemChooser}
                   activeOpacity={0.8}
                 >
                   <Eye size={20} color="#000000" />
-                  <Text style={styles.bigDriveBtnText}>Open in Google Drive Viewer</Text>
+                  <Text style={styles.bigOpenBtnText}>Open with Phone PDF Reader</Text>
                   <ExternalLink size={18} color="#000000" />
                 </TouchableOpacity>
 
-                <Text style={styles.driveNotice}>
-                  🚀 Opens with Google Drive's native renderer with smooth zoom, search, bookmarks & print on your phone!
+                <Text style={styles.readerNotice}>
+                  ⚡ Automatically searches all PDF apps installed on your device (Adobe, WPS, Mi, Google PDF...)
+                </Text>
+              </View>
+
+              {/* PDF Apps Selection Section */}
+              <View style={styles.appsSection}>
+                <View style={styles.sectionHeaderRow}>
+                  <Smartphone size={16} color="#FFFFFF" />
+                  <Text style={styles.sectionHeader}>Available PDF Reader Apps</Text>
+                </View>
+                <Text style={styles.sectionSub}>
+                  Select an app below or launch the system chooser to view this document:
                 </Text>
 
-                {/* Secondary Download Button */}
-                <TouchableOpacity
-                  style={[styles.bigDownloadBtn, downloadSuccess && styles.bigDownloadBtnSuccess]}
-                  onPress={handleDownload}
-                  activeOpacity={0.8}
-                >
-                  {downloadSuccess ? (
-                    <>
-                      <CheckCircle2 size={18} color="#FFFFFF" />
-                      <Text style={[styles.bigDownloadBtnText, { color: '#FFFFFF' }]}>
-                        Download Started!
-                      </Text>
-                    </>
-                  ) : (
-                    <>
-                      <Download size={18} color="#FFFFFF" />
-                      <Text style={styles.bigDownloadBtnText}>Download PDF to Device</Text>
-                    </>
-                  )}
-                </TouchableOpacity>
+                <View style={styles.appList}>
+                  {POPULAR_PDF_APPS.map((app) => (
+                    <TouchableOpacity
+                      key={app.id}
+                      style={[
+                        styles.appRow,
+                        activeAppId === app.id && styles.appRowActive,
+                      ]}
+                      onPress={() => handleLaunchApp(app)}
+                      activeOpacity={0.7}
+                    >
+                      <View style={styles.appIconCircle}>
+                        <FileText size={18} color="#000000" />
+                      </View>
+                      <View style={styles.appInfoWrap}>
+                        <View style={styles.appNameRow}>
+                          <Text style={styles.appName}>{app.name}</Text>
+                          {app.badge && (
+                            <View style={styles.appBadge}>
+                              <Text style={styles.appBadgeText}>{app.badge}</Text>
+                            </View>
+                          )}
+                        </View>
+                        <Text style={styles.appDesc} numberOfLines={2}>
+                          {app.description}
+                        </Text>
+                      </View>
+                      <ChevronRight size={18} color="rgba(255, 255, 255, 0.4)" />
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
+
+              {/* Secondary Download Button */}
+              <TouchableOpacity
+                style={[styles.bigDownloadBtn, downloadSuccess && styles.bigDownloadBtnSuccess]}
+                onPress={handleDownload}
+                activeOpacity={0.8}
+              >
+                {downloadSuccess ? (
+                  <>
+                    <CheckCircle2 size={18} color="#000000" />
+                    <Text style={[styles.bigDownloadBtnText, { color: '#000000' }]}>
+                      Downloaded Successfully!
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <Download size={18} color="#FFFFFF" />
+                    <Text style={styles.bigDownloadBtnText}>Download PDF File to Phone</Text>
+                  </>
+                )}
+              </TouchableOpacity>
 
               {/* Description Section */}
               <View style={styles.infoSection}>
-                <Text style={styles.sectionHeader}>Overview</Text>
+                <Text style={styles.sectionHeader}>Document Overview</Text>
                 <Text style={styles.descriptionText}>{pdf.description}</Text>
               </View>
 
@@ -265,25 +349,27 @@ export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
                   </View>
                 </View>
               )}
+
+              <View style={{ height: 60 }} />
             </ScrollView>
           )}
         </View>
 
-        {/* Bottom Floating Status Bar */}
+        {/* Bottom Floating Bar */}
         <View style={styles.bottomBar}>
           <View style={styles.bottomInfo}>
-            <Sparkles size={14} color="#FFFFFF" />
+            <Smartphone size={14} color="#FFFFFF" />
             <Text style={styles.bottomInfoText}>
-              Powered by Google Drive Document Rendering System
+              Device PDF Reader Integration
             </Text>
           </View>
           <TouchableOpacity
             style={styles.bottomOpenBtn}
-            onPress={handleOpenDrive}
+            onPress={handleOpenSystemChooser}
             activeOpacity={0.8}
           >
-            <ExternalLink size={14} color="#FFFFFF" />
-            <Text style={styles.bottomOpenBtnText}>Open System Viewer</Text>
+            <ExternalLink size={14} color="#000000" />
+            <Text style={styles.bottomOpenBtnText}>Open App Chooser</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -294,34 +380,30 @@ export const PDFViewerModal: React.FC<PDFViewerModalProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0E',
+    backgroundColor: '#06080C',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'ios' ? 52 : 16,
+    paddingTop: Platform.OS === 'ios' ? 54 : 14,
     paddingBottom: 14,
-    backgroundColor: 'rgba(18, 18, 24, 0.96)',
+    backgroundColor: '#0A0D14',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
-    zIndex: 20,
-    elevation: 6,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    gap: 12,
   },
   closeBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: 'rgba(27, 27, 41, 0.85)',
-    alignItems: 'center',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    alignItems: 'center',
   },
   headerTitleWrap: {
     flex: 1,
-    marginHorizontal: 12,
+    minWidth: 0,
   },
   headerTitle: {
     color: '#FFFFFF',
@@ -331,22 +413,20 @@ const styles = StyleSheet.create({
   headerSubRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginTop: 3,
+    gap: 8,
+    marginTop: 2,
   },
-  driveBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  formatBadge: {
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 6,
-    paddingVertical: 1.5,
+    paddingVertical: 1,
     borderRadius: 4,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
-  driveBadgeText: {
-    color: '#FFFFFF',
+  formatBadgeText: {
+    color: '#000000',
     fontSize: 9,
-    fontWeight: '700',
-    letterSpacing: 0.3,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   headerSubtitle: {
     color: '#8D8D94',
@@ -359,195 +439,263 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   iconBtn: {
+    width: 36,
     height: 36,
-    paddingHorizontal: 10,
     borderRadius: 18,
-    backgroundColor: 'rgba(27, 27, 41, 0.85)',
-    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    alignItems: 'center',
+  },
+  launchBtn: {
+    backgroundColor: '#FFFFFF',
     flexDirection: 'row',
+    paddingHorizontal: 10,
+    width: 'auto',
     gap: 4,
   },
-  driveLaunchBtn: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#FFFFFF',
-    paddingHorizontal: 12,
-  },
-  driveLaunchBtnText: {
+  launchBtnText: {
     color: '#000000',
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   downloadBtn: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#FFFFFF',
-    width: 36,
-    paddingHorizontal: 0,
   },
   downloadBtnSuccess: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
   },
-  viewerBody: {
-    flex: 1,
-    backgroundColor: '#050508',
+  noticeToast: {
+    backgroundColor: '#1E1E2E',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.2)',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignItems: 'center',
   },
-  webViewerContainer: {
-    flex: 1,
-    position: 'relative',
-    width: '100%',
-    height: '100%',
+  noticeToastText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
   },
-  loadingOverlay: {
+  preparingOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#0E0E14',
+    backgroundColor: 'rgba(6, 8, 12, 0.92)',
+    zIndex: 100,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 10,
-    gap: 12,
+    padding: 24,
   },
-  loadingText: {
+  preparingText: {
     color: '#FFFFFF',
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700',
+    marginTop: 16,
   },
-  loadingSubtext: {
+  preparingSub: {
     color: '#8D8D94',
     fontSize: 12,
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  viewerBody: {
+    flex: 1,
+  },
+  webViewerContainer: {
+    flex: 1,
+    backgroundColor: '#0D0E12',
   },
   mobileScroll: {
     flex: 1,
   },
   mobileContent: {
-    padding: 20,
-    paddingBottom: 40,
+    padding: 16,
+    gap: 16,
   },
   previewCard: {
-    backgroundColor: '#121218',
-    borderRadius: 18,
-    padding: 22,
-    alignItems: 'center',
+    backgroundColor: '#12141C',
+    borderRadius: 16,
+    padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 14,
-    elevation: 8,
-    marginBottom: 20,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    alignItems: 'center',
   },
   docIconWrap: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    width: 72,
+    height: 72,
+    borderRadius: 20,
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    marginBottom: 14,
     position: 'relative',
   },
   pdfFormatBadge: {
     position: 'absolute',
-    bottom: -4,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 8,
+    bottom: -6,
+    backgroundColor: '#000000',
+    paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 10,
+    borderRadius: 4,
   },
   pdfFormatBadgeText: {
-    color: '#000000',
-    fontSize: 10,
+    color: '#FFFFFF',
+    fontSize: 9,
     fontWeight: '900',
   },
   previewTitle: {
     color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 17,
+    fontWeight: '800',
     textAlign: 'center',
-    marginBottom: 6,
-    lineHeight: 24,
+    marginBottom: 4,
   },
   previewAuthor: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 16,
+    color: '#8D8D94',
+    fontSize: 13,
+    marginBottom: 14,
   },
   pillRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
     gap: 8,
-    marginBottom: 22,
+    marginBottom: 18,
   },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: 'rgba(27, 27, 41, 0.75)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    paddingVertical: 5,
+    borderRadius: 12,
   },
   pillText: {
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '600',
   },
-  bigDriveBtn: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 14,
-    borderRadius: 14,
-    shadowColor: '#FFFFFF',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 6,
-    marginBottom: 10,
-  },
-  bigDriveBtnText: {
-    color: '#000000',
-    fontSize: 15,
-    fontWeight: '800',
-  },
-  driveNotice: {
-    color: '#8D8D94',
-    fontSize: 12,
-    textAlign: 'center',
-    lineHeight: 18,
-    marginBottom: 16,
-    paddingHorizontal: 10,
-  },
-  bigDownloadBtn: {
-    width: '100%',
+  bigOpenBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: 'rgba(27, 27, 41, 0.9)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    paddingVertical: 12,
+    backgroundColor: '#FFFFFF',
+    width: '100%',
+    paddingVertical: 14,
+    borderRadius: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  bigOpenBtnText: {
+    color: '#000000',
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  readerNotice: {
+    color: 'rgba(255, 255, 255, 0.55)',
+    fontSize: 11,
+    textAlign: 'center',
+    marginTop: 10,
+    lineHeight: 16,
+  },
+  appsSection: {
+    backgroundColor: '#12141C',
+    borderRadius: 16,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  sectionHeader: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  sectionSub: {
+    color: '#8D8D94',
+    fontSize: 12,
+    marginBottom: 14,
+  },
+  appList: {
+    gap: 8,
+  },
+  appRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  appRowActive: {
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  appIconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  appInfoWrap: {
+    flex: 1,
+  },
+  appNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  appName: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  appBadge: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
+  appBadgeText: {
+    color: '#000000',
+    fontSize: 8,
+    fontWeight: '900',
+  },
+  appDesc: {
+    color: '#8D8D94',
+    fontSize: 11,
+    marginTop: 2,
+  },
+  bigDownloadBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    paddingVertical: 13,
     borderRadius: 14,
   },
   bigDownloadBtnSuccess: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: '#FFFFFF',
     borderColor: '#FFFFFF',
   },
   bigDownloadBtnText: {
@@ -556,18 +704,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   infoSection: {
-    backgroundColor: 'rgba(18, 18, 24, 0.7)',
-    borderRadius: 14,
-    padding: 16,
+    backgroundColor: '#12141C',
+    borderRadius: 16,
+    padding: 18,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
-    marginBottom: 14,
-  },
-  sectionHeader: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 8,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    gap: 8,
   },
   descriptionText: {
     color: '#B8B8C2',
@@ -577,15 +719,14 @@ const styles = StyleSheet.create({
   tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: 6,
+    marginTop: 4,
   },
   tagPill: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   tagText: {
     color: '#FFFFFF',
@@ -597,33 +738,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: 'rgba(18, 18, 24, 0.95)',
+    paddingVertical: 12,
+    backgroundColor: '#0A0D14',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopColor: 'rgba(255, 255, 255, 0.08)',
   },
   bottomInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    flex: 1,
   },
   bottomInfoText: {
     color: '#8D8D94',
-    fontSize: 11,
+    fontSize: 12,
   },
   bottomOpenBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
+    gap: 6,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderRadius: 14,
   },
   bottomOpenBtnText: {
-    color: '#FFFFFF',
-    fontSize: 11,
+    color: '#000000',
+    fontSize: 12,
     fontWeight: '700',
   },
 });

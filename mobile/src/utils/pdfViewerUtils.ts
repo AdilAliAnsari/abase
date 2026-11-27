@@ -1,24 +1,68 @@
 import { Platform, Linking, Share } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
+import { Paths, File as ExpoFile } from 'expo-file-system';
+import * as IntentLauncher from 'expo-intent-launcher';
+import * as Sharing from 'expo-sharing';
+
+export interface PDFAppInfo {
+  id: string;
+  name: string;
+  description: string;
+  packageName: string;
+  playStoreUrl?: string;
+  badge?: string;
+}
+
+export const POPULAR_PDF_APPS: PDFAppInfo[] = [
+  {
+    id: 'system',
+    name: 'All Installed PDF Apps',
+    description: 'Search & pick from any PDF reader app installed on your phone',
+    packageName: '',
+    badge: 'RECOMMENDED',
+  },
+  {
+    id: 'adobe',
+    name: 'Adobe Acrobat Reader',
+    description: 'Official Acrobat engine with bookmarks, dark mode & annotations',
+    packageName: 'com.adobe.reader',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=com.adobe.reader',
+    badge: 'POPULAR',
+  },
+  {
+    id: 'wps',
+    name: 'WPS Office & PDF',
+    description: 'High-speed document viewer with full page thumbnails & night mode',
+    packageName: 'cn.wps.moffice_eng',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=cn.wps.moffice_eng',
+  },
+  {
+    id: 'google_pdf',
+    name: 'Google PDF Viewer',
+    description: 'Fast, lightweight standalone PDF document engine',
+    packageName: 'com.google.android.apps.pdfviewer',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=com.google.android.apps.pdfviewer',
+  },
+  {
+    id: 'drive_pdf',
+    name: 'Drive PDF Viewer',
+    description: 'Native system document viewer engine',
+    packageName: 'com.google.android.apps.docs',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=com.google.android.apps.docs',
+  },
+];
 
 /**
- * Extracts Google Drive file ID from various Drive URL patterns
+ * Extracts Google Drive file ID from various Drive URL patterns (if applicable)
  */
 export function extractDriveId(url: string): string | null {
   if (!url) return null;
-  
-  // Format: drive.google.com/file/d/{ID}/...
   const fileMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]{20,})/);
   if (fileMatch && fileMatch[1]) return fileMatch[1];
-
-  // Format: drive.google.com/open?id={ID} or uc?id={ID}
   const idParamMatch = url.match(/[?&]id=([a-zA-Z0-9_-]{20,})/);
   if (idParamMatch && idParamMatch[1]) return idParamMatch[1];
-
-  // Format: docs.google.com/document/d/{ID}/...
   const docMatch = url.match(/\/d\/([a-zA-Z0-9_-]{20,})/);
   if (docMatch && docMatch[1]) return docMatch[1];
-
   return null;
 }
 
@@ -31,35 +75,9 @@ export function isGoogleDriveUrl(url: string): boolean {
 }
 
 /**
- * Converts any PDF or Google Drive URL into an embeddable Google Drive Viewer URL
+ * Gets the direct PDF file download/stream link
  */
-export function getDriveViewerEmbedUrl(url: string): string {
-  if (!url) return '';
-  const driveId = extractDriveId(url);
-  if (driveId) {
-    // Official Google Drive preview embed format
-    return `https://drive.google.com/file/d/${driveId}/preview`;
-  }
-  // Universal Google Docs / Drive Online Viewer
-  return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
-}
-
-/**
- * Converts any PDF or Google Drive URL into a Google Drive Web Viewer URL (for opening in phone browser or app)
- */
-export function getDriveViewerDirectUrl(url: string): string {
-  if (!url) return '';
-  const driveId = extractDriveId(url);
-  if (driveId) {
-    return `https://drive.google.com/file/d/${driveId}/view`;
-  }
-  return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}`;
-}
-
-/**
- * Gets the direct download link for a PDF or Google Drive file
- */
-export function getPdfDownloadUrl(url: string): string {
+export function getPdfDirectUrl(url: string): string {
   if (!url) return '';
   const driveId = extractDriveId(url);
   if (driveId) {
@@ -68,57 +86,144 @@ export function getPdfDownloadUrl(url: string): string {
   return url;
 }
 
+export function getPdfDownloadUrl(url: string): string {
+  return getPdfDirectUrl(url);
+}
+
 /**
- * Opens the PDF using Google Drive Viewer on Phone (via in-app Chrome/Safari custom tabs) or Web
+ * Downloads the PDF to the local device cache directory so external reader apps can open it
  */
-export async function openInDriveViewer(pdfUrl: string, title?: string): Promise<boolean> {
-  if (!pdfUrl) return false;
-  
-  const driveUrl = getDriveViewerDirectUrl(pdfUrl);
+export async function ensureLocalPdfFile(pdfUrl: string, title?: string): Promise<string> {
+  const downloadUrl = getPdfDirectUrl(pdfUrl);
+  const cleanName = (title || 'document').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 40);
+  const localFileName = `${cleanName}.pdf`;
 
   try {
-    if (Platform.OS === 'web') {
-      if (typeof window !== 'undefined') {
-        window.open(driveUrl, '_blank', 'noopener,noreferrer');
+    const targetFile = new ExpoFile(Paths.cache, localFileName);
+    if (targetFile.exists) {
+      return targetFile.uri;
+    }
+    const downloaded = await ExpoFile.downloadFileAsync(downloadUrl, targetFile, { idempotent: true });
+    return downloaded.uri;
+  } catch (error) {
+    console.warn('Cache download error:', error);
+    try {
+      const targetFile = new ExpoFile(Paths.document, localFileName);
+      const downloaded = await ExpoFile.downloadFileAsync(downloadUrl, targetFile, { idempotent: true });
+      return downloaded.uri;
+    } catch {
+      return downloadUrl;
+    }
+  }
+}
+
+/**
+ * Searches for all available PDF reader apps on the phone and opens the system "Open with" chooser
+ */
+export async function openWithSystemPdfChooser(pdfUrl: string, title?: string): Promise<boolean> {
+  if (!pdfUrl) return false;
+
+  // On Web: Open direct raw PDF in new browser tab with browser's native PDF engine
+  if (Platform.OS === 'web') {
+    if (typeof window !== 'undefined') {
+      window.open(getPdfDirectUrl(pdfUrl), '_blank', 'noopener,noreferrer');
+      return true;
+    }
+  }
+
+  // On Mobile: Download to cache, and launch Android intent chooser, iOS document interaction, or native File preview
+  try {
+    const localUri = await ensureLocalPdfFile(pdfUrl, title);
+
+    if (Platform.OS === 'android') {
+      try {
+        await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+          data: localUri,
+          type: 'application/pdf',
+          flags: 1, // FLAG_GRANT_READ_URI_PERMISSION
+        });
         return true;
+      } catch (intentErr) {
+        console.warn('Intent launcher fallback to sharing:', intentErr);
       }
     }
 
-    // Mobile (Android / iOS): Open using Google Drive viewer in high performance in-app browser
-    // This allows phone users to view the PDF smoothly with Google Drive's native rendering engine!
-    await WebBrowser.openBrowserAsync(driveUrl, {
-      toolbarColor: '#121218',
-      controlsColor: '#FFFFFF',
-      secondaryToolbarColor: '#000000',
-      enableBarCollapsing: true,
-      showTitle: true,
-      presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN,
-    });
-    return true;
-  } catch (error) {
-    console.warn('Failed to open via WebBrowser, falling back to Linking:', error);
+    // Native file preview if available (supported on iOS & Android in Expo 58)
     try {
-      await Linking.openURL(driveUrl);
+      const localFile = new ExpoFile(localUri);
+      if (localFile.exists && (await ExpoFile.canPreview(localFile))) {
+        await ExpoFile.preview(localFile, { mimeType: 'application/pdf' });
+        return true;
+      }
+    } catch (previewErr) {
+      console.warn('Expo File.preview fallback:', previewErr);
+    }
+
+    // iOS and Android fallback: triggers native system app chooser for application/pdf
+    if (await Sharing.isAvailableAsync()) {
+      await Sharing.shareAsync(localUri, {
+        mimeType: 'application/pdf',
+        dialogTitle: `Open ${title || 'PDF'} with...`,
+        UTI: 'com.adobe.pdf',
+      });
       return true;
-    } catch (linkError) {
-      console.error('Failed to open URL:', linkError);
+    }
+
+    // Ultimate fallback: open direct URL in browser
+    await WebBrowser.openBrowserAsync(getPdfDirectUrl(pdfUrl));
+    return true;
+  } catch (err) {
+    console.error('Failed to open PDF in device reader:', err);
+    try {
+      await Linking.openURL(getPdfDirectUrl(pdfUrl));
+      return true;
+    } catch {
       return false;
     }
   }
 }
 
 /**
- * Triggers a download of the PDF file
+ * Opens the PDF directly in a specific installed PDF reader app (e.g. Adobe Acrobat, WPS Office)
+ */
+export async function openInSpecificPdfApp(
+  pdfUrl: string,
+  packageName: string,
+  title?: string
+): Promise<{ success: boolean; needsInstall?: boolean }> {
+  if (!packageName || Platform.OS !== 'android') {
+    const ok = await openWithSystemPdfChooser(pdfUrl, title);
+    return { success: ok };
+  }
+
+  try {
+    const localUri = await ensureLocalPdfFile(pdfUrl, title);
+
+    await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+      data: localUri,
+      type: 'application/pdf',
+      packageName: packageName,
+      flags: 1, // FLAG_GRANT_READ_URI_PERMISSION
+    });
+    return { success: true };
+  } catch (appErr: any) {
+    console.warn(`Specific app ${packageName} not found or failed, falling back to system chooser:`, appErr?.message);
+    const ok = await openWithSystemPdfChooser(pdfUrl, title);
+    return { success: ok, needsInstall: true };
+  }
+}
+
+/**
+ * Downloads the PDF file directly to device
  */
 export async function downloadPdfFile(pdfUrl: string, fileName?: string): Promise<boolean> {
   if (!pdfUrl) return false;
-  
-  const downloadUrl = getPdfDownloadUrl(pdfUrl);
+
+  const downloadUrl = getPdfDirectUrl(pdfUrl);
   const sanitizedFileName = (fileName || 'document').replace(/[^a-zA-Z0-9_-]/g, '_') + '.pdf';
 
   try {
     if (Platform.OS === 'web') {
-      // Trigger browser download via invisible link
       const anchor = document.createElement('a');
       anchor.href = downloadUrl;
       anchor.download = sanitizedFileName;
@@ -130,15 +235,19 @@ export async function downloadPdfFile(pdfUrl: string, fileName?: string): Promis
       return true;
     }
 
-    // On mobile: Open direct download URL which triggers mobile download manager / Drive save
-    const canOpen = await Linking.canOpenURL(downloadUrl);
-    if (canOpen) {
-      await Linking.openURL(downloadUrl);
-      return true;
-    } else {
-      await WebBrowser.openBrowserAsync(downloadUrl);
+    // On mobile: save file locally and launch device save/share sheet
+    const localUri = await ensureLocalPdfFile(pdfUrl, fileName);
+    if (await Sharing.isAvailableAsync()) {
+      await Sharing.shareAsync(localUri, {
+        mimeType: 'application/pdf',
+        dialogTitle: `Save ${fileName || 'PDF'}`,
+        UTI: 'com.adobe.pdf',
+      });
       return true;
     }
+
+    await Linking.openURL(downloadUrl);
+    return true;
   } catch (error) {
     console.error('Failed to download PDF:', error);
     return false;
@@ -150,11 +259,11 @@ export async function downloadPdfFile(pdfUrl: string, fileName?: string): Promis
  */
 export async function sharePdf(pdfUrl: string, title: string): Promise<void> {
   try {
-    const driveUrl = getDriveViewerDirectUrl(pdfUrl);
+    const directUrl = getPdfDirectUrl(pdfUrl);
     await Share.share({
       title: title,
-      message: `Read "${title}" in Google Drive PDF Viewer: ${driveUrl}`,
-      url: driveUrl,
+      message: `Read "${title}" (PDF Document): ${directUrl}`,
+      url: directUrl,
     });
   } catch (error) {
     console.error('Failed to share PDF:', error);

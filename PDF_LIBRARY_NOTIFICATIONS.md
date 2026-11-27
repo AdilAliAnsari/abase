@@ -19,3 +19,18 @@
 The `author` is the academic/document author; `user` identifies the distributor account. These are different values. Do not store production PDFs directly in GitHub; store the binary in Cloudinary/object storage and metadata in MongoDB.
 
 This delivers in-app notifications when users next open/refresh the notification screen. For push notifications when the app is closed, add Expo Push Notifications and save each customer's push token. Current broadcast notifies all customer-role accounts; subject/semester subscription targeting can be added later.
+
+---
+
+## 📱 Device PDF Reader App Chooser & Viewing Architecture
+
+Google Drive embedded viewer has been replaced with native device app discovery and intent-based viewing:
+
+1. **System PDF App Chooser**:
+   - The app uses `IntentLauncher` and `expo-sharing` with Android `ACTION_VIEW` (`application/pdf`) and iOS Document Interaction.
+   - When viewing a document, the app queries and displays all installed PDF reader applications on the user's phone (e.g. Adobe Acrobat, Google PDF Viewer, WPS Office, Mi PDF Viewer, Drive PDF Viewer, Samsung Notes).
+   - Users can choose any installed reader or set their preferred default app.
+
+2. **Web Browser Native PDF View**:
+   - Web view leverages the user's native browser PDF rendering engine directly without third-party Google Drive iframes.
+   - Includes direct in-browser view, "Open in New Tab", and one-click direct download.
