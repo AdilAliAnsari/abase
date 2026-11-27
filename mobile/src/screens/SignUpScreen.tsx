@@ -15,7 +15,7 @@ import { X, Mail, Lock, Eye, EyeOff, ArrowLeft, ArrowRight, User, Phone, ShieldC
 import { colors } from '../theme/colors';
 import { useAuth } from '../context/AuthContext';
 import { SavedAccount } from '../services/storageService';
-import Aurora from '../components/ui/aurora';
+import VelvetHaze from '../components/ui/velvet-haze';
 
 const ACCENT = '#FFFFFF';
 const ACCENT_GLOW = 'rgba(255, 255, 255, 0.35)';
@@ -175,9 +175,9 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
   if (Platform.OS === 'web') {
     return (
       <div className="signup-screen-root">
-        {/* Aurora Background */}
+        {/* Velvet Haze Background */}
         <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
-          <Aurora className="w-full h-full" style={{ width: '100%', height: '100%' }} />
+          <VelvetHaze height="100%" />
         </div>
 
         {/* Ambient Glows */}
@@ -963,8 +963,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
 
   // Native UI (iOS / Android)
   return (
-    <View style={{ flex: 1, backgroundColor: '#06080C' }}>
-      <Aurora style={StyleSheet.absoluteFill} />
+    <View style={{ flex: 1, backgroundColor: '#111112' }}>
+      <VelvetHaze style={StyleSheet.absoluteFill} />
       <SafeAreaView style={[styles.nativeRoot, { backgroundColor: 'transparent' }]}>
         {/* Background Glows for Native */}
         <View style={styles.nativeTopGlow} pointerEvents="none" />

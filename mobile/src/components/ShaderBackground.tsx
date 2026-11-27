@@ -1,12 +1,12 @@
 import React from "react";
-import Aurora, { AuroraProps } from "./ui/aurora";
+import VelvetHaze, { VelvetHazeProps } from "./ui/velvet-haze";
 
-export interface ShaderBackgroundProps extends AuroraProps {
+export interface ShaderBackgroundProps extends VelvetHazeProps {
   className?: string;
 }
 
 export function ShaderBackground(props: ShaderBackgroundProps) {
-  return <Aurora {...props} />;
+  return <VelvetHaze height="100%" interactive={true} {...props} />;
 }
 
 export default ShaderBackground;

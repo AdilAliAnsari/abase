@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Platform, View, StyleSheet } from "react-native"
+import Svg, { Defs, RadialGradient as SvgRadialGradient, LinearGradient as SvgLinearGradient, Stop, Rect } from 'react-native-svg'
 
 /**
  * Velvet Haze — an out-of-focus silver-and-violet light leak on black film.
@@ -355,6 +356,31 @@ export default function VelvetHaze({
   if (Platform.OS !== "web") {
     return (
       <View style={[{ flex: 1, backgroundColor: P.inkColor, position: 'relative' }, style]}>
+        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          {/* Violet Bloom top right + Silver Haze top left + Warm Ember */}
+          <Svg width="100%" height="100%" style={StyleSheet.absoluteFill}>
+            <Defs>
+              <SvgRadialGradient id="violetBloom" cx="85%" cy="0%" rx="60%" ry="60%">
+                <Stop offset="0%" stopColor="#9a4fb0" stopOpacity="0.45" />
+                <Stop offset="50%" stopColor="#9a4fb0" stopOpacity="0.15" />
+                <Stop offset="100%" stopColor="#9a4fb0" stopOpacity="0" />
+              </SvgRadialGradient>
+              <SvgRadialGradient id="silverHaze" cx="25%" cy="15%" rx="55%" ry="55%">
+                <Stop offset="0%" stopColor="#d2d1d6" stopOpacity="0.22" />
+                <Stop offset="50%" stopColor="#b6acd6" stopOpacity="0.12" />
+                <Stop offset="100%" stopColor="#b6acd6" stopOpacity="0" />
+              </SvgRadialGradient>
+              <SvgLinearGradient id="warmEmber" x1="50%" y1="25%" x2="80%" y2="50%">
+                <Stop offset="0%" stopColor="#86705f" stopOpacity="0" />
+                <Stop offset="50%" stopColor="#86705f" stopOpacity="0.18" />
+                <Stop offset="100%" stopColor="#86705f" stopOpacity="0" />
+              </SvgLinearGradient>
+            </Defs>
+            <Rect x="0" y="0" width="100%" height="100%" fill="url(#violetBloom)" />
+            <Rect x="0" y="0" width="100%" height="100%" fill="url(#silverHaze)" />
+            <Rect x="0" y="0" width="100%" height="100%" fill="url(#warmEmber)" />
+          </Svg>
+        </View>
         {children ? (
           <View style={{ flex: 1, zIndex: 10 }}>{children}</View>
         ) : null}
