@@ -19,6 +19,10 @@ Abase includes an embedded, in-app video player system designed to provide seaml
    - `src/components/video/VideoRenderer.native.tsx`: Native `expo-video` implementation.
    - `src/components/video/VideoRenderer.web.tsx`: HTML5 video renderer.
    - `src/components/video/VideoRenderer.tsx`: Entrypoint for TypeScript compilation and platform resolution.
+4. **Three-Tier Touch & Pointer Layering**:
+   - **Layer 0 (Video Surface)**: Set to `pointerEvents="none"` in HUD mode so the underlying media never intercepts or swallows UI taps.
+   - **Layer 1 (Touch Responder)**: Full-screen gesture receiver handling single-tap to reveal controls and double-tap to seek ±10s.
+   - **Layer 2 (Control Bars)**: Top bar, center playback buttons, and bottom scrubber bar have explicit `pointerEvents="auto"`, guaranteeing all button clicks and sliders fire instantaneously while the video is playing.
 
 ---
 

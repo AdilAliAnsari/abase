@@ -79,6 +79,11 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
   const controlsTimeoutRef = useRef<any>(null);
   const lastTapRef = useRef<number>(0);
   const playerRef = useRef<PlayerHandle | null>(null);
+  const isPlayingRef = useRef<boolean>(isPlaying);
+
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
 
   // Animated values
   const controlsOpacity = useRef(new Animated.Value(1)).current;
@@ -92,26 +97,28 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
     setShowControls(true);
     Animated.timing(controlsOpacity, {
       toValue: 1,
-      duration: 200,
+      duration: 150,
       useNativeDriver: true,
     }).start();
 
+    // Only auto-hide if playing and screen is unlocked
     if (!isLocked) {
       controlsTimeoutRef.current = setTimeout(() => {
-        if (isPlaying) {
+        if (isPlayingRef.current) {
           Animated.timing(controlsOpacity, {
             toValue: 0,
-            duration: 300,
+            duration: 250,
             useNativeDriver: true,
           }).start(() => setShowControls(false));
         }
-      }, 4000);
+      }, 5000);
     }
   };
 
   useEffect(() => {
     if (visible) {
       setIsPlaying(true);
+      isPlayingRef.current = true;
       setCurrentTime(0);
       setIsLocked(false);
       resetControlsTimer();
@@ -127,7 +134,9 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
     if (playerRef.current) {
       playerRef.current.togglePlay();
     }
-    setIsPlaying(!isPlaying);
+    const nextState = !isPlaying;
+    setIsPlaying(nextState);
+    isPlayingRef.current = nextState;
     resetControlsTimer();
   };
 
@@ -179,11 +188,17 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
         togglePlay();
       }
     } else {
-      // Single Tap: Toggle controls
-      if (showControls) {
-        setShowControls(false);
-      } else {
+      // Single Tap: If controls are hidden or fading out, bring them back!
+      if (!showControls) {
         resetControlsTimer();
+      } else {
+        // Toggle controls off
+        if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+        Animated.timing(controlsOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }).start(() => setShowControls(false));
       }
     }
     lastTapRef.current = now;
@@ -204,6 +219,7 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
     if (playerRef.current) {
       playerRef.current.setMuted(nextMute);
     }
+    resetControlsTimer();
   };
 
   const handleDownload = async () => {
@@ -248,12 +264,8 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
       onRequestClose={onClose}
     >
       <View style={styles.container}>
-        {/* Main Video View Container */}
-        <TouchableOpacity
-          style={styles.videoTouchArea}
-          activeOpacity={1}
-          onPress={handleScreenTouch}
-        >
+        {/* Layer 0: Main Video Engine (Absolute Fill) */}
+        <View style={StyleSheet.absoluteFill} pointerEvents={useNativeControls ? 'auto' : 'none'}>
           {visible && resolvedVideoUrl ? (
             <VideoRenderer
               ref={playerRef}
@@ -264,46 +276,60 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
               onDurationChange={(d) => {
                 if (d > 0) setDuration(d);
               }}
-              onPlayingChange={(playing) => setIsPlaying(playing)}
+              onPlayingChange={(playing) => {
+                setIsPlaying(playing);
+                isPlayingRef.current = playing;
+              }}
               onBufferingChange={(buffering) => setIsBuffering(buffering)}
               onEnded={() => {
                 setIsPlaying(false);
+                isPlayingRef.current = false;
                 setShowControls(true);
               }}
             />
           ) : null}
+        </View>
 
-          {/* Double Tap Ripple Feedback */}
-          {doubleTapSide && (
-            <Animated.View
-              style={[
-                styles.doubleTapRipple,
-                doubleTapSide === 'left' ? styles.rippleLeft : styles.rippleRight,
-                { transform: [{ scale: rippleScale }] },
-              ]}
-            >
-              {doubleTapSide === 'left' ? (
-                <>
-                  <RotateCcw size={32} color="#FFFFFF" />
-                  <Text style={styles.rippleText}>-10s</Text>
-                </>
-              ) : (
-                <>
-                  <RotateCw size={32} color="#FFFFFF" />
-                  <Text style={styles.rippleText}>+10s</Text>
-                </>
-              )}
-            </Animated.View>
-          )}
+        {/* Buffering Indicator */}
+        {isBuffering && (
+          <View pointerEvents="none" style={styles.bufferingOverlay}>
+            <ActivityIndicator size="large" color="#FFFFFF" />
+            <Text style={styles.bufferingText}>Loading lecture...</Text>
+          </View>
+        )}
 
-          {/* Buffering Indicator */}
-          {isBuffering && (
-            <View style={styles.bufferingOverlay}>
-              <ActivityIndicator size="large" color="#FFFFFF" />
-              <Text style={styles.bufferingText}>Loading lecture...</Text>
-            </View>
-          )}
-        </TouchableOpacity>
+        {/* Layer 1: Screen Touch Overlay (Handles Tap to Show/Hide Controls and Double Tap Seek) */}
+        {!useNativeControls && (
+          <TouchableOpacity
+            style={StyleSheet.absoluteFill}
+            activeOpacity={1}
+            onPress={handleScreenTouch}
+          >
+            {/* Double Tap Ripple Feedback */}
+            {doubleTapSide && (
+              <Animated.View
+                pointerEvents="none"
+                style={[
+                  styles.doubleTapRipple,
+                  doubleTapSide === 'left' ? styles.rippleLeft : styles.rippleRight,
+                  { transform: [{ scale: rippleScale }] },
+                ]}
+              >
+                {doubleTapSide === 'left' ? (
+                  <>
+                    <RotateCcw size={32} color="#FFFFFF" />
+                    <Text style={styles.rippleText}>-10s</Text>
+                  </>
+                ) : (
+                  <>
+                    <RotateCw size={32} color="#FFFFFF" />
+                    <Text style={styles.rippleText}>+10s</Text>
+                  </>
+                )}
+              </Animated.View>
+            )}
+          </TouchableOpacity>
+        )}
 
         {/* MX Player Screen Lock Floating Toggle */}
         {showControls && !useNativeControls && (
@@ -323,14 +349,14 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
           </TouchableOpacity>
         )}
 
-        {/* MX Player Full Controls Overlay */}
+        {/* Layer 2: MX Player Full Controls Overlay */}
         {showControls && !isLocked && !useNativeControls && (
           <Animated.View
             pointerEvents="box-none"
             style={[styles.controlsOverlay, { opacity: controlsOpacity }]}
           >
             {/* Top MX Player Bar */}
-            <View style={styles.topBar}>
+            <View pointerEvents="auto" style={styles.topBar}>
               <TouchableOpacity
                 style={styles.topIconBtn}
                 onPress={onClose}
@@ -373,7 +399,11 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
                 {/* Speed Button */}
                 <TouchableOpacity
                   style={styles.pillActionBtn}
-                  onPress={() => setIsSpeedMenuOpen(!isSpeedMenuOpen)}
+                  onPress={() => {
+                    setIsSpeedMenuOpen(!isSpeedMenuOpen);
+                    setIsQualityMenuOpen(false);
+                    resetControlsTimer();
+                  }}
                   activeOpacity={0.7}
                 >
                   <Text style={styles.pillActionText}>{playbackSpeed}x</Text>
@@ -382,7 +412,11 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
                 {/* Quality Button */}
                 <TouchableOpacity
                   style={styles.pillActionBtn}
-                  onPress={() => setIsQualityMenuOpen(!isQualityMenuOpen)}
+                  onPress={() => {
+                    setIsQualityMenuOpen(!isQualityMenuOpen);
+                    setIsSpeedMenuOpen(false);
+                    resetControlsTimer();
+                  }}
                   activeOpacity={0.7}
                 >
                   <Text style={styles.pillActionText}>{quality.split(' ')[0]}</Text>
@@ -405,7 +439,7 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
 
             {/* Speed Selection Dropdown */}
             {isSpeedMenuOpen && (
-              <View style={styles.dropdownCard}>
+              <View pointerEvents="auto" style={styles.dropdownCard}>
                 <Text style={styles.dropdownTitle}>Playback Speed</Text>
                 {[0.5, 0.75, 1.0, 1.25, 1.5, 2.0].map((s) => (
                   <TouchableOpacity
@@ -424,7 +458,7 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
 
             {/* Quality Selection Dropdown */}
             {isQualityMenuOpen && (
-              <View style={[styles.dropdownCard, { right: 50 }]}>
+              <View pointerEvents="auto" style={[styles.dropdownCard, { right: 50 }]}>
                 <Text style={styles.dropdownTitle}>Video Quality</Text>
                 {['4K UHD', '1080p FHD', '720p HD', '480p SD', 'Auto'].map((q) => (
                   <TouchableOpacity
@@ -446,7 +480,7 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
             )}
 
             {/* Center Controls: Prev, -10s, Play/Pause, +10s, Next */}
-            <View style={styles.centerControls}>
+            <View pointerEvents="auto" style={styles.centerControls}>
               {onPrevVideo && (
                 <TouchableOpacity style={styles.skipBtn} onPress={onPrevVideo} activeOpacity={0.7}>
                   <SkipBack size={24} color="#FFFFFF" />
@@ -484,7 +518,7 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
             </View>
 
             {/* Bottom Scrubber & Controls Bar */}
-            <View style={styles.bottomBar}>
+            <View pointerEvents="auto" style={styles.bottomBar}>
               {/* Progress Slider Bar */}
               <View style={styles.scrubberContainer}>
                 <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
@@ -494,7 +528,7 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
                   activeOpacity={1}
                   onPress={(e) => {
                     const { locationX } = e.nativeEvent;
-                    const trackWidth = SCREEN_WIDTH - 140;
+                    const trackWidth = Math.max(100, SCREEN_WIDTH - 140);
                     const percent = Math.max(0, Math.min(1, locationX / trackWidth));
                     const newTime = percent * duration;
                     if (playerRef.current) {
@@ -513,7 +547,7 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
                 <Text style={styles.timeText}>{formatTime(duration)}</Text>
               </View>
 
-              {/* Secondary Controls: Mute, Aspect Ratio, Close */}
+              {/* Secondary Controls: Mute, Aspect Ratio */}
               <View style={styles.bottomButtonsRow}>
                 <View style={styles.bottomLeftControls}>
                   <TouchableOpacity
@@ -540,6 +574,7 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
                       const modes: ('contain' | 'cover' | 'fill')[] = ['contain', 'cover', 'fill'];
                       const nextIndex = (modes.indexOf(aspectRatio) + 1) % modes.length;
                       setAspectRatio(modes[nextIndex]);
+                      resetControlsTimer();
                     }}
                   >
                     <Text style={styles.aspectBtnText}>
@@ -574,18 +609,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
     position: 'relative',
   },
-  videoTouchArea: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#000000',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   bufferingOverlay: {
     position: 'absolute',
+    top: '45%',
+    left: 0,
+    right: 0,
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 8,
+    zIndex: 25,
   },
   bufferingText: {
     color: '#FFFFFF',
@@ -628,7 +660,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
-    zIndex: 50,
+    zIndex: 60,
   },
   lockBtnActive: {
     borderColor: '#FF4545',
@@ -642,7 +674,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
     justifyContent: 'space-between',
-    zIndex: 40,
+    zIndex: 50,
   },
   topBar: {
     flexDirection: 'row',
@@ -652,6 +684,7 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     backgroundColor: 'rgba(0, 0, 0, 0.85)',
     gap: 12,
+    zIndex: 55,
   },
   topIconBtn: {
     width: 38,
@@ -733,7 +766,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
     padding: 12,
-    zIndex: 60,
+    zIndex: 70,
     width: 170,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -778,6 +811,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 24,
+    zIndex: 55,
   },
   mainPlayBtn: {
     width: 72,
@@ -796,13 +830,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
+    padding: 8,
   },
   seekBtnText: {
     position: 'absolute',
     color: '#FFFFFF',
     fontSize: 9,
     fontWeight: '900',
-    top: 10,
+    top: 18,
   },
   skipBtn: {
     padding: 10,
@@ -812,6 +847,7 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 36 : 16,
     paddingTop: 8,
     backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    zIndex: 55,
   },
   scrubberContainer: {
     flexDirection: 'row',

@@ -47,6 +47,7 @@ export const VideoRenderer = forwardRef<PlayerHandle, VideoRendererProps>((props
         height: '100%',
         objectFit: props.aspectRatio === 'contain' ? 'contain' : props.aspectRatio === 'cover' ? 'cover' : 'fill',
         backgroundColor: '#000000',
+        pointerEvents: props.nativeControls ? 'auto' : 'none',
       }}
       autoPlay
       playsInline

@@ -70,6 +70,7 @@ export const VideoRenderer = forwardRef<PlayerHandle, VideoRendererProps>((props
       style={StyleSheet.absoluteFill}
       contentFit={props.aspectRatio}
       nativeControls={props.nativeControls ?? false}
+      pointerEvents={props.nativeControls ? 'auto' : 'none'}
     />
   );
 });
