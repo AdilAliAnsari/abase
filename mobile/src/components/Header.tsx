@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView, Platform, Modal, Animated, Image } from 'react-native';
 import { Menu, X, Home, PieChart, CreditCard, Clock, Mail, Bell, User, Globe, Key, ChevronLeft, ChevronRight, Search, ShoppingCart, ShieldCheck, Database, Tag, Volume2 } from 'lucide-react-native';
+import Svg, { Defs, LinearGradient as SvgLinearGradient, Stop, Rect } from 'react-native-svg';
 import { colors } from '../theme/colors';
 import { useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
@@ -596,20 +597,16 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
           .search-box-wrap::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background-image: radial-gradient(at 49% 30%, hsla(240, 15%, 9%, 1) 0px, transparent 85%),
-                              radial-gradient(at 14% 26%, hsla(240, 15%, 9%, 1) 0px, transparent 85%),
-                              radial-gradient(at 0% 64%, hsl(189, 99%, 26%) 0px, transparent 85%),
-                              radial-gradient(at 41% 94%, hsl(189, 97%, 36%) 0px, transparent 85%),
-                              radial-gradient(at 100% 99%, hsl(188, 94%, 13%) 0px, transparent 85%);
-            animation: rotate-border 6s linear infinite;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: conic-gradient(from 0deg, #00B7FF, #7B61FF, #FF0080, #00B7FF);
+            animation: rotate-border 4s linear infinite;
             z-index: 1;
           }
           .search-box-wrap:focus-within {
-            box-shadow: 0 0 25px rgba(255, 48, 255, 0.75), 0 0 45px rgba(0, 183, 255, 0.5);
+            box-shadow: 0 0 25px rgba(0, 183, 255, 0.75), 0 0 40px rgba(123, 97, 255, 0.5);
           }
           .search-box {
             position: relative;
@@ -1180,19 +1177,19 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
       {/* Search Input Bar */}
       <View style={styles.nativeSearchContainer}>
         <View style={styles.nativeSearchBoxWrapper}>
-          {/* Subtle rotating halo border */}
+          {/* Glowing rotating neon gradient border */}
           <Animated.View style={[styles.nativeRotatingGradient, { transform: [{ rotate: spin }] }]}>
-            <View
-              style={[
-                StyleSheet.absoluteFill,
-                {
-                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                  borderRadius: 24,
-                  borderWidth: 1.5,
-                  borderColor: 'rgba(255, 255, 255, 0.35)',
-                },
-              ]}
-            />
+            <Svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <Defs>
+                <SvgLinearGradient id="searchNeonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <Stop offset="0%" stopColor="#00B7FF" stopOpacity="1" />
+                  <Stop offset="30%" stopColor="#7B61FF" stopOpacity="1" />
+                  <Stop offset="65%" stopColor="#FF0080" stopOpacity="1" />
+                  <Stop offset="100%" stopColor="#00B7FF" stopOpacity="0.3" />
+                </SvgLinearGradient>
+              </Defs>
+              <Rect x="0" y="0" width="100" height="100" fill="url(#searchNeonGrad)" />
+            </Svg>
           </Animated.View>
 
           {/* Static search box on top */}
@@ -1687,11 +1684,11 @@ const styles = StyleSheet.create({
   },
   nativeRotatingGradient: {
     position: 'absolute',
-    top: -50,
-    left: -50,
-    right: -50,
-    bottom: -50,
-    borderRadius: 999,
+    width: 520,
+    height: 520,
+    top: -236,
+    left: '50%',
+    marginLeft: -260,
   },
   modalContainer: {
     flex: 1,

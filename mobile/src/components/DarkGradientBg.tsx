@@ -15,85 +15,52 @@ export const DarkGradientBg: React.FC<DarkGradientBgProps> = ({
   children,
   style,
   className = "",
-  colors = ["rgba(255, 255, 255, 0.75)", "rgba(255, 255, 255, 0.45)", "rgba(255, 255, 255, 0.25)"],
-  duration = 20,
-  intensity = 0.35,
+  colors = ["#38bdf8", "#a78bfa", "#f472b6"],
+  duration = 18,
+  intensity = 0.45,
 }) => {
   if (Platform.OS === "web") {
     return (
-      <div
-        className={`relative min-h-screen w-full overflow-hidden ${className}`}
+      <Aurora
+        colors={colors}
+        duration={duration}
+        intensity={intensity}
         style={{
-          position: "relative",
-          width: "100%",
           minHeight: "100vh",
-          backgroundColor: "#06080C",
-          overflow: "hidden",
+          width: "100%",
+          backgroundColor: "#07090E",
+          display: "flex",
+          flexDirection: "column",
         }}
+        className={className}
       >
-        {/* Fixed Background Aurora Layer */}
         <div
           style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: 0,
-            pointerEvents: "none",
-          }}
-        >
-          <Aurora
-            className="w-full h-full"
-            colors={colors}
-            duration={duration}
-            intensity={intensity}
-            style={{ width: "100%", height: "100%" }}
-          />
-        </div>
-
-        {/* Content Layer */}
-        <div
-          className="relative z-10"
-          style={{
-            position: "relative",
-            zIndex: 10,
-            width: "100%",
             minHeight: "100vh",
+            width: "100%",
             display: "flex",
             flexDirection: "column",
-            flex: 1,
-            pointerEvents: "auto",
+            position: "relative",
+            zIndex: 5,
           }}
         >
           {children}
         </div>
-      </div>
+      </Aurora>
     );
   }
 
   // Native (iOS/Android)
   return (
-    <View style={[styles.nativeContainer, style]}>
-      <Aurora colors={colors} duration={duration} intensity={intensity}>
-        <View style={styles.contentLayer}>{children}</View>
-      </Aurora>
-    </View>
+    <Aurora colors={colors} duration={duration} intensity={intensity} style={style}>
+      <View style={styles.nativeContent}>{children}</View>
+    </Aurora>
   );
 };
 
 const styles = StyleSheet.create({
-  nativeContainer: {
+  nativeContent: {
     flex: 1,
-    backgroundColor: "#06080C",
-    position: "relative",
-    overflow: "hidden",
-  },
-  contentLayer: {
-    flex: 1,
-    zIndex: 10,
     backgroundColor: "transparent",
   },
 });
