@@ -43,6 +43,7 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
     (user as any)?.avatar ||
     (user as any)?.avatarUrl ||
     (user as any)?.imageUrl ||
+    (user as any)?.picture ||
     (user as any)?.photoURL;
 
   const [avatarError, setAvatarError] = useState(false);

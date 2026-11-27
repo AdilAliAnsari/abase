@@ -38,6 +38,8 @@ import {
 import { colors } from '../theme/colors';
 import { VideoItem } from '../data/videos';
 import { downloadPdfFile } from '../utils/pdfViewerUtils';
+import { getApiBaseUrl } from '../services/api';
+import * as WebBrowser from 'expo-web-browser';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -241,6 +243,14 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
 
   if (!video) return null;
 
+  const resolveUrl = (rawUrl: string) => {
+    if (!rawUrl) return '';
+    if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) return rawUrl;
+    if (Platform.OS === 'web') return rawUrl;
+    return `${getApiBaseUrl()}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`;
+  };
+
+  const resolvedVideoUrl = resolveUrl(video.videoUrl);
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
@@ -262,7 +272,7 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
               ref={(el) => {
                 videoElementRef.current = el;
               }}
-              src={video.videoUrl}
+              src={resolvedVideoUrl}
               style={{
                 width: '100%',
                 height: '100%',
@@ -291,6 +301,14 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
             <View style={styles.mobileFallbackPlayer}>
               <Text style={styles.fallbackTitle}>{video.title}</Text>
               <Text style={styles.fallbackSub}>Playing at {quality} • {formatTime(currentTime)} / {formatTime(duration)}</Text>
+              <TouchableOpacity
+                style={styles.mobilePlayBtn}
+                onPress={() => WebBrowser.openBrowserAsync(resolvedVideoUrl)}
+                activeOpacity={0.8}
+              >
+                <Play size={18} color="#000000" />
+                <Text style={styles.mobilePlayBtnText}>Play in Fullscreen Video Player</Text>
+              </TouchableOpacity>
             </View>
           )}
 
@@ -622,6 +640,21 @@ const styles = StyleSheet.create({
   fallbackSub: {
     color: '#FFFFFF',
     fontSize: 13,
+  },
+  mobilePlayBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 24,
+    marginTop: 16,
+  },
+  mobilePlayBtnText: {
+    color: '#000000',
+    fontSize: 14,
+    fontWeight: '800',
   },
   bufferingOverlay: {
     position: 'absolute',

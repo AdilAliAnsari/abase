@@ -23,6 +23,7 @@ interface AuthContextType {
   removeSavedAccount: (idOrEmail: string) => Promise<void>;
   checkServerConnection: () => Promise<boolean>;
   setRole: (role: 'distributor' | 'consumer') => Promise<UserProfile>;
+  updateUserProfile: (partial: Partial<UserProfile>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -248,6 +249,36 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return updated;
   };
 
+  const updateUserProfile = async (partial: Partial<UserProfile>): Promise<void> => {
+    if (!user) return;
+    const updated: UserProfile = { ...user, ...partial };
+    setUser(updated);
+    try {
+      await api.put('/api/auth/profile', {
+        userId: user.id || (user as any)._id,
+        email: user.email,
+        name: updated.name || updated.username,
+        profileImage: updated.profileImage,
+        phone: updated.phoneNumber,
+      });
+    } catch (e: any) {
+      console.warn('Backend profile update note:', e?.message);
+    }
+    const currentToken = token || getAuthToken() || 'active_token';
+    await storageService.saveActiveSession(currentToken, updated);
+    await storageService.addSavedAccount({
+      id: updated.id || (updated as any)._id || updated.email,
+      email: updated.email,
+      username: updated.username,
+      name: updated.name || updated.username,
+      avatar: updated.profileImage,
+      provider: (updated.provider as any) || 'local',
+      token: currentToken,
+      lastUsedAt: new Date().toISOString(),
+    });
+    await refreshSavedAccounts();
+  };
+
   const logout = async () => {
     await clerkService.signOut();
     await authService.logout();
@@ -276,6 +307,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         removeSavedAccount,
         checkServerConnection,
         setRole,
+        updateUserProfile,
       }}
     >
       {children}

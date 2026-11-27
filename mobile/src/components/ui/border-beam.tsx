@@ -35,53 +35,53 @@ export interface BorderBeamProps {
 
 const COLOR_VARIANTS: Record<BorderBeamColorVariant, readonly [string, string, ...string[]]> = {
   colorful: [
-    "transparent",
+    "rgba(0, 0, 0, 0)",
     "rgba(255, 255, 255, 0.8)",
     "#FFFFFF",
     "#FFFFFF",
     "rgba(255, 255, 255, 0.6)",
-    "transparent",
+    "rgba(0, 0, 0, 0)",
   ] as const,
   purple: [
-    "transparent",
+    "rgba(0, 0, 0, 0)",
     "rgba(123, 97, 255, 0.1)",
     "#7B61FF",
     "#B19EEF",
     "#5227FF",
-    "transparent",
+    "rgba(0, 0, 0, 0)",
   ] as const,
   cyan: [
-    "transparent",
+    "rgba(0, 0, 0, 0)",
     "rgba(255, 255, 255, 0.1)",
     "#FFFFFF",
     "#FFFFFF",
     "rgba(255, 255, 255, 0.6)",
-    "transparent",
+    "rgba(0, 0, 0, 0)",
   ] as const,
   green: [
-    "transparent",
+    "rgba(0, 0, 0, 0)",
     "rgba(255, 255, 255, 0.1)",
     "#FFFFFF",
     "#FFFFFF",
     "rgba(255, 255, 255, 0.8)",
-    "transparent",
+    "rgba(0, 0, 0, 0)",
   ] as const,
   amber: [
-    "transparent",
+    "rgba(0, 0, 0, 0)",
     "rgba(255, 255, 255, 0.1)",
     "#FFFFFF",
     "#FFFFFF",
     "rgba(255, 255, 255, 0.8)",
-    "transparent",
+    "rgba(0, 0, 0, 0)",
   ] as const,
   rainbow: [
-    "transparent",
+    "rgba(0, 0, 0, 0)",
     "#FF0080",
     "#7928CA",
     "#0070F3",
     "#00DFD8",
     "#7928CA",
-    "transparent",
+    "rgba(0, 0, 0, 0)",
   ] as const,
 };
 
@@ -122,11 +122,11 @@ export const BorderBeam: React.FC<BorderBeamProps> = ({
 
   const gradientColors = colorFrom && colorTo
     ? ([
-        "transparent",
+        "rgba(0, 0, 0, 0)",
         colorFrom,
         colorTo,
         colorFrom,
-        "transparent",
+        "rgba(0, 0, 0, 0)",
       ] as const)
     : COLOR_VARIANTS[colorVariant] || COLOR_VARIANTS.colorful;
 

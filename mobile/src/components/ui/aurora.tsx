@@ -2,7 +2,6 @@
 
 import React, { useMemo, type ComponentProps, type Ref } from "react";
 import { Platform, View, StyleSheet } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 
 import { useInView } from "./aurora-utils/use-in-view";
 import { cn } from "../../lib/utils";
@@ -77,36 +76,51 @@ export const Aurora = React.forwardRef<HTMLDivElement, AuroraProps>(
   ) {
     // -------------------------------------------------------------
     // Native (iOS / Android) with matching soft monochrome ambient lights
+    // Pure Views with radial glow boundaries — 100% crash-free on all devices & Expo Go
     // -------------------------------------------------------------
     if (Platform.OS !== "web") {
-      const c0 = parseSafeNativeColor(colors[0], "rgba(255, 255, 255, 0.75)");
-      const c1 = parseSafeNativeColor(colors[1], "rgba(255, 255, 255, 0.45)");
-      const c2 = parseSafeNativeColor(colors[2], "rgba(255, 255, 255, 0.25)");
-      const transparentStop = "rgba(6, 8, 12, 0)";
+      const alpha0 = Math.min(0.25, Math.max(0.04, intensity * 0.28));
+      const alpha1 = Math.min(0.18, Math.max(0.03, intensity * 0.20));
+      const alpha2 = Math.min(0.14, Math.max(0.02, intensity * 0.15));
 
       return (
-        <View style={[{ flex: 1, backgroundColor: "#06080C", position: "relative" }, style]}>
+        <View style={[{ flex: 1, backgroundColor: "#06080C", position: "relative", overflow: "hidden" }, style]}>
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
-            {/* Light 1: Soft top-left glow */}
-            <LinearGradient
-              colors={[c0, transparentStop]}
-              start={{ x: 0.0, y: 0.0 }}
-              end={{ x: 0.7, y: 0.6 }}
-              style={[StyleSheet.absoluteFill, { opacity: intensity }]}
+            {/* Light 1: Soft top-left ambient glow */}
+            <View
+              style={{
+                position: "absolute",
+                left: "-20%",
+                top: "-25%",
+                width: "85%",
+                height: "65%",
+                borderRadius: 9999,
+                backgroundColor: `rgba(255, 255, 255, ${alpha0})`,
+              }}
             />
-            {/* Light 2: Soft top-right glow */}
-            <LinearGradient
-              colors={[c1, transparentStop]}
-              start={{ x: 0.9, y: 0.05 }}
-              end={{ x: 0.35, y: 0.7 }}
-              style={[StyleSheet.absoluteFill, { opacity: intensity * 0.85 }]}
+            {/* Light 2: Soft top-right ambient glow */}
+            <View
+              style={{
+                position: "absolute",
+                right: "-20%",
+                top: "-15%",
+                width: "80%",
+                height: "60%",
+                borderRadius: 9999,
+                backgroundColor: `rgba(255, 255, 255, ${alpha1})`,
+              }}
             />
-            {/* Light 3: Soft center-bottom glow */}
-            <LinearGradient
-              colors={[c2, transparentStop]}
-              start={{ x: 0.3, y: 0.45 }}
-              end={{ x: 0.85, y: 0.95 }}
-              style={[StyleSheet.absoluteFill, { opacity: intensity * 0.7 }]}
+            {/* Light 3: Soft center-bottom ambient glow */}
+            <View
+              style={{
+                position: "absolute",
+                left: "10%",
+                bottom: "15%",
+                width: "75%",
+                height: "55%",
+                borderRadius: 9999,
+                backgroundColor: `rgba(255, 255, 255, ${alpha2})`,
+              }}
             />
           </View>
           {children ? <View style={{ flex: 1, zIndex: 10 }}>{children}</View> : null}

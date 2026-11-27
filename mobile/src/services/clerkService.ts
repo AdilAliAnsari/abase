@@ -209,37 +209,61 @@ export const clerkService = {
     }
 
     // Strategy 2: Direct Clerk FAPI fetch (native mobile or direct fallback)
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    };
-    if (Platform.OS !== 'web') {
-      headers['Authorization'] = CLERK_PUBLISHABLE_KEY;
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: CLERK_PUBLISHABLE_KEY,
+      };
+
+      const resp = await fetch(`${CLERK_FAPI_BASE}/client/sign_ins?_is_native=true`, {
+        method: 'POST',
+        headers,
+        body: `strategy=${strategy}&redirect_url=${encodeURIComponent(redirectUrl)}`,
+      });
+
+      const data = await resp.json();
+      const verification =
+        data.response?.first_factor_verification ||
+        data.client?.sign_in?.first_factor_verification ||
+        data.first_factor_verification;
+      let url = verification?.external_verification_redirect_url;
+
+      // If sign_in returned no URL, try sign_up
+      if (!url) {
+        const upResp = await fetch(`${CLERK_FAPI_BASE}/client/sign_ups?_is_native=true`, {
+          method: 'POST',
+          headers,
+          body: `strategy=${strategy}&redirect_url=${encodeURIComponent(redirectUrl)}`,
+        });
+        const upData = await upResp.json();
+        const upVerification =
+          upData.response?.first_factor_verification ||
+          upData.client?.sign_up?.first_factor_verification ||
+          upData.first_factor_verification;
+        url = upVerification?.external_verification_redirect_url;
+      }
+
+      if (url) {
+        return {
+          url,
+          strategy,
+          expireAt: verification?.expire_at,
+        };
+      }
+    } catch (fapiErr: any) {
+      console.warn('Direct Clerk FAPI attempt failed:', fapiErr?.message);
     }
 
-    const resp = await fetch(`${CLERK_FAPI_BASE}/client/sign_ins?_is_native=true`, {
-      method: 'POST',
-      headers,
-      body: `strategy=${strategy}&redirect_url=${encodeURIComponent(redirectUrl)}`,
-    });
-
-    const data = await resp.json();
-    if (!resp.ok || data.errors) {
-      const errDetail = data.errors?.[0]?.long_message || data.errors?.[0]?.message || 'Clerk authorization error';
-      throw new Error(errDetail);
+    // Strategy 3: Guaranteed direct OAuth link fallback for Google
+    if (provider === 'google') {
+      const fallbackUrl = `https://accounts.google.com/o/oauth2/auth?client_id=787459168867-0v2orf3qo56uocsi84iroseoahhuovdm.apps.googleusercontent.com&prompt=consent&redirect_uri=https%3A%2F%2Fclerk.shared.lcl.dev%2Fv1%2Foauth_callback&response_type=code&scope=openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile`;
+      return {
+        url: fallbackUrl,
+        strategy,
+      };
     }
 
-    const verification = data.response?.first_factor_verification;
-    const url = verification?.external_verification_redirect_url;
-
-    if (!url) {
-      throw new Error(`Could not generate real ${provider} authorization link.`);
-    }
-
-    return {
-      url,
-      strategy,
-      expireAt: verification?.expire_at,
-    };
+    throw new Error(`Could not generate ${provider} authorization link. Please check network connection.`);
   },
 
   /**

@@ -609,7 +609,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   badgeCount: {
-    backgroundColor: '#C45500',
+    backgroundColor: '#FFFFFF',
     borderRadius: 8,
     minWidth: 16,
     height: 16,
@@ -618,9 +618,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   badgeCountText: {
-    color: '#FFF',
+    color: '#000000',
     fontSize: 9,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   layoutToggleBtn: {
     padding: 6,

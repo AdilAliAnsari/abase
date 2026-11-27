@@ -15,13 +15,10 @@ The background is a unified, immersive dark canvas with gentle drifting monochro
 ### Aurora Light Beams
 - **Implementation**:
   - Web: Three drifting radial gradients driven by CSS transform animations (`components/ui/aurora.tsx`).
-  - Native (iOS / Android): Three soft `LinearGradient` passes oriented from top-left, top-right, and bottom-center, fading into `rgba(6, 8, 12, 0)`.
-- **Light Color Stops**:
-  - Light 1: `rgba(255, 255, 255, 0.75)`
-  - Light 2: `rgba(255, 255, 255, 0.45)`
-  - Light 3: `rgba(255, 255, 255, 0.25)`
+  - Native (iOS / Android): Three soft pure React Native View ambient light orbs positioned from top-left, top-right, and bottom-center with calibrated opacities (`rgba(255, 255, 255, alpha)`).
 - **Native Android Safety**:
-  - The gradient termination stop MUST ALWAYS use `'rgba(6, 8, 12, 0)'` rather than the keyword `"transparent"` or CSS `var(...)` strings to prevent Android `LinearGradientView` runtime exceptions.
+  - Pure View composition completely eliminates native Kotlin `LinearGradientView` property-setting mismatches (`Cannot set prop 'colors' on view`) across all Android devices and Expo Go versions.
+  - Zero third-party native dependencies required for ambient lighting.
 
 ### AI Chatbot Exception
 - The AI Chat screen ([AiChat.tsx](file:///c:/Users/adilaliansari/OneDrive/Desktop/abase/mobile/src/screens/AiChat.tsx)) is explicitly exempted from the Aurora background.
@@ -45,7 +42,30 @@ All legacy green (`#69D900`, `#7BEA12`), orange (`#FF9900`, `#FFA41C`), and blue
 
 ---
 
-## 🔘 3. Strict Button Contrast & Inversion Rules
+## 🏷️ 3. Status Badges & Pill Contrast Rules
+
+- **Bestseller & New Badges**:
+  - **Background**: `#FFFFFF` (Solid White)
+  - **Text**: `#000000` (Bold Black)
+  - Replaces legacy orange (`#C45500`) and green (`#007600`).
+- **Filter Count Badges**:
+  - **Background**: `#FFFFFF` (Solid White)
+  - **Text**: `#000000` (Black)
+
+---
+
+## 👤 4. Profile Avatar & Identity Standards
+
+- **User Profile Photo**:
+  - Supports custom image URLs updated dynamically via Account Data settings.
+  - Resolves across `profileImage`, `avatar`, `avatarUrl`, `imageUrl`, and `picture` properties.
+- **Initials Fallback**:
+  - Strictly monochromatic: solid `#FFFFFF` circular background with `#000000` bold initials.
+  - Eliminates green/orange/blue circular initials backgrounds.
+
+---
+
+## 🔘 5. Strict Button Contrast & Inversion Rules
 
 High readability and crisp visual hierarchy are maintained through strict contrast inversion:
 
@@ -65,7 +85,7 @@ Examples: *Cancel*, *Clear Filters*, *Share*, *Re-download*, back buttons, heade
 
 ---
 
-## 🧩 4. Component Implementation Guide
+## 🧩 6. Component Implementation Guide
 
 ### Using `DarkGradientBg`
 Wrap any new screen with `DarkGradientBg` to automatically provide the Aurora background:

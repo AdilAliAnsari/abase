@@ -21,6 +21,7 @@ import {
   CheckCircle2,
   Save,
   ShieldCheck,
+  Camera,
 } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import DarkGradientBg from '../components/DarkGradientBg';
@@ -31,7 +32,7 @@ interface AccountDataScreenProps {
 }
 
 export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation }) => {
-  const { user, logout, savedAccounts, loginWithSavedAccount } = useAuth();
+  const { user, logout, savedAccounts, loginWithSavedAccount, updateUserProfile } = useAuth();
   const [fullName, setFullName] = useState(user?.name || user?.username || 'Adil Ali Ansari');
   const [usn, setUsn] = useState('1RV22CS042');
   const [college, setCollege] = useState('R.V. College of Engineering (VTU)');
@@ -40,10 +41,14 @@ export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation
   const [semester, setSemester] = useState('5th Semester');
   const [email, setEmail] = useState(user?.email || 'adilaliansari@example.com');
   const [phone, setPhone] = useState('+91 98765 43210');
+  const [avatarUrlInput, setAvatarUrlInput] = useState(
+    user?.profileImage || (user as any)?.avatar || (user as any)?.avatarUrl || ''
+  );
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState(false);
 
   const userAvatar =
+    avatarUrlInput ||
     user?.profileImage ||
     user?.avatar ||
     (user as any)?.avatarUrl ||
@@ -58,11 +63,23 @@ export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation
     if (user) {
       if (user.name || user.username) setFullName(user.name || user.username);
       if (user.email) setEmail(user.email);
+      if (user.profileImage || (user as any).avatar) {
+        setAvatarUrlInput(user.profileImage || (user as any).avatar);
+      }
     }
   }, [user]);
 
-  const handleSave = () => {
-    setToastMessage('Account profile updated successfully!');
+  const handleSave = async () => {
+    try {
+      await updateUserProfile({
+        name: fullName.trim(),
+        profileImage: avatarUrlInput.trim(),
+        phoneNumber: phone.trim(),
+      });
+      setToastMessage('Account profile updated successfully!');
+    } catch {
+      setToastMessage('Profile saved locally!');
+    }
     setTimeout(() => setToastMessage(null), 3500);
   };
 
@@ -220,6 +237,20 @@ export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation
             {/* Personal Information Form */}
             <View style={styles.formSection}>
               <Text style={styles.sectionTitle}>Personal & Contact Details</Text>
+
+              <Text style={styles.inputLabel}>Profile Photo URL (Image Link)</Text>
+              <View style={styles.inputWrap}>
+                <Camera size={16} color="#FFFFFF" />
+                <TextInput
+                  style={styles.input}
+                  value={avatarUrlInput}
+                  onChangeText={setAvatarUrlInput}
+                  placeholder="https://... (or paste any image link)"
+                  placeholderTextColor="#8D8D94"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              </View>
 
               <Text style={styles.inputLabel}>Full Name</Text>
               <View style={styles.inputWrap}>

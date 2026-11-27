@@ -255,9 +255,9 @@ const BookCard: React.FC<BookCardProps> = ({ book, layout = 'list', onPress }) =
             letter-spacing: 0.5px;
             z-index: 2;
           }
-          .badge-bestseller { background: #c45500; }
-          .badge-new { background: #007600; }
-          .badge-hot { background: #a435f0; }
+          .badge-bestseller { background: #FFFFFF; color: #000000; }
+          .badge-new { background: #FFFFFF; color: #000000; }
+          .badge-hot { background: #FFFFFF; color: #000000; }
 
           .title-text {
             font-size: 15px;
@@ -525,13 +525,13 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   nativeBadgeBestseller: {
-    backgroundColor: '#C45500',
+    backgroundColor: '#FFFFFF',
   },
   nativeBadgeNew: {
-    backgroundColor: '#007600',
+    backgroundColor: '#FFFFFF',
   },
   nativeBadgeText: {
-    color: '#FFF',
+    color: '#000000',
     fontSize: 8,
     fontWeight: '800',
   },

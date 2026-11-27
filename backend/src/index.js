@@ -12,6 +12,10 @@ import aiRoutes from "./routes/aiRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import { connectDB, getDbStatus } from "./lib/db.js";
 import { initPdfScanner } from "./services/pdfScanner.js";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +23,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf.toString(); } }));
 app.use(clerkMiddleware());
+
+// Serve static videos for Web and Mobile LAN streaming
+app.use("/videos", express.static(path.resolve(__dirname, "../../video")));
 
 // Health check and diagnostic for mobile connection testing
 app.get("/", (req, res) => {

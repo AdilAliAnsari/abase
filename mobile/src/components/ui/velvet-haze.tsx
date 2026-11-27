@@ -359,28 +359,28 @@ export default function VelvetHaze({
         <View style={StyleSheet.absoluteFill} pointerEvents="none">
           {/* Violet Bloom top right */}
           <LinearGradient
-            colors={['rgba(154, 79, 176, 0.45)', 'rgba(154, 79, 176, 0.15)', 'transparent']}
+            colors={['rgba(154, 79, 176, 0.45)', 'rgba(154, 79, 176, 0.15)', 'rgba(0, 0, 0, 0)']}
             start={{ x: 0.85, y: 0.0 }}
             end={{ x: 0.3, y: 0.6 }}
             style={StyleSheet.absoluteFill}
           />
           {/* Silver & Lavender Haze */}
           <LinearGradient
-            colors={['rgba(210, 209, 214, 0.22)', 'rgba(182, 172, 214, 0.12)', 'transparent']}
+            colors={['rgba(210, 209, 214, 0.22)', 'rgba(182, 172, 214, 0.12)', 'rgba(0, 0, 0, 0)']}
             start={{ x: 0.25, y: 0.15 }}
             end={{ x: 0.7, y: 0.65 }}
             style={StyleSheet.absoluteFill}
           />
           {/* Warm Ember Band */}
           <LinearGradient
-            colors={['transparent', 'rgba(134, 112, 95, 0.18)', 'transparent']}
+            colors={['rgba(0, 0, 0, 0)', 'rgba(134, 112, 95, 0.18)', 'rgba(0, 0, 0, 0)']}
             start={{ x: 0.5, y: 0.25 }}
             end={{ x: 0.8, y: 0.5 }}
             style={StyleSheet.absoluteFill}
           />
           {/* Deep Shadow Fold */}
           <LinearGradient
-            colors={['transparent', 'rgba(6, 5, 6, 0.85)', P.inkColor]}
+            colors={['rgba(0, 0, 0, 0)', 'rgba(6, 5, 6, 0.85)', P.inkColor]}
             start={{ x: 0.2, y: 0.45 }}
             end={{ x: 0.9, y: 0.95 }}
             style={StyleSheet.absoluteFill}
