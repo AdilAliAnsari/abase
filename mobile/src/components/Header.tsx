@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView, Platform, Modal, Animated, Image } from 'react-native';
 import { Menu, X, Home, PieChart, CreditCard, Clock, Mail, Bell, User, Globe, Key, ChevronLeft, ChevronRight, Search, ShoppingCart, ShieldCheck, Database, Tag } from 'lucide-react-native';
 import { colors } from '../theme/colors';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -38,13 +37,26 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
     return 'AA';
   };
 
-  const userAvatar =
+  const rawAvatar =
     user?.profileImage ||
     (user as any)?.avatar ||
     (user as any)?.avatarUrl ||
     (user as any)?.imageUrl ||
     (user as any)?.picture ||
     (user as any)?.photoURL;
+
+  // Filter out Clerk's default auto-generated initial SVGs (e.g. lime green circle with "AA")
+  // and generic dicebear avatars so the app cleanly uses the sleek monochrome white initial avatar badge!
+  const isPlaceholderAvatar = (url?: string) => {
+    if (!url || typeof url !== 'string') return true;
+    const trimmed = url.trim();
+    if (!trimmed) return true;
+    if (trimmed.includes('img.clerk.com/eyJ0eXBlIjoiZGVmYXVsdC')) return true;
+    if (trimmed.includes('api.dicebear.com')) return true;
+    return false;
+  };
+
+  const userAvatar = isPlaceholderAvatar(rawAvatar) ? '' : rawAvatar;
 
   const [avatarError, setAvatarError] = useState(false);
 
@@ -1124,14 +1136,9 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                 onError={() => setAvatarError(true)}
               />
             ) : (
-              <LinearGradient
-                colors={['#FFFFFF', '#D1D5DB']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.nativeProfileGradient}
-              >
+              <View style={styles.nativeProfileGradient}>
                 <Text style={styles.nativeProfileText}>{getInitials()}</Text>
-              </LinearGradient>
+              </View>
             )}
           </TouchableOpacity>
         </View>
@@ -1140,13 +1147,18 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
       {/* Search Input Bar */}
       <View style={styles.nativeSearchContainer}>
         <View style={styles.nativeSearchBoxWrapper}>
-          {/* Rotating gradient background */}
+          {/* Subtle rotating halo border */}
           <Animated.View style={[styles.nativeRotatingGradient, { transform: [{ rotate: spin }] }]}>
-            <LinearGradient
-              colors={['rgba(255, 255, 255, 0.8)', 'rgba(255, 255, 255, 0.2)']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={StyleSheet.absoluteFill}
+            <View
+              style={[
+                StyleSheet.absoluteFill,
+                {
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  borderRadius: 24,
+                  borderWidth: 1.5,
+                  borderColor: 'rgba(255, 255, 255, 0.35)',
+                },
+              ]}
             />
           </Animated.View>
 
@@ -1305,15 +1317,10 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                     navigation.navigate('MainTabs', { screen: 'HomeTab' });
                   }}
                 >
-                  <LinearGradient
-                    colors={['#FFFFFF', '#E5E7EB']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.nativeGridCardActiveGradient}
-                  >
+                  <View style={styles.nativeGridCardActiveGradient}>
                     <Home size={22} color="#000000" />
                     <Text style={styles.nativeGridCardTextActive}>{t.home || 'Home'}</Text>
-                  </LinearGradient>
+                  </View>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.nativeGridCard}
@@ -1557,6 +1564,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     borderWidth: 2,
     borderColor: '#FFFFFF',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1738,6 +1746,7 @@ const styles = StyleSheet.create({
     padding: 16,
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    backgroundColor: '#FFFFFF',
   },
   nativeGridCardTextActive: {
     color: '#000000',

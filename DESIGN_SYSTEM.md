@@ -58,10 +58,11 @@ All legacy green (`#69D900`, `#7BEA12`), orange (`#FF9900`, `#FFA41C`), and blue
 
 - **User Profile Photo**:
   - Supports custom image URLs updated dynamically via Account Data settings.
-  - Resolves across `profileImage`, `avatar`, `avatarUrl`, `imageUrl`, and `picture` properties.
+  - Automatically resolves real uploaded photos from external accounts (Google OAuth `externalAccounts.imageUrl`, GitHub OAuth).
+  - Automatically filters out third-party default initial badges (e.g. Clerk's auto-generated lime green initials SVG `img.clerk.com/eyJ0eXBlIjoiZGVmYXVsdC...` and dicebear identicons) to prevent colored initial circles from leaking into the UI.
 - **Initials Fallback**:
   - Strictly monochromatic: solid `#FFFFFF` circular background with `#000000` bold initials.
-  - Eliminates green/orange/blue circular initials backgrounds.
+  - Completely eliminates green, orange, or blue circular initials backgrounds across the application.
 
 ---
 

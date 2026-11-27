@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { View, TouchableOpacity, StyleSheet, Animated, Dimensions, LayoutChangeEvent } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../theme/colors';
 
 const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
@@ -116,12 +115,7 @@ export default function AnimatedTabBar({ state, descriptors, navigation }: Botto
                             },
                         ]}
                     >
-                        <LinearGradient
-                            colors={[colors.accentGreenHover, colors.accentGreenDark]}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 1 }}
-                            style={StyleSheet.absoluteFill}
-                        />
+                        <View style={[StyleSheet.absoluteFill, { backgroundColor: '#FFFFFF', borderRadius: 20 }]} />
                     </Animated.View>
                 )}
 

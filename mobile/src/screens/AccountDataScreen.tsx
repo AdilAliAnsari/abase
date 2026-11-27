@@ -41,19 +41,31 @@ export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation
   const [semester, setSemester] = useState('5th Semester');
   const [email, setEmail] = useState(user?.email || 'adilaliansari@example.com');
   const [phone, setPhone] = useState('+91 98765 43210');
+  const isPlaceholderAvatar = (url?: string) => {
+    if (!url || typeof url !== 'string') return true;
+    const trimmed = url.trim();
+    if (!trimmed) return true;
+    if (trimmed.includes('img.clerk.com/eyJ0eXBlIjoiZGVmYXVsdC')) return true;
+    if (trimmed.includes('api.dicebear.com')) return true;
+    return false;
+  };
+
+  const initialAvatar = user?.profileImage || (user as any)?.avatar || (user as any)?.avatarUrl || '';
   const [avatarUrlInput, setAvatarUrlInput] = useState(
-    user?.profileImage || (user as any)?.avatar || (user as any)?.avatarUrl || ''
+    isPlaceholderAvatar(initialAvatar) ? '' : initialAvatar
   );
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState(false);
 
-  const userAvatar =
+  const rawUserAvatar =
     avatarUrlInput ||
     user?.profileImage ||
     user?.avatar ||
     (user as any)?.avatarUrl ||
     (user as any)?.imageUrl ||
     (user as any)?.photoURL;
+
+  const userAvatar = isPlaceholderAvatar(rawUserAvatar) ? '' : rawUserAvatar;
 
   React.useEffect(() => {
     setAvatarError(false);
@@ -63,8 +75,9 @@ export const AccountDataScreen: React.FC<AccountDataScreenProps> = ({ navigation
     if (user) {
       if (user.name || user.username) setFullName(user.name || user.username);
       if (user.email) setEmail(user.email);
-      if (user.profileImage || (user as any).avatar) {
-        setAvatarUrlInput(user.profileImage || (user as any).avatar);
+      const userImg = user.profileImage || (user as any).avatar;
+      if (userImg && !isPlaceholderAvatar(userImg)) {
+        setAvatarUrlInput(userImg);
       }
     }
   }, [user]);

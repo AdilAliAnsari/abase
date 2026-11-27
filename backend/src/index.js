@@ -24,8 +24,9 @@ app.use(cors());
 app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf.toString(); } }));
 app.use(clerkMiddleware());
 
-// Serve static videos for Web and Mobile LAN streaming
+// Serve static videos and PDFs for Web and Mobile LAN streaming
 app.use("/videos", express.static(path.resolve(__dirname, "../../video")));
+app.use("/pdfs", express.static(path.resolve(__dirname, "../../PDFs")));
 
 // Health check and diagnostic for mobile connection testing
 app.get("/", (req, res) => {

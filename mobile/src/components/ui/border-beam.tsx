@@ -8,7 +8,6 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 
 export type BorderBeamSize = "sm" | "md" | "lg" | number;
 export type BorderBeamColorVariant =
@@ -162,11 +161,15 @@ export const BorderBeam: React.FC<BorderBeamProps> = ({
             },
           ]}
         >
-          <LinearGradient
-            colors={gradientColors}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.gradient}
+          <View
+            style={[
+              styles.gradient,
+              {
+                backgroundColor: 'rgba(255, 255, 255, 0.4)',
+                borderWidth: 1.5,
+                borderColor: '#FFFFFF',
+              },
+            ]}
           />
         </Animated.View>
       </View>

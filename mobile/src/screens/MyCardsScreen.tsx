@@ -25,7 +25,6 @@ import {
 } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 import DarkGradientBg from '../components/DarkGradientBg';
-import { LinearGradient } from 'expo-linear-gradient';
 import cardService, { SavedCard } from '../services/cardService';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -189,11 +188,15 @@ export const MyCardsScreen: React.FC<MyCardsScreenProps> = ({ navigation }) => {
             <View style={styles.cardsList}>
               {cards.map((card) => (
                 <View key={card.id} style={styles.cardWrapper}>
-                  <LinearGradient
-                    colors={card.bgGradient}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.cardGradient}
+                  <View
+                    style={[
+                      styles.cardGradient,
+                      {
+                        backgroundColor: '#16161D',
+                        borderWidth: 1.5,
+                        borderColor: 'rgba(255, 255, 255, 0.15)',
+                      },
+                    ]}
                   >
                     <View style={styles.cardTop}>
                       <CreditCard size={24} color="#FFFFFF" />
@@ -212,7 +215,7 @@ export const MyCardsScreen: React.FC<MyCardsScreenProps> = ({ navigation }) => {
                         <Text style={styles.cardValue}>{card.expiry}</Text>
                       </View>
                     </View>
-                  </LinearGradient>
+                  </View>
 
                   {/* Card Actions */}
                   <View style={styles.cardControlsRow}>

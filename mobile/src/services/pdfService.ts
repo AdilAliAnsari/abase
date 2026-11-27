@@ -46,7 +46,7 @@ export const pdfService = {
           const rawUrl = p.pdfFileUrl || p.pdfUrl || '';
           const fullPdfUrl = rawUrl.startsWith('/')
             ? `${baseUrl}${rawUrl}`
-            : rawUrl || 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+            : rawUrl || `${baseUrl}/pdfs/CSE/5th_Sem/BCS501_Module_3_Context_Free_Grammars.pdf`;
 
           return {
             id: p._id || p.id,

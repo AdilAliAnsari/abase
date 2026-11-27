@@ -788,6 +788,19 @@ export const processClerkSignUp = async ({ email, username, password, name, phon
     };
 };
 
+const extractRealAvatar = (clerkUser, fallback = "") => {
+    if (!clerkUser) return fallback && !fallback.includes("img.clerk.com/eyJ0eXBlIjoiZGVmYXVsdC") && !fallback.includes("dicebear") ? fallback : "";
+    const googleAccount = clerkUser.externalAccounts?.find(acc => acc.provider?.includes("google") || acc.provider?.includes("oauth_google"));
+    const githubAccount = clerkUser.externalAccounts?.find(acc => acc.provider?.includes("github") || acc.provider?.includes("oauth_github"));
+    const extPhoto = googleAccount?.imageUrl || googleAccount?.avatarUrl || githubAccount?.imageUrl || githubAccount?.avatarUrl;
+    if (extPhoto) return extPhoto;
+    if (clerkUser.hasImage && clerkUser.imageUrl) return clerkUser.imageUrl;
+    if (clerkUser.imageUrl && !clerkUser.imageUrl.includes("img.clerk.com/eyJ0eXBlIjoiZGVmYXVsdC") && !clerkUser.imageUrl.includes("dicebear")) {
+        return clerkUser.imageUrl;
+    }
+    return fallback && !fallback.includes("img.clerk.com/eyJ0eXBlIjoiZGVmYXVsdC") && !fallback.includes("dicebear") ? fallback : "";
+};
+
 export const processClerkSignIn = async ({ identifier, password }) => {
     if (!identifier || !password) {
         throw new Error("Please provide both identifier and password");
@@ -881,7 +894,7 @@ export const processClerkSignIn = async ({ identifier, password }) => {
     const userEmail = clerkUser?.emailAddresses?.[0]?.emailAddress || mongoUser?.email || cleanIdentifier;
     const userName = clerkUser?.firstName || mongoUser?.firstName || clerkUser?.username || mongoUser?.username || "User";
     const userUsername = clerkUser?.username || mongoUser?.username || userEmail.split("@")[0];
-    const profileImg = clerkUser?.imageUrl || mongoUser?.profileImage || `https://api.dicebear.com/7.x/identicon/svg?seed=${userUsername}`;
+    const profileImg = extractRealAvatar(clerkUser, mongoUser?.profileImage || "");
 
     if (!mongoUser) {
         mongoUser = await User.findOneAndUpdate(
@@ -902,6 +915,7 @@ export const processClerkSignIn = async ({ identifier, password }) => {
         mongoUser.lastLoginAt = new Date();
         if (clerkUser?.id) mongoUser.clerkId = clerkUser.id;
         mongoUser.provider = "clerk";
+        if (profileImg) mongoUser.profileImage = profileImg;
         await mongoUser.save();
     }
 
@@ -972,7 +986,7 @@ router.post("/clerk-sync", async (req, res) => {
         const cleanEmail = (email || `${resolvedClerkId}@clerk.user`).trim().toLowerCase();
         const cleanUsername = (username || cleanEmail.split("@")[0]).trim().toLowerCase().slice(0, 30);
         const displayName = name || cleanUsername;
-        const profileImg = avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${cleanUsername}`;
+        const profileImg = extractRealAvatar(null, avatar || "");
         const authProvider = provider || "clerk";
 
         let user = await User.findOneAndUpdate(
@@ -1116,7 +1130,7 @@ router.post("/clerk-session", async (req, res) => {
         const primaryEmail = clerkUser.emailAddresses?.[0]?.emailAddress?.toLowerCase() || `${clerkUser.id}@clerk.user`;
         const displayName = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || clerkUser.username || primaryEmail.split("@")[0];
         const username = (clerkUser.username || primaryEmail.split("@")[0]).replace(/[^a-z0-9_]/g, "_").slice(0, 30);
-        const avatar = clerkUser.imageUrl || `https://api.dicebear.com/7.x/identicon/svg?seed=${username}`;
+        const avatar = extractRealAvatar(clerkUser, "");
         const phone = clerkUser.phoneNumbers?.[0]?.phoneNumber || "";
 
         // Determine real provider (Google vs GitHub vs Clerk)

@@ -34,3 +34,20 @@ Google Drive embedded viewer has been replaced with native device app discovery 
 2. **Web Browser Native PDF View**:
    - Web view leverages the user's native browser PDF rendering engine directly without third-party Google Drive iframes.
    - Includes direct in-browser view, "Open in New Tab", and one-click direct download.
+
+---
+
+## 📚 Real Study Materials & Purged Demo Data
+
+All mock / dummy placeholder files (`dummy.pdf`, `BigBuckBunny`, `ElephantsDream`, etc.) have been completely removed. The app only retains real user-added study assets:
+
+### 1. Theory of Computation (BCS501) Handwritten Module PDFs
+Located in `PDFs/CSE/5th_Sem/` and served via static route `/pdfs/CSE/5th_Sem/`:
+- **Module 3**: Context Free Grammars & Pushdown Automata (`BCS501_Module_3_Context_Free_Grammars.pdf`, 1.87 MB, 48 pages)
+- **Module 4**: Normal Forms (CNF, GNF) & Pumping Lemma (`BCS501_Module_4_Normal_Forms.pdf`, 1.02 MB, 32 pages)
+- **Module 5**: Turing Machines, Decidability & Halting Problem (`BCS501_Module_5_Turing_Machine.pdf`, 1.94 MB, 56 pages)
+
+### 2. TOSCA Automated Software Testing (BISL657A) Lab Videos
+Located in `video/` and served via static route `/videos/`:
+- **Experiment 8**: TOSCA BISL657A Experiment 8 — Dept. of CSE, Rajeev Institute of Technology (RIT Hassan) (`tosca-bisl657a-experiment-8.mp4`, 17 MB, 720p HD)
+- **Experiment 11**: TOSCA BISL657A Experiment 11 — Dept. of CSE, Rajeev Institute of Technology (RIT Hassan) (`tosca-bisl657a-experiment-11.mp4`, 28 MB, 1080p FHD)
