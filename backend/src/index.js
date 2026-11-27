@@ -26,7 +26,9 @@ app.use(clerkMiddleware());
 
 // Serve static videos and PDFs for Web and Mobile LAN streaming
 app.use("/videos", express.static(path.resolve(__dirname, "../../video")));
+app.use("/video", express.static(path.resolve(__dirname, "../../video")));
 app.use("/pdfs", express.static(path.resolve(__dirname, "../../PDFs")));
+app.use("/pdf", express.static(path.resolve(__dirname, "../../PDFs")));
 
 // Health check and diagnostic for mobile connection testing
 app.get("/", (req, res) => {

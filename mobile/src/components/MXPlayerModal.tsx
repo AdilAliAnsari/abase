@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
   Dimensions,
   Animated,
-  PanResponder,
 } from 'react-native';
 import {
   ArrowLeft,
@@ -24,24 +23,18 @@ import {
   Maximize2,
   Minimize2,
   Download,
-  Share2,
   CheckCircle2,
   Lock,
   Unlock,
-  Sun,
-  Settings,
-  Sparkles,
-  Sliders,
-  BadgeCheck,
   GraduationCap,
+  SlidersHorizontal,
 } from 'lucide-react-native';
-import { colors } from '../theme/colors';
 import { VideoItem } from '../data/videos';
 import { downloadPdfFile } from '../utils/pdfViewerUtils';
 import { getApiBaseUrl } from '../services/api';
-import * as WebBrowser from 'expo-web-browser';
+import { VideoRenderer, PlayerHandle } from './video/VideoRenderer';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface MXPlayerModalProps {
   visible: boolean;
@@ -60,7 +53,7 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
   onPrevVideo,
   onDownloadFeedback,
 }) => {
-  // Video state
+  // Video playback state
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(video?.durationSeconds || 1800);
@@ -69,15 +62,11 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
   const [quality, setQuality] = useState<string>('1080p FHD');
   const [aspectRatio, setAspectRatio] = useState<'contain' | 'cover' | 'fill'>('contain');
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [useNativeControls, setUseNativeControls] = useState<boolean>(false);
 
   // MX Player features: Controls visibility, screen lock, double tap feedback
   const [showControls, setShowControls] = useState(true);
   const [isLocked, setIsLocked] = useState(false);
-  const [volumeLevel, setVolumeLevel] = useState(80); // 0 to 100
-  const [brightnessLevel, setBrightnessLevel] = useState(75); // 0 to 100
-  const [showVolumeHUD, setShowVolumeHUD] = useState(false);
-  const [showBrightnessHUD, setShowBrightnessHUD] = useState(false);
   const [doubleTapSide, setDoubleTapSide] = useState<'left' | 'right' | null>(null);
 
   // Speed and Quality menus
@@ -89,7 +78,7 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
 
   const controlsTimeoutRef = useRef<any>(null);
   const lastTapRef = useRef<number>(0);
-  const videoElementRef = useRef<HTMLVideoElement | null>(null);
+  const playerRef = useRef<PlayerHandle | null>(null);
 
   // Animated values
   const controlsOpacity = useRef(new Animated.Value(1)).current;
@@ -116,7 +105,7 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
             useNativeDriver: true,
           }).start(() => setShowControls(false));
         }
-      }, 3500);
+      }, 4000);
     }
   };
 
@@ -126,36 +115,27 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
       setCurrentTime(0);
       setIsLocked(false);
       resetControlsTimer();
+    } else {
+      if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
     }
     return () => {
       if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
     };
   }, [visible, video]);
 
-  // Video Element Control Functions (Web)
   const togglePlay = () => {
-    if (videoElementRef.current) {
-      if (isPlaying) {
-        videoElementRef.current.pause();
-        setIsPlaying(false);
-      } else {
-        videoElementRef.current.play().catch(() => {});
-        setIsPlaying(true);
-      }
-    } else {
-      setIsPlaying(!isPlaying);
+    if (playerRef.current) {
+      playerRef.current.togglePlay();
     }
+    setIsPlaying(!isPlaying);
     resetControlsTimer();
   };
 
   const seekBy = (seconds: number) => {
-    if (videoElementRef.current) {
-      const newTime = Math.max(0, Math.min(duration, videoElementRef.current.currentTime + seconds));
-      videoElementRef.current.currentTime = newTime;
-      setCurrentTime(newTime);
-    } else {
-      setCurrentTime((prev) => Math.max(0, Math.min(duration, prev + seconds)));
+    if (playerRef.current) {
+      playerRef.current.seekBy(seconds);
     }
+    setCurrentTime((prev) => Math.max(0, Math.min(duration, prev + seconds)));
     resetControlsTimer();
   };
 
@@ -181,14 +161,13 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
 
   const handleScreenTouch = (e: any) => {
     if (isLocked) {
-      // Just toggle lock icon visibility
       setShowControls(!showControls);
       return;
     }
 
     const now = Date.now();
     const DOUBLE_PRESS_DELAY = 300;
-    const touchX = e.nativeEvent?.locationX || (SCREEN_WIDTH / 2);
+    const touchX = e.nativeEvent?.locationX || SCREEN_WIDTH / 2;
 
     if (now - lastTapRef.current < DOUBLE_PRESS_DELAY) {
       // Double Tap detected
@@ -212,11 +191,19 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
 
   const handleSpeedChange = (speed: number) => {
     setPlaybackSpeed(speed);
-    if (videoElementRef.current) {
-      videoElementRef.current.playbackRate = speed;
+    if (playerRef.current) {
+      playerRef.current.setSpeed(speed);
     }
     setIsSpeedMenuOpen(false);
     resetControlsTimer();
+  };
+
+  const handleMuteToggle = () => {
+    const nextMute = !isMuted;
+    setIsMuted(nextMute);
+    if (playerRef.current) {
+      playerRef.current.setMuted(nextMute);
+    }
   };
 
   const handleDownload = async () => {
@@ -230,7 +217,7 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
   };
 
   const formatTime = (secs: number) => {
-    const s = Math.floor(secs);
+    const s = Math.floor(secs || 0);
     const m = Math.floor(s / 60);
     const h = Math.floor(m / 60);
     const displayM = m % 60;
@@ -267,50 +254,24 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
           activeOpacity={1}
           onPress={handleScreenTouch}
         >
-          {Platform.OS === 'web' ? (
-            <video
-              ref={(el) => {
-                videoElementRef.current = el;
+          {visible && resolvedVideoUrl ? (
+            <VideoRenderer
+              ref={playerRef}
+              source={resolvedVideoUrl}
+              aspectRatio={aspectRatio}
+              nativeControls={useNativeControls}
+              onTimeUpdate={(t) => setCurrentTime(t)}
+              onDurationChange={(d) => {
+                if (d > 0) setDuration(d);
               }}
-              src={resolvedVideoUrl}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: aspectRatio === 'contain' ? 'contain' : aspectRatio === 'cover' ? 'cover' : 'fill',
-                backgroundColor: '#000000',
-              }}
-              autoPlay
-              playsInline
-              onTimeUpdate={(e) => {
-                const target = e.currentTarget;
-                setCurrentTime(target.currentTime);
-              }}
-              onLoadedMetadata={(e) => {
-                const target = e.currentTarget;
-                setDuration(target.duration || video.durationSeconds);
-                setIsBuffering(false);
-              }}
-              onWaiting={() => setIsBuffering(true)}
-              onPlaying={() => setIsBuffering(false)}
+              onPlayingChange={(playing) => setIsPlaying(playing)}
+              onBufferingChange={(buffering) => setIsBuffering(buffering)}
               onEnded={() => {
                 setIsPlaying(false);
                 setShowControls(true);
               }}
             />
-          ) : (
-            <View style={styles.mobileFallbackPlayer}>
-              <Text style={styles.fallbackTitle}>{video.title}</Text>
-              <Text style={styles.fallbackSub}>Playing at {quality} • {formatTime(currentTime)} / {formatTime(duration)}</Text>
-              <TouchableOpacity
-                style={styles.mobilePlayBtn}
-                onPress={() => WebBrowser.openBrowserAsync(resolvedVideoUrl)}
-                activeOpacity={0.8}
-              >
-                <Play size={18} color="#000000" />
-                <Text style={styles.mobilePlayBtnText}>Play in Fullscreen Video Player</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          ) : null}
 
           {/* Double Tap Ripple Feedback */}
           {doubleTapSide && (
@@ -339,13 +300,13 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
           {isBuffering && (
             <View style={styles.bufferingOverlay}>
               <ActivityIndicator size="large" color="#FFFFFF" />
-              <Text style={styles.bufferingText}>Loading video...</Text>
+              <Text style={styles.bufferingText}>Loading lecture...</Text>
             </View>
           )}
         </TouchableOpacity>
 
         {/* MX Player Screen Lock Floating Toggle */}
-        {showControls && (
+        {showControls && !useNativeControls && (
           <TouchableOpacity
             style={[styles.lockBtn, isLocked && styles.lockBtnActive]}
             onPress={() => {
@@ -363,8 +324,11 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
         )}
 
         {/* MX Player Full Controls Overlay */}
-        {showControls && !isLocked && (
-          <Animated.View style={[styles.controlsOverlay, { opacity: controlsOpacity }]}>
+        {showControls && !isLocked && !useNativeControls && (
+          <Animated.View
+            pointerEvents="box-none"
+            style={[styles.controlsOverlay, { opacity: controlsOpacity }]}
+          >
             {/* Top MX Player Bar */}
             <View style={styles.topBar}>
               <TouchableOpacity
@@ -394,6 +358,18 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
 
               {/* Right Top Actions */}
               <View style={styles.topActions}>
+                {/* HUD / Native Player Toggle */}
+                {Platform.OS !== 'web' && (
+                  <TouchableOpacity
+                    style={styles.pillActionBtn}
+                    onPress={() => setUseNativeControls(true)}
+                    activeOpacity={0.7}
+                  >
+                    <SlidersHorizontal size={12} color="#FFFFFF" style={{ marginRight: 4 }} />
+                    <Text style={styles.pillActionText}>Native</Text>
+                  </TouchableOpacity>
+                )}
+
                 {/* Speed Button */}
                 <TouchableOpacity
                   style={styles.pillActionBtn}
@@ -521,8 +497,8 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
                     const trackWidth = SCREEN_WIDTH - 140;
                     const percent = Math.max(0, Math.min(1, locationX / trackWidth));
                     const newTime = percent * duration;
-                    if (videoElementRef.current) {
-                      videoElementRef.current.currentTime = newTime;
+                    if (playerRef.current) {
+                      playerRef.current.seekTo(newTime);
                     }
                     setCurrentTime(newTime);
                     resetControlsTimer();
@@ -537,18 +513,12 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
                 <Text style={styles.timeText}>{formatTime(duration)}</Text>
               </View>
 
-              {/* Secondary Controls: Mute, Aspect Ratio, Fullscreen */}
+              {/* Secondary Controls: Mute, Aspect Ratio, Close */}
               <View style={styles.bottomButtonsRow}>
                 <View style={styles.bottomLeftControls}>
                   <TouchableOpacity
                     style={styles.bottomIconBtn}
-                    onPress={() => {
-                      const nextMute = !isMuted;
-                      setIsMuted(nextMute);
-                      if (videoElementRef.current) {
-                        videoElementRef.current.muted = nextMute;
-                      }
-                    }}
+                    onPress={handleMuteToggle}
                   >
                     {isMuted ? (
                       <VolumeX size={18} color="#FF4545" />
@@ -576,34 +546,22 @@ export const MXPlayerModal: React.FC<MXPlayerModalProps> = ({
                       {aspectRatio === 'contain' ? 'FIT' : aspectRatio === 'cover' ? 'FILL' : 'STRETCH'}
                     </Text>
                   </TouchableOpacity>
-
-                  {/* Fullscreen Toggle */}
-                  <TouchableOpacity
-                    style={styles.bottomIconBtn}
-                    onPress={() => {
-                      if (Platform.OS === 'web' && document.fullscreenEnabled) {
-                        if (!document.fullscreenElement) {
-                          document.documentElement.requestFullscreen().catch(() => {});
-                          setIsFullscreen(true);
-                        } else {
-                          document.exitFullscreen().catch(() => {});
-                          setIsFullscreen(false);
-                        }
-                      } else {
-                        setIsFullscreen(!isFullscreen);
-                      }
-                    }}
-                  >
-                    {isFullscreen ? (
-                      <Minimize2 size={18} color="#FFFFFF" />
-                    ) : (
-                      <Maximize2 size={18} color="#FFFFFF" />
-                    )}
-                  </TouchableOpacity>
                 </View>
               </View>
             </View>
           </Animated.View>
+        )}
+
+        {/* Floating Switch Back button when using Native Controls on mobile */}
+        {useNativeControls && (
+          <TouchableOpacity
+            style={styles.floatingCloseNativeBtn}
+            onPress={() => setUseNativeControls(false)}
+            activeOpacity={0.8}
+          >
+            <ArrowLeft size={16} color="#FFFFFF" />
+            <Text style={styles.floatingCloseNativeText}>MX Player HUD</Text>
+          </TouchableOpacity>
         )}
       </View>
     </Modal>
@@ -623,38 +581,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  mobileFallbackPlayer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  fallbackTitle: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  fallbackSub: {
-    color: '#FFFFFF',
-    fontSize: 13,
-  },
-  mobilePlayBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 24,
-    marginTop: 16,
-  },
-  mobilePlayBtnText: {
-    color: '#000000',
-    fontSize: 14,
-    fontWeight: '800',
   },
   bufferingOverlay: {
     position: 'absolute',
@@ -714,7 +640,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
     justifyContent: 'space-between',
     zIndex: 40,
   },
@@ -724,7 +650,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: Platform.OS === 'ios' ? 50 : 16,
     paddingBottom: 12,
-    backgroundColor: 'linear-gradient(to bottom, rgba(0,0,0,0.9), transparent)',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     gap: 12,
   },
   topIconBtn: {
@@ -780,6 +706,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   pillActionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 6,
@@ -883,7 +811,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: Platform.OS === 'ios' ? 36 : 16,
     paddingTop: 8,
-    backgroundColor: 'linear-gradient(to top, rgba(0,0,0,0.9), transparent)',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
   },
   scrubberContainer: {
     flexDirection: 'row',
@@ -962,5 +890,25 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 10,
     fontWeight: '800',
+  },
+  floatingCloseNativeBtn: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 50 : 20,
+    left: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    zIndex: 99,
+  },
+  floatingCloseNativeText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
   },
 });

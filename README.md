@@ -40,6 +40,8 @@ abase/
 ├── CHECKOUT_PAYMENTS.md      # Amazon 1-Click Buy Now, Cart, & Razorpay payment flow docs
 ├── AUTH_CLERK.md             # Clerk authentication, Google OAuth, & user profile docs
 ├── PDF_LIBRARY_NOTIFICATIONS.md # VTU PDF library uploads & real-time notification specs
+├── VIDEO_PLAYER.md           # Embedded in-app video player system specifications
+├── ACCESSIBILITY_TTS.md      # Blind Mode Text-to-Speech (TTS) accessibility specifications
 ├── PROJECT_RULES.md          # GSD development protocols and verification standards
 └── deployment/               # Build, deployment, environment, and rollback specs
 ```
@@ -73,9 +75,10 @@ abase/
 - **In-App PDF Viewer Modal**: Current page tracking, page jumping, bookmarking, and fullscreen toggle.
 - **Google Drive Integration**: Direct Drive preview support with fallback to device in-app browser.
 
-### 5. Video Lecture Streaming & MX Player
-- Custom MX Player video modal with vertical touch gesture sliders for brightness (left) and volume (right).
-- Variable playback speeds (0.5x – 2.0x), 10s double-tap skip seek, resolution selection (1080p to 360p), orientation toggle, and UI screen lock.
+### 5. Video Lecture Streaming & Embedded Player (`MXPlayerModal`)
+- Direct embedded in-app video playback using `expo-video` on mobile (Android/iOS) and HTML5 `<video>` on Web—no external app redirection.
+- Custom MX Player HUD controls with 10s double-tap skip seek, variable playback speeds (0.5x – 2.0x), aspect ratio cycling (`FIT`/`FILL`/`STRETCH`), scrubber seeking, and screen lock.
+- Optional toggle to switch between custom HUD and native system player controls.
 
 ### 6. Interactive Header & Drawer Navigation
 - Dynamic search bar with live filtering.
